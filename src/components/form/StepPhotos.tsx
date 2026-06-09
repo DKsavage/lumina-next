@@ -157,7 +157,6 @@ export function CtaButton({
           opacity: disabled ? 0.38 : 1,
           cursor:  disabled ? 'not-allowed' : 'pointer',
           color:   'white',
-          pointerEvents: disabled ? 'none' : 'auto',
         }}
       >
         <span className="relative z-[1] font-medium tracking-[.32em] uppercase" style={{ fontSize: '.58rem' }}>

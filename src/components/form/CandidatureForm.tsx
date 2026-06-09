@@ -91,11 +91,10 @@ export default function CandidatureForm() {
 
   return (
     <div
-      className="bg-white relative overflow-hidden"
+      className="bg-paper relative overflow-hidden md:rounded-t-[.6rem]"
       style={{
-        borderTop:   '2px solid var(--red)',
-        padding:     '2.2rem 2.2rem 1.8rem',
-        boxShadow:   '0 4px 40px rgba(12,11,9,.06), 0 1px 8px rgba(12,11,9,.04)',
+        borderTop: '2px solid var(--red)',
+        padding:   '2.2rem 2.2rem 1.8rem',
       }}
     >
       {/* ── EN-TÊTE ─────────────────────────────────────── */}

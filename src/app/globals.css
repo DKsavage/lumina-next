@@ -325,11 +325,28 @@ body:has(a:hover, button:hover) #cur-dot {
    (pseudo-éléments, writing-mode, fill sweep...)
 ════════════════════════════════════════════════ */
 
-/* ── NAV — transparent sur mobile (fond photo sombre), gradient papier sur desktop ── */
+/* ── NAV — toujours transparent (hero toujours sombre depuis refonte) ── */
 .hero-nav { background: transparent; }
+
+/* ── Hero content layout ─────────────────────────────────────
+   Mobile  : flex-col, titre prend l'espace (flex-1), form en bas
+   Desktop : flex-col centré vert + horiz, gap entre titre et form
+─────────────────────────────────────────────────────────────── */
+.hero-content {
+  justify-content: flex-start;
+}
+.title-block {
+  flex: 1;
+  padding: 5.5rem 1.5rem 2.5rem;
+}
 @media (min-width: 768px) {
-  .hero-nav {
-    background: linear-gradient(to bottom, rgba(247,243,238,.95) 0%, rgba(247,243,238,0) 100%);
+  .hero-content {
+    justify-content: center;
+    gap: 2.5rem;
+  }
+  .title-block {
+    flex: 0;
+    padding: 0 1.5rem;
   }
 }
 
@@ -356,6 +373,66 @@ body:has(a:hover, button:hover) #cur-dot {
 }
 .nav-link:hover::after { width: 100%; }
 
+/* ── Overlay hero — gradient sombre sur la photo ─── */
+.overlay {
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 28%, transparent 8%, rgba(12, 11, 9, .38) 100%),
+    linear-gradient(to bottom, rgba(12, 11, 9, .52) 0%, rgba(12, 11, 9, .04) 22%, rgba(12, 11, 9, .18) 52%, rgba(12, 11, 9, .92) 100%);
+}
+
+/* ── Form shell — bottom-sheet mobile, double-bezel desktop ─ */
+.form-shell {
+  width: 100%;
+  border-radius: 1rem 1rem 0 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .form-shell {
+    max-width: 490px;
+    background: rgba(247, 243, 238, .08);
+    border: 1px solid rgba(247, 243, 238, .14);
+    border-radius: 1rem;
+    padding: .55rem .55rem 0;
+    overflow: visible;
+    box-shadow:
+      0 32px 80px rgba(12, 11, 9, .55),
+      0 8px 24px rgba(12, 11, 9, .22),
+      0 0 0 1px rgba(12, 11, 9, .4);
+  }
+}
+
+/* ── Logo nav — monogramme + wordmark ──────── */
+.logo-mark {
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1px solid var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.logo-mark span {
+  font-family: var(--display);
+  font-weight: 600;
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--red);
+  line-height: 1;
+}
+.logo-word {
+  font-family: var(--display);
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .45em;
+  text-transform: uppercase;
+  color: rgba(247, 243, 238, .95);
+}
+.logo-word em {
+  color: var(--red);
+  font-style: normal;
+}
+
 /* ── Texte vertical gauche (fixed) ──────────── */
 .vert-label {
   position: fixed;
@@ -368,7 +445,8 @@ body:has(a:hover, button:hover) #cur-dot {
   font-weight: 500;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: rgba(12, 11, 9, 0.2);
+  /* Toujours blanc/clair — hero toujours sombre (photo en fond) */
+  color: rgba(247, 243, 238, .2);
   user-select: none;
 }
 

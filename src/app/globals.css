@@ -1,26 +1,636 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  LUMINA · COUTURE BLANCHE — Design System               ║
+   ║  DA: Loro Piana · Hermès · The Row                      ║
+   ╚══════════════════════════════════════════════════════════╝ */
+
+/* ── TAILWIND v4 THEME ───────────────────────────────────────
+   @theme inline expose chaque token comme classe Tailwind.
+   Exemple : --color-red → bg-red, text-red, border-red
+   Exemple : --font-display → font-display (via className)
+────────────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Palette Couture Blanche */
+  --color-paper:      #F7F3EE;
+  --color-ivory:      #EDE8DF;
+  --color-white:      #FFFFFF;
+  --color-ink:        #0C0B09;
+  --color-red:        #8B0020;
+  --color-red-lt:     #B5002A;
+  --color-blush:      #EDD8D8;
+  --color-champagne:  #C4A05A;
+  --color-muted:      #8A8078;
+  --color-border:     rgba(12, 11, 9, 0.07);
+
+  /* Typographie — chargée dans layout.tsx via next/font/google */
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-body:    var(--font-montserrat), 'Helvetica Neue', sans-serif;
+  --font-heading:      var(--font-montserrat), 'Helvetica Neue', sans-serif;
+  --font-sans:         var(--font-montserrat), 'Helvetica Neue', sans-serif;
+  --color-sidebar-ring:      var(--sidebar-ring);
+  --color-sidebar-border:      var(--sidebar-border);
+  --color-sidebar-accent-foreground:      var(--sidebar-accent-foreground);
+  --color-sidebar-accent:      var(--sidebar-accent);
+  --color-sidebar-primary-foreground:      var(--sidebar-primary-foreground);
+  --color-sidebar-primary:      var(--sidebar-primary);
+  --color-sidebar-foreground:      var(--sidebar-foreground);
+  --color-sidebar:      var(--sidebar);
+  --color-chart-5:      var(--chart-5);
+  --color-chart-4:      var(--chart-4);
+  --color-chart-3:      var(--chart-3);
+  --color-chart-2:      var(--chart-2);
+  --color-chart-1:      var(--chart-1);
+  --color-ring:      var(--ring);
+  --color-input:      var(--input);
+  --color-destructive:      var(--destructive);
+  --color-accent-foreground:      var(--accent-foreground);
+  --color-accent:      var(--accent);
+  --color-muted-foreground:      var(--muted-foreground);
+  --color-secondary-foreground:      var(--secondary-foreground);
+  --color-secondary:      var(--secondary);
+  --color-primary-foreground:      var(--primary-foreground);
+  --color-primary:      var(--primary);
+  --color-popover-foreground:      var(--popover-foreground);
+  --color-popover:      var(--popover);
+  --color-card-foreground:      var(--card-foreground);
+  --color-card:      var(--card);
+  --color-foreground:      var(--foreground);
+  --color-background:      var(--background);
+  --radius-sm:      calc(var(--radius) * 0.6);
+  --radius-md:      calc(var(--radius) * 0.8);
+  --radius-lg:      var(--radius);
+  --radius-xl:      calc(var(--radius) * 1.4);
+  --radius-2xl:      calc(var(--radius) * 1.8);
+  --radius-3xl:      calc(var(--radius) * 2.2);
+  --radius-4xl:      calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── TOKENS CSS NATIFS ───────────────────────────────────────
+   Les même tokens, mais en variables CSS brutes.
+   Utilisés par les animations et pseudo-éléments (::before/::after)
+   qui ne peuvent pas utiliser les classes Tailwind.
+────────────────────────────────────────────────────────────── */
+:root {
+  --paper:      #F7F3EE;
+  --ivory:      #EDE8DF;
+  --white:      #FFFFFF;
+  --ink:        #0C0B09;
+  --red:        #8B0020;
+  --red-lt:     #B5002A;
+  --blush:      #EDD8D8;
+  --champagne:  #C4A05A;
+  --muted:      #8A8078;
+  --border:     rgba(12, 11, 9, 0.07);
+
+  --display: var(--font-cormorant), Georgia, serif;
+  --body:    var(--font-montserrat), 'Helvetica Neue', sans-serif;
+
+  /* Easing luxe — courbes personnalisées inspirées motion design horloger */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --background:      oklch(1 0 0);
+  --foreground:      oklch(0.145 0 0);
+  --card:      oklch(1 0 0);
+  --card-foreground:      oklch(0.145 0 0);
+  --popover:      oklch(1 0 0);
+  --popover-foreground:      oklch(0.145 0 0);
+  --primary:      oklch(0.205 0 0);
+  --primary-foreground:      oklch(0.985 0 0);
+  --secondary:      oklch(0.97 0 0);
+  --secondary-foreground:      oklch(0.205 0 0);
+  --muted-foreground:      oklch(0.556 0 0);
+  --accent:      oklch(0.97 0 0);
+  --accent-foreground:      oklch(0.205 0 0);
+  --destructive:      oklch(0.577 0.245 27.325);
+  --input:      oklch(0.922 0 0);
+  --ring:      oklch(0.708 0 0);
+  --chart-1:      oklch(0.87 0 0);
+  --chart-2:      oklch(0.556 0 0);
+  --chart-3:      oklch(0.439 0 0);
+  --chart-4:      oklch(0.371 0 0);
+  --chart-5:      oklch(0.269 0 0);
+  --radius:      0.625rem;
+  --sidebar:      oklch(0.985 0 0);
+  --sidebar-foreground:      oklch(0.145 0 0);
+  --sidebar-primary:      oklch(0.205 0 0);
+  --sidebar-primary-foreground:      oklch(0.985 0 0);
+  --sidebar-accent:      oklch(0.97 0 0);
+  --sidebar-accent-foreground:      oklch(0.205 0 0);
+  --sidebar-border:      oklch(0.922 0 0);
+  --sidebar-ring:      oklch(0.708 0 0);
+}
+
+/* ── RESET & BASE ────────────────────────────────────────────
+   box-sizing: border-box → padding ne gonfle plus la largeur
+   antialiased → rendu typographique macOS lissé
+   cursor: none → on utilise notre curseur custom (croix rouge)
+────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: none; /* curseur custom activé — voir CustomCursor.tsx */
+}
+
+/* ── GRAIN TEXTURE ───────────────────────────────────────────
+   SVG fractalNoise généré inline → pas d'image externe à charger.
+   position: fixed + pointer-events: none → invisible aux clics.
+   opacity: 0.028 → imperceptible mais donne la "peau" du papier.
+   mix-blend-mode: multiply → se mélange au contenu comme impression offset.
+────────────────────────────────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.028;
+  mix-blend-mode: multiply;
+}
+
+/* ── CURSEUR CUSTOM — point rouge + anneau lag ───────────────
+   #cur-dot  → suit la souris instantanément (point plein rouge)
+   #cur-ring → suit avec lag (lerp 0.12 dans CustomCursor.tsx)
+   body:has() → CSS natif : détecte si un a/button est en hover
+────────────────────────────────────────────────────────────── */
+#cur-dot {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s var(--ease-out), opacity 0.2s;
+}
+
+#cur-ring {
+  position: fixed;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(139, 0, 32, 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.35s var(--ease-out), height 0.35s var(--ease-out), border-color 0.3s;
+}
+
+/* Au hover sur liens/boutons : anneau s'agrandit, point se contracte */
+body:has(a:hover, button:hover) #cur-ring {
+  width: 44px;
+  height: 44px;
+  border-color: var(--red);
+}
+
+body:has(a:hover, button:hover) #cur-dot {
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+/* ── SCROLL BARS ─────────────────────────────────────────────
+   Scrollbar fine et discrète — cohérente avec le DA luxe.
+────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar         { width: 4px; }
+::-webkit-scrollbar-track   { background: var(--paper); }
+::-webkit-scrollbar-thumb   { background: rgba(12, 11, 9, 0.15); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--red); }
+
+/* ── SÉLECTION TEXTE ─────────────────────────────────────────
+   Quand l'utilisateur sélectionne du texte → fond rouge discret.
+────────────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(139, 0, 32, 0.12);
+  color: var(--ink);
+}
+
+/* ── UTILITAIRES ANIMATION ───────────────────────────────────
+   Classes réutilisables pour les scroll reveals.
+   En React, on les déclenche via IntersectionObserver ou Framer Motion.
+────────────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Clip-path reveal — utilisé pour le titre hero (les 3 lignes) */
+.clip-reveal {
+  overflow: hidden;
+  line-height: 1.02;
+}
+
+.clip-inner {
+  display: block;
+  transform: translateY(105%);
+  transition: transform 1.3s var(--ease-out);
+}
+
+.clip-inner.in {
+  transform: translateY(0);
+}
+
+/* Délais staggerés pour les lignes du titre */
+.clip-inner.delay-1 { transition-delay: 0.30s; }
+.clip-inner.delay-2 { transition-delay: 0.46s; }
+.clip-inner.delay-3 { transition-delay: 0.62s; }
+
+/* Red rule — ligne rouge qui grandit au chargement */
+.red-rule {
+  width: 0;
+  height: 1px;
+  background: var(--red);
+  transition: width 1.4s var(--ease-out) 0.2s;
+}
+
+.red-rule.in {
+  width: 3rem;
+}
+
+/* ── KEN BURNS — 5 directions pour éviter la répétition visuelle ─────
+   Chaque slide reçoit une classe ken-burns-N différente.
+   Animation sur le conteneur parent — jamais sur <Image /> directement.
+   will-change: transform → GPU pré-alloue le layer (sparingly).
+   alternate → aller-retour naturel sans saut visible.
+────────────────────────────────────────────────────────────────────── */
+@keyframes kenBurns1 { from{transform:scale(1.0) translate(  0%,  0%)} to{transform:scale(1.08) translate(-1.5%, 0.8%)} }
+@keyframes kenBurns2 { from{transform:scale(1.08) translate(-0.8%, 0%)} to{transform:scale(1.0)  translate( 0.8%,-0.5%)} }
+@keyframes kenBurns3 { from{transform:scale(1.0) translate(  1.0%, 0%)} to{transform:scale(1.09) translate(-0.5%, 1.0%)} }
+@keyframes kenBurns4 { from{transform:scale(1.07) translate( 0%,-0.8%)} to{transform:scale(1.0)  translate( 1.0%, 0.5%)} }
+@keyframes kenBurns5 { from{transform:scale(1.0) translate( -0.5%, 1%)} to{transform:scale(1.08) translate( 0.5%,-0.8%)} }
+
+.ken-burns-1 { animation: kenBurns1 14s ease-in-out infinite alternate; will-change: transform; }
+.ken-burns-2 { animation: kenBurns2 14s ease-in-out infinite alternate; will-change: transform; }
+.ken-burns-3 { animation: kenBurns3 14s ease-in-out infinite alternate; will-change: transform; }
+.ken-burns-4 { animation: kenBurns4 14s ease-in-out infinite alternate; will-change: transform; }
+.ken-burns-5 { animation: kenBurns5 14s ease-in-out infinite alternate; will-change: transform; }
+
+/* Accessibilité — désactive le mouvement pour les utilisateurs sensibles */
+@media (prefers-reduced-motion: reduce) {
+  .ken-burns-1, .ken-burns-2, .ken-burns-3, .ken-burns-4, .ken-burns-5 {
+    animation: none;
+  }
+}
+
+/* ── SCROLL INDICATOR ────────────────────────────────────────
+   Ligne rouge animée qui descend — apparaît 2s après le chargement.
+────────────────────────────────────────────────────────────── */
+@keyframes scrollFill {
+  0%   { top: -100%; }
+  100% { top: 200%; }
+}
+
+@keyframes fadeInDelayed {
+  to { opacity: 1; }
+}
+
+.scroll-fill {
+  animation: scrollFill 2.5s ease-in-out infinite;
+}
+
+.fade-in-delayed {
+  opacity: 0;
+  animation: fadeInDelayed 1s ease 2s forwards;
+}
+
+/* ════════════════════════════════════════════════
+   COMPOSANTS — styles impossibles en Tailwind seul
+   (pseudo-éléments, writing-mode, fill sweep...)
+════════════════════════════════════════════════ */
+
+/* ── NAV — transparent sur mobile (fond photo sombre), gradient papier sur desktop ── */
+.hero-nav { background: transparent; }
+@media (min-width: 768px) {
+  .hero-nav {
+    background: linear-gradient(to bottom, rgba(247,243,238,.95) 0%, rgba(247,243,238,0) 100%);
+  }
+}
+
+/* ── NAV gradient fond (legacy — utilisé ailleurs) ───────────────────── */
+.nav-gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(247, 243, 238, 0.95) 0%,
+    rgba(247, 243, 238, 0) 100%
+  );
+}
+
+/* Trait rouge qui grandit sous le lien au hover */
+.nav-link { position: relative; transition: color 0.3s; }
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -0.2rem;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--red);
+  transition: width 0.4s var(--ease-out);
+}
+.nav-link:hover::after { width: 100%; }
+
+/* ── Texte vertical gauche (fixed) ──────────── */
+.vert-label {
+  position: fixed;
+  left: 1.8rem;
+  top: 50%;
+  z-index: 400;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg) translateY(50%);
+  font-size: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(12, 11, 9, 0.2);
+  user-select: none;
+}
+
+/* ── Monogramme géant en fond du panneau gauche ─
+   Impossible en Tailwind : content + font-size 55vw
+─────────────────────────────────────────────── */
+.hero-left::before {
+  content: 'L';
+  position: absolute;
+  font-family: var(--display);
+  font-size: 55vw;
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(12, 11, 9, 0.02);
+  line-height: 1;
+  right: -15%;
+  bottom: -15%;
+  pointer-events: none;
+  letter-spacing: -0.05em;
+}
+
+/* ── Upload zone — fill sweep rouge au hover ─── */
+.upload-zone {
+  background: var(--paper);
+  border: 1.5px dashed rgba(139, 0, 32, 0.18);
+  transition: border-color 0.3s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.upload-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(139, 0, 32, 0.04);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease-out);
+}
+.upload-zone:hover::before { transform: scaleX(1); }
+.upload-zone:hover { border-color: var(--red); }
+.upload-zone:hover .up-ring { background: var(--red); color: var(--white); }
+
+.up-ring {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(139, 0, 32, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  font-size: 0.8rem;
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── Bouton CTA — rouge entre par la gauche ──── */
+.btn-couture {
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+  transition: letter-spacing 0.3s;
+}
+.btn-couture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform: translateX(-101%);
+  transition: transform 0.5s var(--ease-out);
+}
+.btn-couture:hover::before { transform: translateX(0); }
+.btn-couture:hover { letter-spacing: 0.38em; }
+
+/* ── Input underline — focus rouge ──────────── */
+.input-underline {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(12, 11, 9, 0.12);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 0.85rem;
+  font-weight: 300;
+  padding: 0.5rem 0;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  -webkit-appearance: none;
+}
+.input-underline:focus {
+  border-bottom-color: var(--red);
+  box-shadow: 0 1px 0 var(--red);
+}
+.input-underline::placeholder { color: rgba(12, 11, 9, 0.18); font-weight: 300; }
+
+/* ── Chip genre ──────────────────────────────── */
+.chip {
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  font-size: 0.52rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.25s;
+  user-select: none;
+}
+.chip:hover { border-color: rgba(139, 0, 32, 0.35); color: var(--red); }
+.chip.active { background: var(--red); border-color: var(--red); color: var(--white); }
+
+/* ── Select shadcn restyled — DA Couture Blanche ──
+   On surcharge le trigger shadcn pour qu'il ressemble
+   à nos input-underline (border-bottom seulement, 0 radius). */
+.select-underline {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(12, 11, 9, 0.12);
+  border-radius: 0;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 0.85rem;
+  font-weight: 300;
+  padding: 0.5rem 0;
+  height: auto;
+  box-shadow: none;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.select-underline:focus,
+.select-underline[data-state='open'] {
+  border-bottom-color: var(--red);
+  box-shadow: 0 1px 0 var(--red);
+}
+.select-underline span { color: rgba(12,11,9,.18); font-weight: 300; }
+.select-underline [data-placeholder] { color: rgba(12,11,9,.18); }
+
+/* Dropdown du Select — style editorial */
+.select-content-couture {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: 0 8px 32px rgba(12,11,9,.08);
+  padding: 0.3rem 0;
+}
+.select-item-couture {
+  font-size: 0.78rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.select-item-couture:focus,
+.select-item-couture[data-highlighted] {
+  background: rgba(139,0,32,.06);
+  color: var(--red);
+  outline: none;
+}
+
+/* native select restyled */
+select.input-underline {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16' fill='none' stroke='rgba(12,11,9,0.3)' stroke-width='1.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.2rem center;
+  padding-right: 1.4rem;
+}
+
+/* ════════════════════════════════════════════════
+   SECTIONS — ProcessSection, PhotoStrip, DarkSection
+════════════════════════════════════════════════ */
+
+/* ── Ligne rouge qui grandit au hover sur .proc-col ─ */
+.proc-rule { position: absolute; top: 0; left: 0; right: 0; height: 1.5px; background: var(--ivory); overflow: hidden; }
+.proc-rule-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.proc-col:hover .proc-rule-fill { transform: scaleX(1); }
+
+/* ── Photo strip — scale léger au hover ─────────── */
+.photo-strip-item:hover .photo-strip-inner { transform: scale(1.04); }
+.photo-strip-item:hover .photo-strip-overlay { background: rgba(12,11,9,.18) !important; }
+
+/* ── CTA section sombre — fill rouge au hover ───── */
+.db-cta { display: inline-flex; position: relative; overflow: hidden; }
+.db-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--red-lt);
+  transform: translateX(-101%);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.db-cta:hover::before { transform: translateX(0); }
+
+/* ── Responsive — mobile ─────────────────────────── */
+@media (max-width: 768px) {
+  /* Stats : 2 colonnes sur mobile */
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  /* Process : 1 colonne */
+  .proc-cols  { grid-template-columns: 1fr !important; }
+  /* Photo strip : 3 colonnes */
+  .photo-strip { grid-template-columns: repeat(3, 1fr) !important; }
+  /* Dark section : 1 colonne */
+  .dark-inner { grid-template-columns: 1fr !important; gap: 3rem !important; }
+  /* Footer : colonne centrée */
+  footer { flex-direction: column !important; gap: 1.5rem; text-align: center; }
+}
+
+.dark {
+  --background:      oklch(0.145 0 0);
+  --foreground:      oklch(0.985 0 0);
+  --card:      oklch(0.205 0 0);
+  --card-foreground:      oklch(0.985 0 0);
+  --popover:      oklch(0.205 0 0);
+  --popover-foreground:      oklch(0.985 0 0);
+  --primary:      oklch(0.922 0 0);
+  --primary-foreground:      oklch(0.205 0 0);
+  --secondary:      oklch(0.269 0 0);
+  --secondary-foreground:      oklch(0.985 0 0);
+  --muted:      oklch(0.269 0 0);
+  --muted-foreground:      oklch(0.708 0 0);
+  --accent:      oklch(0.269 0 0);
+  --accent-foreground:      oklch(0.985 0 0);
+  --destructive:      oklch(0.704 0.191 22.216);
+  --border:      oklch(1 0 0 / 10%);
+  --input:      oklch(1 0 0 / 15%);
+  --ring:      oklch(0.556 0 0);
+  --chart-1:      oklch(0.87 0 0);
+  --chart-2:      oklch(0.556 0 0);
+  --chart-3:      oklch(0.439 0 0);
+  --chart-4:      oklch(0.371 0 0);
+  --chart-5:      oklch(0.269 0 0);
+  --sidebar:      oklch(0.205 0 0);
+  --sidebar-foreground:      oklch(0.985 0 0);
+  --sidebar-primary:      oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground:      oklch(0.985 0 0);
+  --sidebar-accent:      oklch(0.269 0 0);
+  --sidebar-accent-foreground:      oklch(0.985 0 0);
+  --sidebar-border:      oklch(1 0 0 / 10%);
+  --sidebar-ring:      oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }

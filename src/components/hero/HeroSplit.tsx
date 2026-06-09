@@ -80,31 +80,10 @@ export default function HeroSplit() {
         {/* ── OVERLAY — dégradé sombre sur la photo, z-index: 1 ── */}
         <div className="lum-overlay" aria-hidden="true" />
 
-        {/* ── SECTION HERO — z-index: 10, au-dessus de l'overlay ──
-            Mobile  : flex-col, titre flex-1, formulaire en bas (bottom-sheet)
-            Desktop : flex-col centré horiz+vert, gap entre titre et form */}
+        {/* ── SECTION HERO — plein écran, formulaire seul ── */}
         <section className="lum-hero" id="apply">
 
-          {/* BLOC TITRE */}
-          <div className="lum-title">
-            <div className="lum-eyebrow" aria-label="Casting ouvert Montréal 2026">
-              <span className="lum-dash" aria-hidden="true">———</span>
-              Casting ouvert · Montréal 2026
-              <span className="lum-dash" aria-hidden="true">———</span>
-            </div>
-
-            <h1 className="lum-h1">
-              Votre <em>lumière.</em><br />
-              Notre <em>regard.</em>
-            </h1>
-
-            {/* Filet décoratif champagne sous le titre */}
-            <div className="lum-rule" aria-hidden="true" />
-          </div>
-
-          {/* FORM SHELL — wrapper de la carte formulaire
-              Mobile  : width: 100%, border-radius top uniquement → bottom-sheet
-              Desktop : double-bezel verre (3px padding + border + backdrop) */}
+          {/* FORM SHELL — remplit tout l'espace disponible sous la nav */}
           <div className="lum-shell">
             <CandidatureForm />
           </div>

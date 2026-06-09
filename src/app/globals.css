@@ -405,12 +405,14 @@ body:has(a:hover, button:hover) #cur-dot {
 }
 .lum-nav-link:hover { color: rgba(247,243,238,.9); }
 
-/* ── HERO main — mobile first ── */
+/* ── HERO main — plein écran, formulaire seul ── */
 .lum-hero {
   position: relative; z-index: 10;
   min-height: 100dvh;
   display: flex; flex-direction: column;
-  justify-content: flex-start; align-items: stretch;
+  justify-content: stretch; align-items: stretch;
+  /* padding-top = hauteur nav fixe pour ne pas passer dessous */
+  padding-top: 4.5rem;
 }
 
 /* ── BLOC TITRE ── */
@@ -449,25 +451,23 @@ body:has(a:hover, button:hover) #cur-dot {
   animation: fadeUp .6s var(--ease-out) .38s both;
 }
 
-/* ── FORM SHELL — mobile = width full, desktop = double-bezel ── */
+/* ── FORM SHELL — flex: 1 → remplit tout l'espace sous la nav ── */
 .lum-shell {
-  width: 100%;
-  animation: slideUp .85s var(--ease-out) .45s both;
+  flex: 1;
+  display: flex; flex-direction: column;
+  animation: slideUp .65s var(--ease-out) .2s both;
 }
 
-/* form-card — carte principale du formulaire */
+/* form-card — remplit le shell en hauteur, scrollable si contenu dépasse */
 .lum-form-card {
   background: var(--paper);
   border-top: 2px solid var(--red);
-  padding: 1.8rem 1.5rem 0;
-  border-radius: 1rem 1rem 0 0;
-  /* position + overflow requis pour l'animation Framer Motion entre les étapes */
+  padding: 1.8rem 1.5rem 2rem;
+  border-radius: 0;
+  flex: 1;
   position: relative;
-  overflow: hidden;
-  box-shadow:
-    0 -24px 60px rgba(12,11,9,.35),
-    0 -4px 16px rgba(12,11,9,.2),
-    inset 0 1px 0 rgba(255,255,255,.5);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Poignée bottom-sheet — mobile seulement */
@@ -517,39 +517,34 @@ body:has(a:hover, button:hover) #cur-dot {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── DESKTOP — double-bezel + layout centré ── */
+/* ── DESKTOP ── */
 @media (min-width: 768px) {
   .lum-nav { padding: 2rem 3.5rem; }
   .lum-nav-links { display: flex; }
 
+  /* Hero plein écran sur desktop aussi — nav + contenu = 100dvh */
   .lum-hero {
-    justify-content: center; align-items: center;
-    padding: 8rem 2rem 5rem; gap: 2.5rem;
+    justify-content: stretch; align-items: stretch;
+    padding-top: 5rem;
   }
-  .lum-title {
-    flex: 0 0 auto; min-height: auto;
-    padding: 0 1rem; pointer-events: auto;
-  }
-  .lum-h1 { font-size: clamp(4rem, 6.5vw, 7rem); }
-  .lum-eyebrow { font-size: .46rem; }
 
-  /* Double-bezel verre sur desktop */
+  /* Shell prend toute la largeur et la hauteur restante */
   .lum-shell {
-    width: 100%; max-width: 490px;
-    background: rgba(247,243,238,.07);
-    border: 1px solid rgba(247,243,238,.14);
-    padding: 3px;
-    box-shadow:
-      0 0 0 1px rgba(247,243,238,.04),
-      0 50px 120px rgba(12,11,9,.55),
-      0 12px 40px rgba(12,11,9,.35),
-      0 3px 12px rgba(12,11,9,.2);
+    flex: 1;
+    background: none; border: none; padding: 0; box-shadow: none;
+    max-width: none;
   }
+
+  /* Carte formulaire centrée horizontalement, plein écran vertical */
   .lum-form-card {
-    padding: 2.6rem 2.4rem 2.2rem;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 4rem 3rem;
     border-radius: 0;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+    box-shadow: none;
+    overflow-y: auto;
   }
+
   .sheet-handle { display: none; }
 
   /* Compteur — droite sur desktop */

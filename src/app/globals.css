@@ -405,14 +405,12 @@ body:has(a:hover, button:hover) #cur-dot {
 }
 .lum-nav-link:hover { color: rgba(247,243,238,.9); }
 
-/* ── HERO main — mobile: form remonte du bas, desktop: centré ── */
+/* ── HERO main — mobile: titre flex-1 + form bottom-sheet ── */
 .lum-hero {
   position: relative; z-index: 10;
   min-height: 100dvh;
   display: flex; flex-direction: column;
-  /* justify-content: flex-end → form poussé en bas, slideshow visible en haut */
-  justify-content: flex-end;
-  align-items: stretch;
+  justify-content: flex-start; align-items: stretch;
 }
 
 /* ── BLOC TITRE ── */
@@ -464,7 +462,9 @@ body:has(a:hover, button:hover) #cur-dot {
   padding: 1.8rem 1.5rem 0;
   border-radius: 1rem 1rem 0 0;
   position: relative;
-  overflow: hidden;
+  /* overflow:clip (vs hidden) : clip visuel SANS créer un scroll container.
+     Essentiel pour que position:sticky fonctionne sur .form-cta enfant. */
+  overflow: clip;
   box-shadow:
     0 -24px 60px rgba(12,11,9,.35),
     0 -4px 16px rgba(12,11,9,.2),
@@ -585,59 +585,97 @@ body:has(a:hover, button:hover) #cur-dot {
   pointer-events: none; letter-spacing: -.05em;
 }
 
-/* ── Upload zone — fill sweep rouge au hover ─── */
+/* ── Upload zone — fill sweep du BAS au hover ─── */
 .upload-zone {
   background: var(--paper);
   border: 1.5px dashed rgba(139, 0, 32, 0.18);
-  transition: border-color 0.3s;
+  /* aspect-ratio 4/5 = ratio portrait — bien pour photo mannequin */
+  aspect-ratio: 4 / 5;
+  transition: border-color 0.35s var(--ease-out);
   position: relative;
   overflow: hidden;
   cursor: pointer;
 }
-.upload-zone::before {
+.upload-zone::after {
   content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(139, 0, 32, 0.04);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s var(--ease-out);
+  position: absolute; inset: 0;
+  background: rgba(139, 0, 32, 0.05);
+  /* fill remonte du bas — plus élégant que fill de gauche */
+  transform: translateY(100%);
+  transition: transform 0.45s var(--ease-out);
 }
-.upload-zone:hover::before { transform: scaleX(1); }
-.upload-zone:hover { border-color: var(--red); }
-.upload-zone:hover .up-ring { background: var(--red); color: var(--white); }
+.upload-zone:hover::after { transform: translateY(0); }
+.upload-zone:hover { border-color: rgba(139, 0, 32, 0.4); }
+.upload-zone:hover .up-ring {
+  transform: scale(1.08);
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--white);
+}
 
 .up-ring {
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid rgba(139, 0, 32, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--red);
-  font-size: 0.8rem;
-  position: relative;
-  z-index: 1;
-  transition: background 0.3s, color 0.3s;
+  width: 2rem; height: 2rem;
+  border: 1px solid rgba(139, 0, 32, 0.22);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--red); font-size: 0.8rem;
+  position: relative; z-index: 1;
+  flex-shrink: 0;
+  /* transform + background — jamais transition:all */
+  transition: transform 0.4s var(--ease-out), background 0.3s, border-color 0.3s, color 0.25s;
 }
 
-/* ── Bouton CTA — rouge entre par la gauche ──── */
+/* ── Bouton CTA — button-in-button ──────────── */
 .btn-couture {
   background: var(--ink);
-  position: relative;
-  overflow: hidden;
-  transition: letter-spacing 0.3s;
+  position: relative; overflow: hidden;
+  min-height: 52px;
+  /* transition explicite — jamais transition:all */
+  transition: transform 0.15s var(--ease-out), opacity 0.4s;
 }
 .btn-couture::before {
-  content: '';
-  position: absolute;
-  inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: var(--red);
   transform: translateX(-101%);
-  transition: transform 0.5s var(--ease-out);
+  transition: transform 0.55s var(--ease-out);
 }
 .btn-couture:hover::before { transform: translateX(0); }
-.btn-couture:hover { letter-spacing: 0.38em; }
+/* Feedback tactile au press — scale(0.97) recommandé (make-interfaces-feel-better) */
+.btn-couture:active { transform: scale(0.97); }
+
+/* Cercle flottant intégré dans le bouton — "button-in-button" */
+.btn-circle {
+  position: relative; z-index: 1; flex-shrink: 0;
+  width: 2.4rem; height: 2.4rem;
+  border-radius: 50%;
+  background: rgba(247, 243, 238, 0.1);
+  border: 1px solid rgba(247, 243, 238, 0.14);
+  display: flex; align-items: center; justify-content: center;
+  /* translate diagonal au hover — kinetic tension (high-end-visual-design) */
+  transition: transform 0.45s var(--ease-out), background 0.3s;
+}
+.btn-couture:hover .btn-circle {
+  transform: translateX(3px) translateY(-2px) scale(1.07);
+  background: rgba(247, 243, 238, 0.2);
+}
+.btn-couture:active .btn-circle { transform: scale(0.95); }
+
+/* Sticky CTA — colle en bas de la carte sur mobile
+   position:static sur desktop (pas de scroll interne) */
+.form-cta {
+  position: sticky; bottom: 0;
+  background: var(--paper);
+  padding: .8rem 0 max(1.2rem, env(safe-area-inset-bottom));
+  /* Fondu doux vers le haut — sépare visuellement les champs du bouton */
+  box-shadow: 0 -16px 28px rgba(247, 243, 238, 0.98);
+  margin: 0 -1.5rem;
+  padding-left: 1.5rem; padding-right: 1.5rem;
+}
+@media (min-width: 768px) {
+  .form-cta {
+    position: static; box-shadow: none;
+    margin: 0; padding: 0;
+  }
+}
 
 /* ── Input underline — focus rouge ──────────── */
 .input-underline {
@@ -665,17 +703,21 @@ body:has(a:hover, button:hover) #cur-dot {
   padding: 0.3rem 0.85rem;
   border: 1px solid var(--border);
   background: var(--paper);
-  font-size: 0.52rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.25s;
-  user-select: none;
+  font-size: 0.52rem; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); cursor: pointer; user-select: none;
+  /* transition explicite — jamais transition:all */
+  transition: background 0.22s var(--ease-out), border-color 0.22s var(--ease-out),
+              color 0.18s var(--ease-out), transform 0.15s var(--ease-out),
+              box-shadow 0.22s var(--ease-out);
 }
-.chip:hover { border-color: rgba(139, 0, 32, 0.35); color: var(--red); }
-.chip.active { background: var(--red); border-color: var(--red); color: var(--white); }
+.chip:hover { border-color: rgba(139, 0, 32, 0.35); color: var(--ink); }
+/* Feedback tactile — scale(0.96) (make-interfaces-feel-better) */
+.chip:active { transform: scale(0.96); }
+.chip.active {
+  background: var(--red); border-color: var(--red); color: var(--white);
+  box-shadow: 0 2px 10px rgba(139, 0, 32, 0.22);
+}
 
 /* ── Select shadcn restyled — DA Couture Blanche ──
    On surcharge le trigger shadcn pour qu'il ressemble

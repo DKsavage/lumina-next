@@ -99,12 +99,10 @@ export default function StepPhotos({
         </Field>
       </div>
 
-      {/* CTA */}
+      {/* CTA + note confidentialité dans le bloc sticky */}
       <CtaButton disabled={!isValid(local)} onClick={() => onNext(local)}>
         Continuer — Profil
       </CtaButton>
-
-      <Confidentialite />
     </>
   )
 }
@@ -146,26 +144,38 @@ export function CtaButton({
   onClick?: () => void
 }) {
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className="btn-couture w-full flex items-center justify-between"
-      style={{
-        padding: '.9rem 1.2rem',
-        opacity: disabled ? 0.4 : 1,
-        cursor:  disabled ? 'not-allowed' : 'pointer',
-        color:   'white',
-      }}
-    >
-      <span className="relative z-[1] font-medium tracking-[.32em] uppercase" style={{ fontSize: '.62rem' }}>
-        {children}
-      </span>
-      <svg className="relative z-[1]" style={{ width: '.9rem', height: '.9rem' }}
-        viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M3 8h10M9 4l4 4-4 4" />
-      </svg>
-    </button>
+    /* form-cta : sticky en bas de la carte sur mobile, static sur desktop.
+       Fondu blanc au-dessus pour signaler qu'il y a du contenu à scroller. */
+    <div className="form-cta">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onClick}
+        className="btn-couture w-full flex items-center justify-between"
+        style={{
+          padding: '.75rem .75rem .75rem 1.4rem',
+          opacity: disabled ? 0.38 : 1,
+          cursor:  disabled ? 'not-allowed' : 'pointer',
+          color:   'white',
+          pointerEvents: disabled ? 'none' : 'auto',
+        }}
+      >
+        <span className="relative z-[1] font-medium tracking-[.32em] uppercase" style={{ fontSize: '.58rem' }}>
+          {children}
+        </span>
+        {/* Cercle flottant — button-in-button (high-end-visual-design) */}
+        <span className="btn-circle">
+          <svg style={{ width: '.75rem', height: '.75rem' }}
+            viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M3 8h10M9 4l4 4-4 4" />
+          </svg>
+        </span>
+      </button>
+      <p className="text-center mt-3 font-light tracking-[.06em]"
+        style={{ fontSize: '.48rem', color: 'rgba(12,11,9,.22)' }}>
+        Confidentialité garantie · Aucun partage tiers
+      </p>
+    </div>
   )
 }
 

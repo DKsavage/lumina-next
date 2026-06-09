@@ -120,7 +120,6 @@ export default function StepMesures({
         Envoyer ma candidature
       </CtaButton>
       <BackButton onClick={onPrev} />
-      <Confidentialite />
     </>
   )
 }

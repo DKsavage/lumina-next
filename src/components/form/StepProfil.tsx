@@ -91,7 +91,6 @@ export default function StepProfil({
         Continuer — Mensurations
       </CtaButton>
       <BackButton onClick={onPrev} />
-      <Confidentialite />
     </>
   )
 }

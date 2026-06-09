@@ -80,10 +80,24 @@ export default function HeroSplit() {
         {/* ── OVERLAY — dégradé sombre sur la photo, z-index: 1 ── */}
         <div className="lum-overlay" aria-hidden="true" />
 
-        {/* ── SECTION HERO — plein écran, formulaire seul ── */}
+        {/* ── SECTION HERO ── */}
         <section className="lum-hero" id="apply">
 
-          {/* FORM SHELL — remplit tout l'espace disponible sous la nav */}
+          {/* BLOC TITRE — clip-path reveal staggeré */}
+          <div className="lum-title">
+            <div className="lum-eyebrow">
+              <span className="lum-dash" aria-hidden="true">———</span>
+              Casting ouvert · Montréal 2026
+              <span className="lum-dash" aria-hidden="true">———</span>
+            </div>
+            <h1 className="lum-h1">
+              Votre <em>lumière.</em><br />
+              Notre <em>regard.</em>
+            </h1>
+            <div className="lum-rule" aria-hidden="true" />
+          </div>
+
+          {/* FORM SHELL */}
           <div className="lum-shell">
             <CandidatureForm />
           </div>

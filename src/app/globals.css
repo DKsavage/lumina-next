@@ -321,151 +321,268 @@ body:has(a:hover, button:hover) #cur-dot {
 }
 
 /* ════════════════════════════════════════════════
-   COMPOSANTS — styles impossibles en Tailwind seul
-   (pseudo-éléments, writing-mode, fill sweep...)
+   HERO — Couture Blanche (adapté du mockup-option2)
+   Préfixe lum- pour éviter les conflits
 ════════════════════════════════════════════════ */
 
-/* ── NAV — toujours transparent (hero toujours sombre depuis refonte) ── */
-.hero-nav { background: transparent; }
-
-/* ── Hero content layout ─────────────────────────────────────
-   Mobile  : flex-col, titre prend l'espace (flex-1), form en bas
-   Desktop : flex-col centré vert + horiz, gap entre titre et form
-─────────────────────────────────────────────────────────────── */
-.hero-content {
-  justify-content: flex-start;
-}
-.title-block {
-  flex: 1;
-  padding: 5.5rem 1.5rem 2.5rem;
-}
-@media (min-width: 768px) {
-  .hero-content {
-    justify-content: center;
-    gap: 2.5rem;
-  }
-  .title-block {
-    flex: 0;
-    padding: 0 1.5rem;
-  }
+/* ── SLIDESHOW CSS-only — pas de React state pour les transitions ── */
+@keyframes show {
+  0%, 99%, 100% { opacity: 0; }
+  8%, 80%        { opacity: 1; }
 }
 
-/* ── NAV gradient fond (legacy — utilisé ailleurs) ───────────────────── */
-.nav-gradient {
-  background: linear-gradient(
-    to bottom,
-    rgba(247, 243, 238, 0.95) 0%,
-    rgba(247, 243, 238, 0) 100%
-  );
+/* lum-slide : chaque slide = positionnée absolue + animation staggerée */
+.lum-slide {
+  position: absolute; inset: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.lum-slide:nth-child(1) { animation: show 25s ease-in-out infinite 0s,  kenBurns1 25s ease-in-out infinite 0s;  }
+.lum-slide:nth-child(2) { animation: show 25s ease-in-out infinite 5s,  kenBurns2 25s ease-in-out infinite 5s;  }
+.lum-slide:nth-child(3) { animation: show 25s ease-in-out infinite 10s, kenBurns3 25s ease-in-out infinite 10s; }
+.lum-slide:nth-child(4) { animation: show 25s ease-in-out infinite 15s, kenBurns4 25s ease-in-out infinite 15s; }
+.lum-slide:nth-child(5) { animation: show 25s ease-in-out infinite 20s, kenBurns5 25s ease-in-out infinite 20s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lum-slide { animation: none; opacity: 0; }
+  .lum-slide:nth-child(1) { opacity: 1; }
 }
 
-/* Trait rouge qui grandit sous le lien au hover */
-.nav-link { position: relative; transition: color 0.3s; }
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -0.2rem;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--red);
-  transition: width 0.4s var(--ease-out);
-}
-.nav-link:hover::after { width: 100%; }
-
-/* ── Overlay hero — gradient sombre sur la photo ─── */
-.overlay {
+/* ── OVERLAY — desktop + mobile ── */
+.lum-overlay {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(ellipse 100% 70% at 50% 28%, transparent 8%, rgba(12, 11, 9, .38) 100%),
-    linear-gradient(to bottom, rgba(12, 11, 9, .52) 0%, rgba(12, 11, 9, .04) 22%, rgba(12, 11, 9, .18) 52%, rgba(12, 11, 9, .92) 100%);
+    radial-gradient(ellipse 100% 120% at 50% 30%, transparent 15%, rgba(12,11,9,.45) 100%),
+    linear-gradient(to bottom, rgba(12,11,9,.55) 0%, rgba(12,11,9,.08) 30%, rgba(12,11,9,.15) 60%, rgba(12,11,9,.85) 100%);
 }
-
-/* ── Form shell — bottom-sheet mobile, double-bezel desktop ─ */
-.form-shell {
-  width: 100%;
-  border-radius: 1rem 1rem 0 0;
-  overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .form-shell {
-    max-width: 490px;
-    background: rgba(247, 243, 238, .08);
-    border: 1px solid rgba(247, 243, 238, .14);
-    border-radius: 1rem;
-    padding: .55rem .55rem 0;
-    overflow: visible;
-    box-shadow:
-      0 32px 80px rgba(12, 11, 9, .55),
-      0 8px 24px rgba(12, 11, 9, .22),
-      0 0 0 1px rgba(12, 11, 9, .4);
+@media (max-width: 767px) {
+  .lum-overlay {
+    background:
+      radial-gradient(ellipse 100% 70% at 50% 28%, transparent 8%, rgba(12,11,9,.38) 100%),
+      linear-gradient(to bottom, rgba(12,11,9,.52) 0%, rgba(12,11,9,.04) 22%, rgba(12,11,9,.18) 52%, rgba(12,11,9,.88) 100%);
   }
+  .lum-counter { display: none; }
 }
 
-/* ── Logo nav — monogramme + wordmark ──────── */
+/* ── NAV fixe ── */
+.lum-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.6rem 1.8rem;
+}
+.lum-logo {
+  display: flex; align-items: center; gap: .7rem;
+  text-decoration: none; transition: opacity .3s;
+}
+.lum-logo:hover { opacity: .65; }
+/* Logo monogramme + wordmark */
 .logo-mark {
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.8rem; height: 1.8rem;
   border: 1px solid var(--red);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 .logo-mark span {
   font-family: var(--display);
-  font-weight: 600;
-  font-style: italic;
-  font-size: .95rem;
-  color: var(--red);
-  line-height: 1;
+  font-size: 1rem; font-weight: 600; font-style: italic;
+  color: var(--red); line-height: 1;
+  transform: translateY(-1px); display: block;
 }
 .logo-word {
   font-family: var(--display);
-  font-size: .85rem;
-  font-weight: 600;
-  letter-spacing: .45em;
-  text-transform: uppercase;
-  color: rgba(247, 243, 238, .95);
+  font-size: .85rem; font-weight: 600;
+  letter-spacing: .45em; text-transform: uppercase;
+  color: rgba(247,243,238,.95);
 }
-.logo-word em {
-  color: var(--red);
-  font-style: normal;
+.logo-word em { color: var(--red); font-style: normal; }
+
+/* Nav links — cachés sur mobile */
+.lum-nav-links { display: none; align-items: center; gap: 2.5rem; }
+.lum-nav-link {
+  font-size: .62rem; font-weight: 500; letter-spacing: .32em;
+  text-transform: uppercase; color: rgba(247,243,238,.4);
+  text-decoration: none; transition: color .35s;
+}
+.lum-nav-link:hover { color: rgba(247,243,238,.9); }
+
+/* ── HERO main — mobile first ── */
+.lum-hero {
+  position: relative; z-index: 10;
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  justify-content: flex-start; align-items: stretch;
 }
 
-/* ── Texte vertical gauche (fixed) ──────────── */
-.vert-label {
-  position: fixed;
-  left: 1.8rem;
-  top: 50%;
-  z-index: 400;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg) translateY(50%);
-  font-size: 0.5rem;
-  font-weight: 500;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  /* Toujours blanc/clair — hero toujours sombre (photo en fond) */
-  color: rgba(247, 243, 238, .2);
-  user-select: none;
-}
-
-/* ── Monogramme géant en fond du panneau gauche ─
-   Impossible en Tailwind : content + font-size 55vw
-─────────────────────────────────────────────── */
-.hero-left::before {
-  content: 'L';
-  position: absolute;
-  font-family: var(--display);
-  font-size: 55vw;
-  font-weight: 600;
-  font-style: italic;
-  color: rgba(12, 11, 9, 0.02);
-  line-height: 1;
-  right: -15%;
-  bottom: -15%;
+/* ── BLOC TITRE ── */
+.lum-title {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 1rem; text-align: center;
+  padding: 5.5rem 1.5rem 2.5rem;
+  min-height: 42dvh;
   pointer-events: none;
-  letter-spacing: -0.05em;
+}
+.lum-eyebrow {
+  display: inline-flex; align-items: center; gap: .8rem;
+  border: 1px solid rgba(247,243,238,.18);
+  border-radius: 99px;
+  padding: .38rem 1.1rem;
+  font-size: .44rem; font-weight: 500; letter-spacing: .38em; text-transform: uppercase;
+  color: rgba(247,243,238,.5);
+  animation: fadeUpBlur .8s var(--ease-out) .1s both;
+}
+.lum-dash { color: rgba(196,160,90,.45); font-size: .34rem; }
+.lum-h1 {
+  font-family: var(--display);
+  font-size: clamp(3.5rem, 15vw, 7rem);
+  font-weight: 300; line-height: .98;
+  letter-spacing: -.025em;
+  color: rgba(247,243,238,.95);
+  text-wrap: balance;
+  animation: fadeUpBlur .9s var(--ease-out) .22s both;
+}
+.lum-h1 em { color: var(--red); font-style: italic; }
+.lum-rule {
+  width: 2.5rem; height: 1px;
+  background: linear-gradient(to right, transparent, var(--champagne), transparent);
+  opacity: .45;
+  animation: fadeUp .6s var(--ease-out) .38s both;
+}
+
+/* ── FORM SHELL — mobile = width full, desktop = double-bezel ── */
+.lum-shell {
+  width: 100%;
+  animation: slideUp .85s var(--ease-out) .45s both;
+}
+
+/* form-card — carte principale du formulaire */
+.lum-form-card {
+  background: var(--paper);
+  border-top: 2px solid var(--red);
+  padding: 1.8rem 1.5rem 0;
+  border-radius: 1rem 1rem 0 0;
+  /* position + overflow requis pour l'animation Framer Motion entre les étapes */
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 -24px 60px rgba(12,11,9,.35),
+    0 -4px 16px rgba(12,11,9,.2),
+    inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* Poignée bottom-sheet — mobile seulement */
+.sheet-handle {
+  width: 2.2rem; height: 3px;
+  background: rgba(12,11,9,.12);
+  border-radius: 99px;
+  margin: 0 auto .8rem;
+}
+
+/* ── COMPTEUR PHOTO — bas à gauche mobile, bas à droite desktop ── */
+.lum-counter {
+  position: fixed; bottom: 2rem; left: 1.8rem; z-index: 20;
+  display: flex; align-items: center; gap: .8rem;
+}
+.lum-num {
+  font-family: var(--display);
+  font-size: 1.2rem; font-weight: 300; font-style: italic;
+  color: rgba(247,243,238,.25); line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: opacity .5s var(--ease-out);
+}
+.lum-total {
+  font-size: .42rem; font-weight: 300;
+  color: rgba(247,243,238,.15); letter-spacing: .1em;
+  align-self: flex-end; padding-bottom: .2rem;
+}
+.lum-dots { display: flex; gap: .3rem; align-items: center; }
+.lum-dot {
+  width: 1.2rem; height: 1px;
+  background: rgba(247,243,238,.15);
+  transition: background-color .5s, width .4s var(--ease-out);
+}
+.lum-dot.active { width: 2rem; background: rgba(247,243,238,.5); }
+
+/* ── ENTRÉES ANIMÉES ── */
+@keyframes fadeUpBlur {
+  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── DESKTOP — double-bezel + layout centré ── */
+@media (min-width: 768px) {
+  .lum-nav { padding: 2rem 3.5rem; }
+  .lum-nav-links { display: flex; }
+
+  .lum-hero {
+    justify-content: center; align-items: center;
+    padding: 8rem 2rem 5rem; gap: 2.5rem;
+  }
+  .lum-title {
+    flex: 0 0 auto; min-height: auto;
+    padding: 0 1rem; pointer-events: auto;
+  }
+  .lum-h1 { font-size: clamp(4rem, 6.5vw, 7rem); }
+  .lum-eyebrow { font-size: .46rem; }
+
+  /* Double-bezel verre sur desktop */
+  .lum-shell {
+    width: 100%; max-width: 490px;
+    background: rgba(247,243,238,.07);
+    border: 1px solid rgba(247,243,238,.14);
+    padding: 3px;
+    box-shadow:
+      0 0 0 1px rgba(247,243,238,.04),
+      0 50px 120px rgba(12,11,9,.55),
+      0 12px 40px rgba(12,11,9,.35),
+      0 3px 12px rgba(12,11,9,.2);
+  }
+  .lum-form-card {
+    padding: 2.6rem 2.4rem 2.2rem;
+    border-radius: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  .sheet-handle { display: none; }
+
+  /* Compteur — droite sur desktop */
+  .lum-counter {
+    left: auto; right: 2.5rem;
+    flex-direction: column; align-items: flex-end; gap: .4rem;
+  }
+  .lum-num { font-size: 2.2rem; color: rgba(247,243,238,.12); }
+  .lum-total { display: none; }
+}
+
+/* ── NAV gradient fond (legacy — utilisé ailleurs) ── */
+.nav-gradient {
+  background: linear-gradient(to bottom, rgba(247,243,238,.95) 0%, rgba(247,243,238,0) 100%);
+}
+
+/* Trait rouge sous nav-link au hover */
+.nav-link { position: relative; transition: color 0.3s; }
+.nav-link::after {
+  content: ''; position: absolute; bottom: -.2rem; left: 0;
+  width: 0; height: 1px; background: var(--red);
+  transition: width 0.4s var(--ease-out);
+}
+.nav-link:hover::after { width: 100%; }
+
+/* ── Monogramme géant (legacy panneau gauche) ── */
+.hero-left::before {
+  content: 'L'; position: absolute;
+  font-family: var(--display); font-size: 55vw;
+  font-weight: 600; font-style: italic;
+  color: rgba(12,11,9,.02); line-height: 1;
+  right: -15%; bottom: -15%;
+  pointer-events: none; letter-spacing: -.05em;
 }
 
 /* ── Upload zone — fill sweep rouge au hover ─── */

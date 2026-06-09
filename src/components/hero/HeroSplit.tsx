@@ -1,157 +1,135 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import PhotoSlideshow from './PhotoSlideshow'
+import Image from 'next/image'
 import CandidatureForm from '../form/CandidatureForm'
 
-const SLIDE_COUNT = 5
+const SLIDES = [
+  { seed: 'lumA', pos: 'center 20%', alt: 'Mannequin Lumina — portrait éditorial' },
+  { seed: 'lumB', pos: 'center 15%', alt: 'Mannequin Lumina — pose mode' },
+  { seed: 'lumC', pos: 'center top', alt: 'Mannequin Lumina — shooting commercial' },
+  { seed: 'lumD', pos: '60% 10%',   alt: 'Mannequin Lumina — campagne mode' },
+  { seed: 'lumE', pos: 'center 25%', alt: 'Mannequin Lumina — casting 2026' },
+]
 
 export default function HeroSplit() {
-  const [visible, setVisible] = useState(false)
   const [current, setCurrent] = useState(0)
 
+  /* setInterval toutes les 5s pour synchroniser le compteur avec le CSS.
+     Le slideshow visuel est 100% CSS (@keyframes show + animation-delay staggeré).
+     Ici on ne pilote QUE les chiffres et les points — pas les transitions d'images. */
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 80)
-    return () => clearTimeout(t)
+    const timer = setInterval(
+      () => setCurrent(prev => (prev + 1) % SLIDES.length),
+      5000,
+    )
+    return () => clearInterval(timer)
   }, [])
 
   return (
     <>
-      {/* ── NAV FIXE ── toujours blanc (fond toujours sombre) ── */}
-      <nav
-        className="hero-nav fixed top-0 left-0 right-0 z-[500] flex items-center justify-between px-6 md:px-14"
-        style={{ paddingTop: '1.8rem', paddingBottom: '1.8rem' }}
-      >
-        <a href="#" className="flex items-center gap-3 no-underline">
-          <div className="logo-mark"><span>L</span></div>
+      {/* ══ NAV — position: fixed, z-index: 500 ══ */}
+      <nav className="lum-nav">
+        <a href="#" className="lum-logo" aria-label="Lumina Photography">
+          <div className="logo-mark" aria-hidden="true">
+            <span>L</span>
+          </div>
           <span className="logo-word">Lumina<em>.</em></span>
         </a>
-
-        <div className="hidden md:flex items-center" style={{ gap: '2.5rem' }}>
-          <a href="#process" className="nav-link font-medium uppercase"
-            style={{ fontSize: '.58rem', letterSpacing: '.28em', color: 'rgba(247,243,238,.42)' }}>
-            Processus
-          </a>
-          <a href="#why" className="nav-link font-medium uppercase"
-            style={{ fontSize: '.58rem', letterSpacing: '.28em', color: 'rgba(247,243,238,.42)' }}>
-            L&rsquo;agence
-          </a>
-        </div>
+        <nav className="lum-nav-links" aria-label="Navigation principale">
+          <a href="#" className="lum-nav-link">L&apos;agence</a>
+          <a href="#" className="lum-nav-link">Processus</a>
+        </nav>
       </nav>
 
-      {/* ── Label vertical — toujours clair ── */}
-      <span className="vert-label hidden md:block">Lumina Photography · Casting 2026</span>
-
-      {/* ══════════════════════════════════════════════
-          SECTION HERO — fond toujours ink (sombre)
-          Layout centré desktop + bottom-sheet mobile
-      ══════════════════════════════════════════════ */}
-      <section
-        id="apply"
-        className="relative overflow-hidden"
-        style={{ minHeight: '100dvh', background: 'var(--ink)' }}
+      {/* ══ HERO CONTAINER — position: relative pour contenir slideshow + overlay ══
+          overflow: hidden coupe les images Ken Burns qui sortent du cadre.
+          min-height: 100dvh = hauteur plein écran (dvh = dynamic viewport height,
+          évite le bug iOS Safari où 100vh inclut la barre d'URL). */}
+      <div
+        style={{
+          position: 'relative',
+          minHeight: '100dvh',
+          overflow: 'hidden',
+          background: 'var(--ink)',
+        }}
       >
-        {/* SLIDESHOW plein écran — z-0 */}
-        <div className="absolute inset-0 z-0">
-          <PhotoSlideshow
-            current={current}
-            onAdvance={() => setCurrent(prev => (prev + 1) % SLIDE_COUNT)}
-          />
+        {/* ── SLIDESHOW CSS-only ──
+            5 divs .lum-slide positionnées absolues.
+            Chaque slide a animation: show 25s + kenBurns 25s avec un delay de N×5s.
+            Résultat : une slide devient visible toutes les 5s, sans JS. */}
+        <div
+          style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+          aria-hidden="true"
+        >
+          {SLIDES.map((slide, i) => (
+            <div key={slide.seed} className="lum-slide">
+              <Image
+                src={`https://picsum.photos/seed/${slide.seed}/1200/1600`}
+                alt={slide.alt}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: slide.pos }}
+                priority={i === 0}
+              />
+            </div>
+          ))}
         </div>
 
-        {/* OVERLAY sombre — z-[1], pointer-events-none */}
-        <div className="overlay absolute inset-0 z-[1] pointer-events-none" />
+        {/* ── OVERLAY — dégradé sombre sur la photo, z-index: 1 ── */}
+        <div className="lum-overlay" aria-hidden="true" />
 
-        {/* ── CONTENU — z-10 ── */}
-        {/*
-          Mobile  : flex-col, padding-top (nav), titre flex-1 (remonte), form en bas
-          Desktop : flex-col centré verticalement + horizontalement, gap 2.5rem
-        */}
-        <main
-          className="hero-content relative z-10 flex flex-col items-center"
-          style={{ minHeight: '100dvh' }}
-        >
+        {/* ── SECTION HERO — z-index: 10, au-dessus de l'overlay ──
+            Mobile  : flex-col, titre flex-1, formulaire en bas (bottom-sheet)
+            Desktop : flex-col centré horiz+vert, gap entre titre et form */}
+        <section className="lum-hero" id="apply">
 
-          {/* ── BLOC TITRE ──
-              Mobile  : flex-1 → prend tout l'espace, contenu centré en son sein
-              Desktop : flex-0, hauteur naturelle
-          ── */}
-          <div className="title-block flex flex-col items-center justify-center gap-4 text-center pointer-events-none">
-            {/* Eyebrow pill */}
-            <div
-              className={`reveal ${visible ? 'in' : ''} font-medium uppercase`}
-              style={{
-                fontSize: '.44rem', letterSpacing: '.35em', transitionDelay: '.1s',
-                color: 'rgba(247,243,238,.5)',
-                border: '1px solid rgba(247,243,238,.15)',
-                borderRadius: '99px', padding: '.38rem 1.1rem', display: 'inline-flex', gap: '.55rem',
-              }}
-            >
-              <span style={{ opacity: .4 }}>———</span>
+          {/* BLOC TITRE */}
+          <div className="lum-title">
+            <div className="lum-eyebrow" aria-label="Casting ouvert Montréal 2026">
+              <span className="lum-dash" aria-hidden="true">———</span>
               Casting ouvert · Montréal 2026
-              <span style={{ opacity: .4 }}>———</span>
+              <span className="lum-dash" aria-hidden="true">———</span>
             </div>
 
-            {/* Titre principal */}
-            <h1
-              className={`reveal font-display font-light ${visible ? 'in' : ''}`}
-              style={{
-                fontSize: 'clamp(3.5rem, 13vw, 7rem)', lineHeight: .96,
-                letterSpacing: '-.025em', color: 'rgba(247,243,238,.95)',
-                textWrap: 'balance', transitionDelay: '.22s',
-              }}
-            >
-              Votre <em className="text-red italic">lumière.</em><br />
-              Notre <em className="text-red italic">regard.</em>
+            <h1 className="lum-h1">
+              Votre <em>lumière.</em><br />
+              Notre <em>regard.</em>
             </h1>
 
-            {/* Filet champagne */}
-            <div
-              className={`reveal ${visible ? 'in' : ''}`}
-              style={{
-                width: '2.5rem', height: '1px', transitionDelay: '.38s',
-                background: 'linear-gradient(to right, transparent, rgba(196,160,90,.45), transparent)',
-              }}
-            />
+            {/* Filet décoratif champagne sous le titre */}
+            <div className="lum-rule" aria-hidden="true" />
           </div>
 
-          {/* ── FORM SHELL ──
-              Mobile  : form-shell = wrapper full-width, overflow hidden, border-radius top → bottom-sheet
-              Desktop : form-shell = double-bezel verre, max-width 490px, centré
-          ── */}
-          <div
-            className={`form-shell reveal w-full ${visible ? 'in' : ''}`}
-            style={{ transitionDelay: '.55s' }}
-          >
+          {/* FORM SHELL — wrapper de la carte formulaire
+              Mobile  : width: 100%, border-radius top uniquement → bottom-sheet
+              Desktop : double-bezel verre (3px padding + border + backdrop) */}
+          <div className="lum-shell">
             <CandidatureForm />
           </div>
-        </main>
 
-        {/* ── COMPTEUR + DOTS — desktop uniquement, z-[20] (au-dessus overlay) ── */}
-        <div className="absolute bottom-10 right-10 z-[20] hidden md:flex flex-col items-end gap-3">
-          <span
-            className="font-display italic tabular-nums"
-            style={{ fontSize: '2.5rem', fontWeight: 300, color: 'rgba(255,255,255,.12)', lineHeight: 1 }}
-          >
-            {String(current + 1).padStart(2, '0')}
-          </span>
-          <div className="flex gap-[.35rem] items-center">
-            {Array.from({ length: SLIDE_COUNT }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                aria-label={`Photo ${i + 1}`}
-                className="h-[1.5px] transition-all duration-[400ms]"
-                style={{
-                  width: i === current ? '2.2rem' : '1.2rem',
-                  background: i === current ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.18)',
-                  transitionTimingFunction: 'cubic-bezier(.16,1,.3,1)',
-                }}
-              />
-            ))}
-          </div>
+        </section>
+      </div>
+
+      {/* ══ COMPTEUR PHOTO ══
+          position: fixed, z-index: 20 (au-dessus de tout sauf nav).
+          Caché sur mobile via CSS (.lum-counter { display: none } dans @media mobile).
+          Le compteur synchronise avec le CSS slideshow via le setInterval ci-dessus. */}
+      <div className="lum-counter" aria-hidden="true">
+        <span className="lum-num">
+          {String(current + 1).padStart(2, '0')}
+        </span>
+        <span className="lum-total">/ 05</span>
+        <div className="lum-dots">
+          {SLIDES.map((_, i) => (
+            <div
+              key={i}
+              className={`lum-dot${i === current ? ' active' : ''}`}
+            />
+          ))}
         </div>
-      </section>
+      </div>
     </>
   )
 }

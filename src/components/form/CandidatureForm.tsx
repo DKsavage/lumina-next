@@ -90,13 +90,12 @@ export default function CandidatureForm() {
   const progress = done ? 100 : Math.round((step / STEPS.length) * 100)
 
   return (
-    <div
-      className="bg-paper relative overflow-hidden md:rounded-t-[.6rem]"
-      style={{
-        borderTop: '2px solid var(--red)',
-        padding:   '2.2rem 2.2rem 1.8rem',
-      }}
-    >
+    /* lum-form-card : fond papier, bordure rouge en tête, border-radius mobile
+       (1rem 1rem 0 0 = bottom-sheet arrondi en haut), 0 sur desktop (Couture Blanche).
+       La classe contient position:relative + overflow:hidden pour l'animation des étapes. */
+    <div className="lum-form-card">
+      {/* Poignée décorative bottom-sheet — cachée sur desktop via CSS */}
+      <div className="sheet-handle" aria-hidden="true" />
       {/* ── EN-TÊTE ─────────────────────────────────────── */}
       {!done && (
         <div className="flex items-baseline justify-between mb-5">

@@ -38,7 +38,7 @@ export default function StepProfil({
 
   return (
     <>
-      <div className="flex flex-col gap-[1.2rem] mb-6">
+      <div className="flex flex-col gap-[1.2rem] mb-6 form-fields">
 
         {/* Ville — Select shadcn restyled */}
         <Field label="Ville" required>

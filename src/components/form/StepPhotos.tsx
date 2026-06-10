@@ -39,7 +39,7 @@ export default function StepPhotos({
           { key: 'profilFile', label: 'Visage',    sub: 'Portrait clair' },
           { key: 'bodyFile',   label: 'Full body', sub: 'Corps entier'   },
         ] as const).map(({ key, label, sub }) => (
-          <label key={key} className="upload-zone flex flex-col items-center gap-[.45rem] p-6">
+          <label key={key} className={`upload-zone flex flex-col items-center gap-[.45rem] p-6${local[key] ? ' has-file' : ''}`}>
             {/* aria-hidden : icône décorative, l'info est dans le texte label */}
             <div className="up-ring" aria-hidden="true">{local[key] ? '✓' : '+'}</div>
             <span
@@ -63,7 +63,7 @@ export default function StepPhotos({
       </div>
 
       {/* CHAMPS IDENTITÉ — inline : label gauche, input droite sur même baseline */}
-      <div className="flex flex-col gap-[1rem] mb-5">
+      <div className="flex flex-col gap-[1rem] mb-5 form-fields">
         <Field label="Prénom" required inline>
           <input type="text" placeholder="Sophie" className="input-underline"
             value={local.prenom} onChange={e => set('prenom', e.target.value)} />

@@ -7,27 +7,27 @@ import StepProfil    from './StepProfil'
 import StepMesures   from './StepMesures'
 import Confirmation  from './Confirmation'
 
-/* Direction de la transition :
-   - Avancer (next) : ancienne étape part à gauche, nouvelle arrive de droite
-   - Reculer (prev) : ancienne part à droite, nouvelle arrive de gauche
-   Timing : enter 280ms ease-out (< 300ms, 12-principles), exit 180ms ease-in */
+/* Transition éditorial vertical — le contenu monte doucement en vue,
+   comme un rideau de scène ou une page de magazine qui se révèle.
+   Le déplacement horizontal (x) a été remplacé par un fondu vertical (y)
+   pour une sensation plus luxe et moins "app mobile". */
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
 const EASE_IN  = [0.4, 0, 1, 1]    as const
 
 const VARIANTS = {
   enter: (dir: number) => ({
-    x: dir > 0 ? '100%' : '-100%',
     opacity: 0,
+    y: dir > 0 ? 20 : -10,
   }),
   center: {
-    x: 0,
     opacity: 1,
-    transition: { duration: 0.28, ease: EASE_OUT },
+    y: 0,
+    transition: { duration: 0.38, ease: EASE_OUT },
   },
   exit: (dir: number) => ({
-    x: dir > 0 ? '-60%' : '60%',
     opacity: 0,
-    transition: { duration: 0.18, ease: EASE_IN },
+    y: dir > 0 ? -12 : 8,
+    transition: { duration: 0.22, ease: EASE_IN },
   }),
 }
 

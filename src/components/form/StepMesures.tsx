@@ -40,7 +40,7 @@ export default function StepMesures({
     <>
       {/* ── GROUPE A : CORPS ─────────────────────── */}
       <GroupLabel>Corps</GroupLabel>
-      <div className="flex flex-col gap-[.75rem] mb-6">
+      <div className="flex flex-col gap-[.75rem] mb-6 form-fields">
         <Field label="Poitrine cm" required inline>
           <input type="number" placeholder="88" min="60" max="140"
             className="input-underline" value={local.poitrine}
@@ -78,7 +78,7 @@ export default function StepMesures({
 
       {/* ── GROUPE B : STYLE ─────────────────────── */}
       <GroupLabel>Apparence</GroupLabel>
-      <div className="flex flex-col gap-[1.1rem] mb-6">
+      <div className="flex flex-col gap-[1.1rem] mb-6 form-fields">
 
         <Field label="Couleur des yeux" required asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">

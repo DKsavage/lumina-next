@@ -31,7 +31,7 @@ const VARIANTS = {
   }),
 }
 
-const STEPS = ['Photos & Identité', 'Profil', 'Mensurations']
+const STEPS = ['Photos', 'Profil', 'Mesures']
 
 export type FormData = {
   // Étape 1
@@ -119,25 +119,26 @@ export default function CandidatureForm() {
           <div className="flex mb-3">
             {STEPS.map((label, i) => (
               <div key={i}
-                className="flex-1 flex flex-col gap-[.4rem] relative pt-[.6rem]"
+                className="flex-1 flex flex-col gap-[.45rem] relative pt-[.85rem]"
                 aria-current={i === step ? 'step' : undefined}
               >
+                {/* Barre de progression — 2px, rouge si étape passée/active */}
                 <div
-                  className="absolute top-0 left-0 right-0 h-[1.5px] transition-colors duration-500"
+                  className="absolute top-0 left-0 right-0 h-[2px] transition-colors duration-500"
                   style={{
-                    background: i <= step ? 'var(--red)' : 'var(--ivory)',
+                    background: i <= step ? 'var(--red)' : 'rgba(12,11,9,.1)',
                     transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
                   }}
                 />
                 <span
-                  className="font-medium tracking-[.15em]"
-                  style={{ fontSize: '.5rem', color: i <= step ? 'var(--red)' : 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}
+                  className="font-medium tracking-[.12em]"
+                  style={{ fontSize: '.62rem', color: i <= step ? 'var(--red)' : 'rgba(12,11,9,.2)', fontVariantNumeric: 'tabular-nums' }}
                 >
                   0{i + 1}
                 </span>
                 <span
-                  className="font-medium tracking-[.18em] uppercase"
-                  style={{ fontSize: '.5rem', color: i === step ? 'var(--ink)' : 'rgba(12,11,9,.25)' }}
+                  className="font-medium tracking-[.14em] uppercase"
+                  style={{ fontSize: '.62rem', color: i === step ? 'var(--ink)' : 'rgba(12,11,9,.28)' }}
                 >
                   {label}
                 </span>

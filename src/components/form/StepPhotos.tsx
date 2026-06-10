@@ -62,8 +62,8 @@ export default function StepPhotos({
       </div>
 
       {/* CHAMPS IDENTITÉ */}
-      <div className="flex flex-col gap-[.85rem] mb-5">
-        <div className="grid grid-cols-2 gap-[.8rem]">
+      <div className="flex flex-col gap-[1.4rem] mb-5">
+        <div className="grid grid-cols-2 gap-[1rem]">
           <Field label="Prénom" required>
             <input type="text" placeholder="Sophie" className="input-underline"
               value={local.prenom} onChange={e => set('prenom', e.target.value)} />
@@ -79,7 +79,7 @@ export default function StepPhotos({
             value={local.email} onChange={e => set('email', e.target.value)} />
         </Field>
 
-        <div className="grid grid-cols-2 gap-[.8rem]">
+        <div className="grid grid-cols-2 gap-[1rem]">
           <Field label="Téléphone" required>
             <input type="tel" placeholder="+1 514 …" className="input-underline"
               value={local.telephone} onChange={e => set('telephone', e.target.value)} />

@@ -83,6 +83,16 @@ export default function HeroSplit() {
         {/* ── SECTION HERO ── */}
         <section className="lum-hero" id="apply">
 
+          {/* MOBILE ONLY: espace atmosphérique — révèle le Ken Burns au-dessus du formulaire.
+              Caché sur desktop via CSS (.lum-mobile-atmosphere { display: none } dans @media 768px+). */}
+          <div className="lum-mobile-atmosphere">
+            <div className="lum-eyebrow">
+              <span className="lum-dash" aria-hidden="true">———</span>
+              Casting ouvert · Montréal 2026
+              <span className="lum-dash" aria-hidden="true">———</span>
+            </div>
+          </div>
+
           {/* FORM SHELL — Option C : form plein focus, titre supprimé */}
           <div className="lum-shell">
             <CandidatureForm />

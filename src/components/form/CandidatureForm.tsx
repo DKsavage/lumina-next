@@ -98,7 +98,7 @@ export default function CandidatureForm() {
       <div className="sheet-handle" aria-hidden="true" />
       {/* ── EN-TÊTE ─────────────────────────────────────── */}
       {!done && (
-        <div className="flex items-baseline justify-between mb-5">
+        <div className="flex items-baseline justify-between mb-4">
           <span
             className="font-medium tracking-[.3em] uppercase"
             style={{ fontSize: '.52rem', color: 'var(--red)' }}
@@ -116,7 +116,8 @@ export default function CandidatureForm() {
            3 barres + numéros. Le nom d'étape vit dans l'en-tête
            (italic display) — pas besoin de le répéter ici. */}
       {!done && (
-        <div className="flex gap-[.5rem] mb-7">
+        /* Règle de séparation fine avant le stepper — détail éditorial luxe */
+        <div className="flex gap-[.5rem] mb-10" style={{ borderTop: '1px solid rgba(12,11,9,.06)', paddingTop: '.9rem' }}>
           {STEPS.map((_, i) => (
             <div key={i} className="flex-1 flex flex-col gap-[.5rem]"
               aria-current={i === step ? 'step' : undefined}

@@ -41,14 +41,15 @@ export default function StepPhotos({
         ] as const).map(({ key, label, sub }) => (
           <label key={key} className="upload-zone flex flex-col items-center gap-[.45rem] p-6">
             {/* aria-hidden : icône décorative, l'info est dans le texte label */}
-            <div className="up-ring" aria-hidden="true">{local[key] ? '✓' : '↑'}</div>
+            <div className="up-ring" aria-hidden="true">{local[key] ? '✓' : '+'}</div>
             <span
               className="font-medium tracking-[.1em] uppercase text-center relative z-[1]"
               style={{ fontSize: '.58rem', color: local[key] ? 'var(--red)' : 'var(--ink)' }}
             >
               {local[key] ? (local[key] as File).name.slice(0, 14) + '…' : label}
             </span>
-            <span className="font-light text-center relative z-[1]" style={{ fontSize: '.52rem', color: 'var(--muted)' }}>
+            {/* Sous-titre en Cormorant italic — contraste Montserrat caps vs display sensoriel */}
+            <span className="font-display italic text-center relative z-[1]" style={{ fontSize: '.72rem', color: 'var(--muted)' }}>
               {sub}
             </span>
             {/* sr-only positionné absolument — accessible au clavier et screen readers,
@@ -62,7 +63,7 @@ export default function StepPhotos({
       </div>
 
       {/* CHAMPS IDENTITÉ — inline : label gauche, input droite sur même baseline */}
-      <div className="flex flex-col gap-[.75rem] mb-5">
+      <div className="flex flex-col gap-[1rem] mb-5">
         <Field label="Prénom" required inline>
           <input type="text" placeholder="Sophie" className="input-underline"
             value={local.prenom} onChange={e => set('prenom', e.target.value)} />

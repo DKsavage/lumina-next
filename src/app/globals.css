@@ -374,8 +374,8 @@ body:has(a:hover, button:hover) #cur-dot {
       linear-gradient(to bottom, rgba(12,11,9,.32) 0%, rgba(12,11,9,.1) 30%, rgba(12,11,9,.2) 55%, rgba(12,11,9,.88) 100%);
   }
   .lum-counter { display: none; }
-  /* Upload zones : carré sur mobile (portrait 4/5 = 220px × 2 = trop de scroll) */
-  .upload-zone { aspect-ratio: 1; }
+  /* Upload zones : carré + plafond 7rem — sans max-height, zone = pleine largeur = énorme */
+  .upload-zone { aspect-ratio: 1; max-height: 7rem; }
   /* Form card : padding réduit pour gagner de l'espace */
   .lum-form-card { padding: 1.4rem 1.2rem 0; }
   /* Titre : plus grand pour plus d'impact hero */

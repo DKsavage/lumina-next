@@ -105,7 +105,8 @@ export default function CandidatureForm() {
           >
             Candidature — Étape {step + 1}/3
           </span>
-          <span className="font-display italic text-ink" style={{ fontSize: '1.2rem', fontWeight: 400 }}>
+          {/* role="status" + aria-live : annonce le nom de la nouvelle étape aux screen readers */}
+          <span role="status" aria-live="polite" className="font-display italic text-ink" style={{ fontSize: '1.2rem', fontWeight: 400 }}>
             {STEPS[step]}
           </span>
         </div>
@@ -117,7 +118,10 @@ export default function CandidatureForm() {
           {/* Stepper visuel */}
           <div className="flex mb-3">
             {STEPS.map((label, i) => (
-              <div key={i} className="flex-1 flex flex-col gap-[.4rem] relative pt-[.6rem]">
+              <div key={i}
+                className="flex-1 flex flex-col gap-[.4rem] relative pt-[.6rem]"
+                aria-current={i === step ? 'step' : undefined}
+              >
                 <div
                   className="absolute top-0 left-0 right-0 h-[1.5px] transition-all duration-500"
                   style={{

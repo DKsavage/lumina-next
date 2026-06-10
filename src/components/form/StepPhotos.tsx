@@ -40,7 +40,8 @@ export default function StepPhotos({
           { key: 'bodyFile',   label: 'Full body', sub: 'Corps entier'   },
         ] as const).map(({ key, label, sub }) => (
           <label key={key} className="upload-zone flex flex-col items-center gap-[.45rem] p-6">
-            <div className="up-ring">{local[key] ? '✓' : '↑'}</div>
+            {/* aria-hidden : icône décorative, l'info est dans le texte label */}
+            <div className="up-ring" aria-hidden="true">{local[key] ? '✓' : '↑'}</div>
             <span
               className="font-medium tracking-[.1em] uppercase text-center relative z-[1]"
               style={{ fontSize: '.58rem', color: local[key] ? 'var(--red)' : 'var(--ink)' }}
@@ -50,7 +51,11 @@ export default function StepPhotos({
             <span className="font-light text-center relative z-[1]" style={{ fontSize: '.52rem', color: 'var(--muted)' }}>
               {sub}
             </span>
-            <input type="file" accept="image/*" className="hidden"
+            {/* sr-only positionné absolument — accessible au clavier et screen readers,
+                invisible visuellement. display:none le cacherait aux screen readers. */}
+            <input type="file" accept="image/*"
+              aria-label={label}
+              style={{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' }}
               onChange={e => set(key, e.target.files?.[0] ?? null)} />
           </label>
         ))}
@@ -85,11 +90,12 @@ export default function StepPhotos({
           </Field>
         </div>
 
-        <Field label="Genre" required>
+        <Field label="Genre" required asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.2rem]">
             {GENRES.map(g => (
               <button key={g} type="button"
                 className={`chip ${local.genre === g ? 'active' : ''}`}
+                aria-pressed={local.genre === g}
                 onClick={() => set('genre', g)}
               >
                 {g}
@@ -114,23 +120,45 @@ export function Field({
   required,
   optional,
   children,
+  asGroup = false,
 }: {
   label: string
   required?: boolean
   optional?: boolean
   children: React.ReactNode
+  asGroup?: boolean
 }) {
-  return (
-    <div className="flex flex-col gap-[.3rem]">
-      <label className="font-medium tracking-[.22em] uppercase flex gap-1 items-center"
-        style={{ fontSize: '.52rem', color: 'rgba(12,11,9,.35)' }}
+  const labelText = (
+    <>
+      {label}
+      {/* aria-hidden sur * : l'astérisque est décoratif, l'info "requis" vient de aria-label du groupe */}
+      {required  && <span aria-hidden="true" style={{ color: 'var(--red)' }}>*</span>}
+      {optional  && <span style={{ color: 'rgba(12,11,9,.2)', fontStyle: 'italic', letterSpacing: '.05em', textTransform: 'none' }}>optionnel</span>}
+    </>
+  )
+  const cls   = "font-medium tracking-[.22em] uppercase flex gap-1 items-center"
+  const style = { fontSize: '.52rem', color: 'rgba(12,11,9,.35)' } as const
+
+  /* Groupe de boutons (chips) — role="group" + aria-label au lieu de <label htmlFor> */
+  if (asGroup) {
+    return (
+      <div
+        className="flex flex-col gap-[.3rem]"
+        role="group"
+        aria-label={`${label}${required ? ' (requis)' : ''}`}
       >
-        {label}
-        {required && <span style={{ color: 'var(--red)' }}>*</span>}
-        {optional && <span style={{ color: 'rgba(12,11,9,.2)', fontStyle: 'italic', letterSpacing: '.05em', textTransform: 'none' }}>optionnel</span>}
-      </label>
+        <span className={cls} style={style}>{labelText}</span>
+        {children}
+      </div>
+    )
+  }
+
+  /* Champ input/select — <label> enveloppe l'input : association implicite, pas besoin de htmlFor+id */
+  return (
+    <label className="flex flex-col gap-[.3rem]">
+      <span className={cls} style={style}>{labelText}</span>
       {children}
-    </div>
+    </label>
   )
 }
 
@@ -163,7 +191,7 @@ export function CtaButton({
           {children}
         </span>
         {/* Cercle flottant — button-in-button (high-end-visual-design) */}
-        <span className="btn-circle">
+        <span className="btn-circle" aria-hidden="true">
           <svg style={{ width: '.75rem', height: '.75rem' }}
             viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M3 8h10M9 4l4 4-4 4" />
@@ -188,7 +216,7 @@ export function BackButton({ onClick }: { onClick: () => void }) {
         transition: 'color 0.2s',
       }}
     >
-      <svg style={{ width: '.8rem', height: '.8rem' }} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg aria-hidden="true" style={{ width: '.8rem', height: '.8rem' }} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M13 8H3M7 12l-4-4 4-4" />
       </svg>
       Retour

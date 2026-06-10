@@ -89,11 +89,12 @@ export default function StepMesures({
       <GroupLabel>Apparence</GroupLabel>
       <div className="flex flex-col gap-[.85rem] mb-6">
 
-        <Field label="Couleur des yeux" required>
+        <Field label="Couleur des yeux" required asGroup>
           <div className="flex gap-[.3rem] flex-wrap pt-[.2rem]">
             {YEUX.map(v => (
               <button key={v} type="button"
                 className={`chip ${local.yeux === v ? 'active' : ''}`}
+                aria-pressed={local.yeux === v}
                 onClick={() => set('yeux', v)}
               >
                 {v}
@@ -102,11 +103,12 @@ export default function StepMesures({
           </div>
         </Field>
 
-        <Field label="Couleur des cheveux" optional>
+        <Field label="Couleur des cheveux" optional asGroup>
           <div className="flex gap-[.3rem] flex-wrap pt-[.2rem]">
             {CHEVEUX.map(v => (
               <button key={v} type="button"
                 className={`chip ${local.cheveux === v ? 'active' : ''}`}
+                aria-pressed={local.cheveux === v}
                 onClick={() => set('cheveux', v)}
               >
                 {v}

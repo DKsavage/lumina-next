@@ -56,13 +56,14 @@ export default function StepProfil({
         </Field>
 
         {/* Expérience — chips */}
-        <Field label="Expérience" required>
+        <Field label="Expérience" required asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.2rem]">
             {EXPERIENCES.map(e => (
               <button
                 key={e}
                 type="button"
                 className={`chip ${local.experience === e ? 'active' : ''}`}
+                aria-pressed={local.experience === e}
                 onClick={() => set('experience', e)}
               >
                 {e}

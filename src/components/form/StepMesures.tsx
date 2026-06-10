@@ -40,10 +40,10 @@ export default function StepMesures({
     <>
       {/* ── GROUPE A : CORPS ─────────────────────── */}
       <GroupLabel>Corps</GroupLabel>
-      <div className="flex flex-col gap-[.85rem] mb-5">
+      <div className="flex flex-col gap-[1.6rem] mb-7">
 
         {/* 3 mensurations principales sur une ligne */}
-        <div className="grid grid-cols-3 gap-[.7rem]">
+        <div className="grid grid-cols-3 gap-[.9rem]">
           <Field label="Poitrine cm" required>
             <input type="number" placeholder="88" min="60" max="140"
               className="input-underline" value={local.poitrine}
@@ -62,7 +62,7 @@ export default function StepMesures({
         </div>
 
         {/* Poids (optionnel) + Pointure */}
-        <div className="grid grid-cols-2 gap-[.8rem]">
+        <div className="grid grid-cols-2 gap-[1rem]">
           <Field label="Poids kg" optional>
             <input type="number" placeholder="60" min="35" max="150"
               className="input-underline" value={local.poids}
@@ -87,10 +87,10 @@ export default function StepMesures({
 
       {/* ── GROUPE B : STYLE ─────────────────────── */}
       <GroupLabel>Apparence</GroupLabel>
-      <div className="flex flex-col gap-[.85rem] mb-6">
+      <div className="flex flex-col gap-[1.6rem] mb-7">
 
         <Field label="Couleur des yeux" required asGroup>
-          <div className="flex gap-[.3rem] flex-wrap pt-[.2rem]">
+          <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">
             {YEUX.map(v => (
               <button key={v} type="button"
                 className={`chip ${local.yeux === v ? 'active' : ''}`}
@@ -104,7 +104,7 @@ export default function StepMesures({
         </Field>
 
         <Field label="Couleur des cheveux" optional asGroup>
-          <div className="flex gap-[.3rem] flex-wrap pt-[.2rem]">
+          <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">
             {CHEVEUX.map(v => (
               <button key={v} type="button"
                 className={`chip ${local.cheveux === v ? 'active' : ''}`}
@@ -129,8 +129,8 @@ export default function StepMesures({
 function GroupLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex items-center gap-3 mb-3"
-      style={{ borderBottom: '1px solid var(--ivory)', paddingBottom: '.5rem' }}
+      className="flex items-center gap-3 mb-4"
+      style={{ borderBottom: '1px solid var(--ivory)', paddingBottom: '.6rem' }}
     >
       <span
         className="font-medium uppercase tracking-[.28em]"

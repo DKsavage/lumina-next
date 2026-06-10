@@ -123,7 +123,7 @@ export default function CandidatureForm() {
                 aria-current={i === step ? 'step' : undefined}
               >
                 <div
-                  className="absolute top-0 left-0 right-0 h-[1.5px] transition-all duration-500"
+                  className="absolute top-0 left-0 right-0 h-[1.5px] transition-colors duration-500"
                   style={{
                     background: i <= step ? 'var(--red)' : 'var(--ivory)',
                     transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',

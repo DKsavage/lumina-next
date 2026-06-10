@@ -133,17 +133,17 @@ export function Field({
       {label}
       {/* aria-hidden sur * : l'astérisque est décoratif, l'info "requis" vient de aria-label du groupe */}
       {required  && <span aria-hidden="true" style={{ color: 'var(--red)' }}>*</span>}
-      {optional  && <span style={{ color: 'rgba(12,11,9,.2)', fontStyle: 'italic', letterSpacing: '.05em', textTransform: 'none' }}>optionnel</span>}
+      {optional  && <span style={{ color: 'rgba(12,11,9,.35)', fontStyle: 'italic', letterSpacing: '.05em', textTransform: 'none' }}>optionnel</span>}
     </>
   )
   const cls   = "font-medium tracking-[.22em] uppercase flex gap-1 items-center"
-  const style = { fontSize: '.52rem', color: 'rgba(12,11,9,.35)' } as const
+  const style = { fontSize: '.65rem', color: 'rgba(12,11,9,.55)' } as const
 
   /* Groupe de boutons (chips) — role="group" + aria-label au lieu de <label htmlFor> */
   if (asGroup) {
     return (
       <div
-        className="flex flex-col gap-[.3rem]"
+        className="flex flex-col gap-[.6rem] pt-[.4rem]"
         role="group"
         aria-label={`${label}${required ? ' (requis)' : ''}`}
       >
@@ -153,9 +153,10 @@ export function Field({
     )
   }
 
-  /* Champ input/select — <label> enveloppe l'input : association implicite, pas besoin de htmlFor+id */
+  /* pt-[.4rem] : espace entre l'élément du dessus et ce label.
+     gap-[.6rem] : espace entre le label et son input. */
   return (
-    <label className="flex flex-col gap-[.3rem]">
+    <label className="flex flex-col gap-[.6rem] pt-[.4rem]">
       <span className={cls} style={style}>{labelText}</span>
       {children}
     </label>

@@ -38,13 +38,17 @@ export default function StepProfil({
 
   return (
     <>
-      <div className="flex flex-col gap-[.85rem] mb-5">
+      <div className="flex flex-col gap-[2rem] mb-8">
 
         {/* Ville — Select shadcn restyled */}
         <Field label="Ville" required>
           {/* SelectTrigger hérite de input-underline via la classe CSS injectée */}
           <Select value={local.ville ?? ''} onValueChange={(v: string | null) => set('ville', v ?? '')}>
-            <SelectTrigger className="select-underline">
+            {/* color inline : React state > CSS attribute detection (plus fiable avec Base UI) */}
+            <SelectTrigger
+              className="select-underline"
+              style={{ color: local.ville ? 'var(--ink)' : 'rgba(12,11,9,.3)' }}
+            >
               <SelectValue placeholder="Choisir une ville…" />
             </SelectTrigger>
             <SelectContent className="select-content-couture">
@@ -57,7 +61,7 @@ export default function StepProfil({
 
         {/* Expérience — chips */}
         <Field label="Expérience" required asGroup>
-          <div className="flex gap-[.35rem] flex-wrap pt-[.2rem]">
+          <div className="flex gap-[.4rem] flex-wrap pt-[.1rem]">
             {EXPERIENCES.map(e => (
               <button
                 key={e}

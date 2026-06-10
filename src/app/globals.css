@@ -309,8 +309,8 @@ body:has(a:hover, button:hover) #cur-dot {
    Ligne rouge animée qui descend — apparaît 2s après le chargement.
 ────────────────────────────────────────────────────────────── */
 @keyframes scrollFill {
-  0%   { top: -100%; }
-  100% { top: 200%; }
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(300%); }
 }
 
 @keyframes fadeInDelayed {
@@ -318,6 +318,11 @@ body:has(a:hover, button:hover) #cur-dot {
 }
 
 .scroll-fill {
+  /* position: absolute + top: 0 → l'élément part du haut de son conteneur.
+     translateY() déplace ensuite par rapport à la hauteur propre de l'élément,
+     contrairement à top: qui déclenchait un recalcul de layout à chaque frame. */
+  position: absolute;
+  top: 0;
   animation: scrollFill 2.5s ease-in-out infinite;
 }
 
@@ -441,7 +446,7 @@ body:has(a:hover, button:hover) #cur-dot {
   padding: .38rem 1.1rem;
   font-size: .44rem; font-weight: 500; letter-spacing: .38em; text-transform: uppercase;
   color: rgba(247,243,238,.5);
-  animation: fadeUpBlur .8s var(--ease-out) .1s both;
+  animation: fadeUp .8s var(--ease-out) .1s both;
 }
 .lum-dash { color: rgba(196,160,90,.45); font-size: .34rem; }
 .lum-h1 {
@@ -451,7 +456,7 @@ body:has(a:hover, button:hover) #cur-dot {
   letter-spacing: -.025em;
   color: rgba(247,243,238,.95);
   text-wrap: balance;
-  animation: fadeUpBlur .9s var(--ease-out) .22s both;
+  animation: fadeUp .9s var(--ease-out) .22s both;
 }
 .lum-h1 em { color: var(--red); font-style: italic; }
 .lum-rule {
@@ -514,10 +519,6 @@ body:has(a:hover, button:hover) #cur-dot {
 .lum-dot.active { width: 2rem; background: rgba(247,243,238,.5); }
 
 /* ── ENTRÉES ANIMÉES ── */
-@keyframes fadeUpBlur {
-  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
-  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -742,8 +743,11 @@ body:has(a:hover, button:hover) #cur-dot {
   border-bottom-color: var(--red);
   box-shadow: 0 1px 0 var(--red);
 }
-.select-underline span { color: rgba(12,11,9,.18); font-weight: 300; }
-.select-underline [data-placeholder] { color: rgba(12,11,9,.18); }
+/* Placeholder uniquement — pas d'override sur la valeur sélectionnée.
+   Base UI pose data-placeholder sur le trigger lui-même quand vide. */
+.select-underline[data-placeholder],
+.select-underline [data-placeholder],
+.select-underline [data-empty] { color: rgba(12,11,9,.18); font-weight: 300; }
 
 /* Dropdown du Select — style editorial */
 .select-content-couture {

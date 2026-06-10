@@ -106,7 +106,7 @@ export default function CandidatureForm() {
             Candidature — Étape {step + 1}/3
           </span>
           {/* role="status" + aria-live : annonce le nom de la nouvelle étape aux screen readers */}
-          <span role="status" aria-live="polite" className="font-display italic text-ink" style={{ fontSize: '1.2rem', fontWeight: 400, textWrap: 'balance' } as React.CSSProperties}>
+          <span role="status" aria-live="polite" className="font-display italic text-ink" style={{ fontSize: '1.5rem', fontWeight: 400, textWrap: 'balance' } as React.CSSProperties}>
             {STEPS[step]}
           </span>
         </div>

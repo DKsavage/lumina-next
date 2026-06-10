@@ -562,6 +562,10 @@ body:has(a:hover, button:hover) #cur-dot {
 
   .sheet-handle { display: none; }
 
+  /* Zones upload : le 4/5 portrait donne ~249px sur desktop — trop dominant.
+     On plafonne sans changer le ratio (le hover-fill reste cohérent). */
+  .upload-zone { max-height: 9.5rem; }
+
   /* Compteur — droite sur desktop */
   .lum-counter {
     left: auto; right: 2.5rem;

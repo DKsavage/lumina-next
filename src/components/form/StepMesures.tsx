@@ -134,7 +134,7 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
     >
       <span
         className="font-medium uppercase tracking-[.28em]"
-        style={{ fontSize: '.48rem', color: 'var(--red)' }}
+        style={{ fontSize: '.6rem', color: 'var(--red)' }}
       >
         {children}
       </span>

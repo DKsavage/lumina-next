@@ -106,7 +106,7 @@ export default function CandidatureForm() {
             Candidature — Étape {step + 1}/3
           </span>
           {/* role="status" + aria-live : annonce le nom de la nouvelle étape aux screen readers */}
-          <span role="status" aria-live="polite" className="font-display italic text-ink" style={{ fontSize: '1.2rem', fontWeight: 400 }}>
+          <span role="status" aria-live="polite" className="font-display italic text-ink" style={{ fontSize: '1.2rem', fontWeight: 400, textWrap: 'balance' } as React.CSSProperties}>
             {STEPS[step]}
           </span>
         </div>
@@ -131,7 +131,7 @@ export default function CandidatureForm() {
                 />
                 <span
                   className="font-medium tracking-[.15em]"
-                  style={{ fontSize: '.5rem', color: i <= step ? 'var(--red)' : 'var(--muted)' }}
+                  style={{ fontSize: '.5rem', color: i <= step ? 'var(--red)' : 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}
                 >
                   0{i + 1}
                 </span>
@@ -150,7 +150,7 @@ export default function CandidatureForm() {
       {/* ── CONTENU ANIMÉ ───────────────────────────────── */}
       {/* overflow:hidden sur le parent clip les slides qui arrivent/partent */}
       <div className="relative" style={{ overflow: 'hidden' }}>
-        <AnimatePresence mode="popLayout" custom={dir}>
+        <AnimatePresence mode="popLayout" custom={dir} initial={false}>
           {done ? (
             <motion.div
               key="done"

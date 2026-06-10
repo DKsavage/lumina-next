@@ -614,7 +614,8 @@ body:has(a:hover, button:hover) #cur-dot {
   transition: transform 0.45s var(--ease-out);
 }
 .upload-zone:hover::after { transform: translateY(0); }
-.upload-zone:hover { border-color: rgba(139, 0, 32, 0.4); }
+.upload-zone:hover  { border-color: rgba(139, 0, 32, 0.4); }
+.upload-zone:active { transform: scale(0.98); }
 .upload-zone:hover .up-ring {
   transform: scale(1.08);
   border-color: var(--red);
@@ -648,8 +649,8 @@ body:has(a:hover, button:hover) #cur-dot {
   transition: transform 0.55s var(--ease-out);
 }
 .btn-couture:hover::before { transform: translateX(0); }
-/* Feedback tactile au press — scale(0.97) recommandé (make-interfaces-feel-better) */
-.btn-couture:active { transform: scale(0.97); }
+/* Feedback tactile au press — scale(0.96) = valeur exacte make-interfaces-feel-better */
+.btn-couture:active { transform: scale(0.96); }
 
 /* Cercle flottant intégré dans le bouton — "button-in-button" */
 .btn-circle {

@@ -212,8 +212,8 @@ export function BackButton({ onClick }: { onClick: () => void }) {
       className="w-full flex items-center justify-center gap-2 font-medium uppercase"
       style={{
         fontSize: '.52rem', letterSpacing: '.22em', color: 'rgba(12,11,9,.3)',
-        padding: '.7rem', marginTop: '.5rem',
-        transition: 'color 0.2s',
+        minHeight: '44px', padding: '.7rem', marginTop: '.5rem',
+        transition: 'color 0.2s, transform 0.15s cubic-bezier(0.16,1,0.3,1)',
       }}
     >
       <svg aria-hidden="true" style={{ width: '.8rem', height: '.8rem' }} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">

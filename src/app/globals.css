@@ -533,16 +533,21 @@ body:has(a:hover, button:hover) #cur-dot {
   .lum-nav { padding: 2rem 3.5rem; }
   .lum-nav-links { display: flex; }
 
-  /* Hero centré — form au milieu de l'écran */
+  /* Option C : form plein focus — titre supprimé, form centré dans le viewport */
   .lum-hero {
     justify-content: center;
     align-items: center;
-    padding: 8rem 2rem 5rem;
+    /* 5.5rem = nav height + breathing room (plus le grand 8rem du titre) */
+    padding: 5.5rem 2rem 3rem;
   }
 
-  /* Double-bezel verre */
+  /* Double-bezel verre — overflow-y: auto pour écrans courts (< 800px) */
   .lum-shell {
     width: 100%; max-width: 490px;
+    max-height: calc(100dvh - 7rem);
+    overflow-y: auto;
+    /* Scrollbar invisible mais fonctionnelle */
+    scrollbar-width: none;
     background: rgba(247,243,238,.07);
     border: 1px solid rgba(247,243,238,.14);
     padding: 3px;
@@ -552,6 +557,7 @@ body:has(a:hover, button:hover) #cur-dot {
       0 12px 40px rgba(12,11,9,.35),
       0 3px 12px rgba(12,11,9,.2);
   }
+  .lum-shell::-webkit-scrollbar { display: none; }
 
   .lum-form-card {
     padding: 2.6rem 2.4rem 2.2rem;
@@ -562,9 +568,8 @@ body:has(a:hover, button:hover) #cur-dot {
 
   .sheet-handle { display: none; }
 
-  /* Zones upload : le 4/5 portrait donne ~249px sur desktop — trop dominant.
-     On plafonne sans changer le ratio (le hover-fill reste cohérent). */
-  .upload-zone { max-height: 9.5rem; }
+  /* Upload zones : plafond réduit à 8rem — form-focus sans titre = tout doit tenir */
+  .upload-zone { max-height: 8rem; }
 
   /* Compteur — droite sur desktop */
   .lum-counter {

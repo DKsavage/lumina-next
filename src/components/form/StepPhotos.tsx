@@ -209,7 +209,7 @@ export function CtaButton({
 export function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <button type="button" onClick={onClick}
-      className="w-full flex items-center justify-center gap-2 font-medium uppercase"
+      className="w-full flex items-center justify-center gap-2 font-medium uppercase active:scale-[0.96]"
       style={{
         fontSize: '.52rem', letterSpacing: '.22em', color: 'rgba(12,11,9,.3)',
         minHeight: '44px', padding: '.7rem', marginTop: '.5rem',

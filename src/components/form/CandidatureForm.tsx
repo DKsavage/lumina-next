@@ -10,7 +10,7 @@ import Confirmation  from './Confirmation'
 /* Direction de la transition :
    - Avancer (next) : ancienne étape part à gauche, nouvelle arrive de droite
    - Reculer (prev) : ancienne part à droite, nouvelle arrive de gauche
-   Emil Design Eng : exit rapide (180ms ease-in), entrée lente (320ms ease-out) */
+   Timing : enter 280ms ease-out (< 300ms, 12-principles), exit 180ms ease-in */
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
 const EASE_IN  = [0.4, 0, 1, 1]    as const
 
@@ -22,7 +22,7 @@ const VARIANTS = {
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.32, ease: EASE_OUT },
+    transition: { duration: 0.28, ease: EASE_OUT },
   },
   exit: (dir: number) => ({
     x: dir > 0 ? '-60%' : '60%',

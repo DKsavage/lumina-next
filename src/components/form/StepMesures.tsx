@@ -40,49 +40,40 @@ export default function StepMesures({
     <>
       {/* ── GROUPE A : CORPS ─────────────────────── */}
       <GroupLabel>Corps</GroupLabel>
-      <div className="flex flex-col gap-[1.1rem] mb-6">
-
-        {/* 3 mensurations principales sur une ligne */}
-        <div className="grid grid-cols-3 gap-[.9rem]">
-          <Field label="Poitrine cm" required>
-            <input type="number" placeholder="88" min="60" max="140"
-              className="input-underline" value={local.poitrine}
-              onChange={e => set('poitrine', e.target.value)} />
-          </Field>
-          <Field label="Taille cm" required>
-            <input type="number" placeholder="68" min="50" max="120"
-              className="input-underline" value={local.tailleMes}
-              onChange={e => set('tailleMes', e.target.value)} />
-          </Field>
-          <Field label="Hanches cm" required>
-            <input type="number" placeholder="92" min="60" max="140"
-              className="input-underline" value={local.hanches}
-              onChange={e => set('hanches', e.target.value)} />
-          </Field>
-        </div>
-
-        {/* Poids (optionnel) + Pointure */}
-        <div className="grid grid-cols-2 gap-[1rem]">
-          <Field label="Poids kg" optional>
-            <input type="number" placeholder="60" min="35" max="150"
-              className="input-underline" value={local.poids}
-              onChange={e => set('poids', e.target.value)} />
-          </Field>
-          <Field label="Pointure" required>
-            {/* Select natif restyled — plus léger que shadcn Select pour un seul champ */}
-            <select
-              className="input-underline"
-              value={local.pointure}
-              onChange={e => set('pointure', e.target.value)}
-              style={{ cursor: 'pointer', paddingRight: '1rem' }}
-            >
-              <option value="" disabled>— EU</option>
-              {POINTURES.map(p => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
-          </Field>
-        </div>
+      <div className="flex flex-col gap-[.75rem] mb-6">
+        <Field label="Poitrine cm" required inline>
+          <input type="number" placeholder="88" min="60" max="140"
+            className="input-underline" value={local.poitrine}
+            onChange={e => set('poitrine', e.target.value)} />
+        </Field>
+        <Field label="Taille cm" required inline>
+          <input type="number" placeholder="68" min="50" max="120"
+            className="input-underline" value={local.tailleMes}
+            onChange={e => set('tailleMes', e.target.value)} />
+        </Field>
+        <Field label="Hanches cm" required inline>
+          <input type="number" placeholder="92" min="60" max="140"
+            className="input-underline" value={local.hanches}
+            onChange={e => set('hanches', e.target.value)} />
+        </Field>
+        <Field label="Poids kg" optional inline>
+          <input type="number" placeholder="60" min="35" max="150"
+            className="input-underline" value={local.poids}
+            onChange={e => set('poids', e.target.value)} />
+        </Field>
+        <Field label="Pointure" required inline>
+          <select
+            className="input-underline"
+            value={local.pointure}
+            onChange={e => set('pointure', e.target.value)}
+            style={{ cursor: 'pointer', paddingRight: '1rem' }}
+          >
+            <option value="" disabled>— EU</option>
+            {POINTURES.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </Field>
       </div>
 
       {/* ── GROUPE B : STYLE ─────────────────────── */}

@@ -76,9 +76,9 @@ export default function StepProfil({
           </div>
         </Field>
 
-        {/* Instagram — optionnel */}
-        <Field label="Instagram" optional>
-          <div className="flex items-center gap-2">
+        {/* Instagram — optionnel, inline */}
+        <Field label="Instagram" optional inline>
+          <div className="flex items-center gap-2 flex-1">
             <span style={{ fontSize: '.75rem', color: 'rgba(12,11,9,.2)', lineHeight: 1 }}>@</span>
             <input
               type="text"

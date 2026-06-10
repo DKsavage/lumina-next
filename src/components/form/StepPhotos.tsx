@@ -61,34 +61,32 @@ export default function StepPhotos({
         ))}
       </div>
 
-      {/* CHAMPS IDENTITÉ */}
-      <div className="flex flex-col gap-[1.1rem] mb-5">
-        <div className="grid grid-cols-2 gap-[.85rem]">
-          <Field label="Prénom" required>
-            <input type="text" placeholder="Sophie" className="input-underline"
-              value={local.prenom} onChange={e => set('prenom', e.target.value)} />
-          </Field>
-          <Field label="Nom" required>
-            <input type="text" placeholder="Martin" className="input-underline"
-              value={local.nom} onChange={e => set('nom', e.target.value)} />
-          </Field>
-        </div>
+      {/* CHAMPS IDENTITÉ — inline : label gauche, input droite sur même baseline */}
+      <div className="flex flex-col gap-[.75rem] mb-5">
+        <Field label="Prénom" required inline>
+          <input type="text" placeholder="Sophie" className="input-underline"
+            value={local.prenom} onChange={e => set('prenom', e.target.value)} />
+        </Field>
 
-        <Field label="Email" required>
+        <Field label="Nom" required inline>
+          <input type="text" placeholder="Martin" className="input-underline"
+            value={local.nom} onChange={e => set('nom', e.target.value)} />
+        </Field>
+
+        <Field label="Email" required inline>
           <input type="email" placeholder="sophie@exemple.com" className="input-underline"
             value={local.email} onChange={e => set('email', e.target.value)} />
         </Field>
 
-        <div className="grid grid-cols-2 gap-[.85rem]">
-          <Field label="Téléphone" required>
-            <input type="tel" placeholder="+1 514 …" className="input-underline"
-              value={local.telephone} onChange={e => set('telephone', e.target.value)} />
-          </Field>
-          <Field label="Taille cm" required>
-            <input type="number" placeholder="175" min="140" max="210" className="input-underline"
-              value={local.taille} onChange={e => set('taille', e.target.value)} />
-          </Field>
-        </div>
+        <Field label="Téléphone" required inline>
+          <input type="tel" placeholder="+1 514 …" className="input-underline"
+            value={local.telephone} onChange={e => set('telephone', e.target.value)} />
+        </Field>
+
+        <Field label="Taille cm" required inline>
+          <input type="number" placeholder="175" min="140" max="210" className="input-underline"
+            value={local.taille} onChange={e => set('taille', e.target.value)} />
+        </Field>
 
         <Field label="Genre" required asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.2rem]">
@@ -121,12 +119,14 @@ export function Field({
   optional,
   children,
   asGroup = false,
+  inline  = false,
 }: {
   label: string
   required?: boolean
   optional?: boolean
   children: React.ReactNode
   asGroup?: boolean
+  inline?:  boolean
 }) {
   const labelText = (
     <>
@@ -138,6 +138,22 @@ export function Field({
   )
   const cls   = "font-medium tracking-[.22em] uppercase flex gap-1 items-center"
   const style = { fontSize: '.65rem', color: 'rgba(12,11,9,.55)' } as const
+
+  /* Mode inline : label à gauche + input à droite sur la même baseline.
+     Disposition editorial — label visible sans doubler la hauteur du champ. */
+  if (inline) {
+    return (
+      <label className="flex items-baseline gap-3">
+        <span
+          className="font-medium uppercase tracking-[.18em] flex gap-[.18em] items-center flex-shrink-0"
+          style={{ fontSize: '.52rem', color: 'rgba(12,11,9,.38)', minWidth: '5rem' }}
+        >
+          {labelText}
+        </span>
+        <div className="flex-1">{children}</div>
+      </label>
+    )
+  }
 
   /* Groupe de boutons (chips) — role="group" + aria-label au lieu de <label htmlFor> */
   if (asGroup) {

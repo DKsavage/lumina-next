@@ -59,7 +59,7 @@ export default function HeroSplit() {
             Chaque slide a animation: show 25s + kenBurns 25s avec un delay de N×5s.
             Résultat : une slide devient visible toutes les 5s, sans JS. */}
         <div
-          style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+          style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden', isolation: 'isolate' }}
           aria-hidden="true"
         >
           {SLIDES.map((slide, i) => (

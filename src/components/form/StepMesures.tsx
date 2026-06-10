@@ -40,7 +40,7 @@ export default function StepMesures({
     <>
       {/* ── GROUPE A : CORPS ─────────────────────── */}
       <GroupLabel>Corps</GroupLabel>
-      <div className="flex flex-col gap-[1.6rem] mb-7">
+      <div className="flex flex-col gap-[1.1rem] mb-6">
 
         {/* 3 mensurations principales sur une ligne */}
         <div className="grid grid-cols-3 gap-[.9rem]">
@@ -87,7 +87,7 @@ export default function StepMesures({
 
       {/* ── GROUPE B : STYLE ─────────────────────── */}
       <GroupLabel>Apparence</GroupLabel>
-      <div className="flex flex-col gap-[1.6rem] mb-7">
+      <div className="flex flex-col gap-[1.1rem] mb-6">
 
         <Field label="Couleur des yeux" required asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">

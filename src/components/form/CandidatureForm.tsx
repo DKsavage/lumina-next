@@ -112,39 +112,35 @@ export default function CandidatureForm() {
         </div>
       )}
 
-      {/* ── BARRE DE PROGRESSION ────────────────────────── */}
+      {/* ── BARRE DE PROGRESSION ──────────────────────────
+           3 barres + numéros. Le nom d'étape vit dans l'en-tête
+           (italic display) — pas besoin de le répéter ici. */}
       {!done && (
-        <div className="mb-6">
-          {/* Stepper visuel */}
-          <div className="flex mb-3">
-            {STEPS.map((label, i) => (
-              <div key={i}
-                className="flex-1 flex flex-col gap-[.45rem] relative pt-[.85rem]"
-                aria-current={i === step ? 'step' : undefined}
+        <div className="flex gap-[.5rem] mb-7">
+          {STEPS.map((_, i) => (
+            <div key={i} className="flex-1 flex flex-col gap-[.5rem]"
+              aria-current={i === step ? 'step' : undefined}
+            >
+              <div
+                className="h-[2px] w-full transition-colors duration-500"
+                style={{
+                  background: i <= step ? 'var(--red)' : 'rgba(12,11,9,.1)',
+                  transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: '.6rem',
+                  letterSpacing: '.1em',
+                  fontVariantNumeric: 'tabular-nums',
+                  color: i <= step ? 'var(--red)' : 'rgba(12,11,9,.2)',
+                }}
               >
-                {/* Barre de progression — 2px, rouge si étape passée/active */}
-                <div
-                  className="absolute top-0 left-0 right-0 h-[2px] transition-colors duration-500"
-                  style={{
-                    background: i <= step ? 'var(--red)' : 'rgba(12,11,9,.1)',
-                    transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
-                  }}
-                />
-                <span
-                  className="font-medium tracking-[.12em]"
-                  style={{ fontSize: '.62rem', color: i <= step ? 'var(--red)' : 'rgba(12,11,9,.2)', fontVariantNumeric: 'tabular-nums' }}
-                >
-                  0{i + 1}
-                </span>
-                <span
-                  className="font-medium tracking-[.14em] uppercase"
-                  style={{ fontSize: '.62rem', color: i === step ? 'var(--ink)' : 'rgba(12,11,9,.28)' }}
-                >
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
+                0{i + 1}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

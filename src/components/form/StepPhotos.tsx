@@ -62,8 +62,8 @@ export default function StepPhotos({
       </div>
 
       {/* CHAMPS IDENTITÉ */}
-      <div className="flex flex-col gap-[1.4rem] mb-5">
-        <div className="grid grid-cols-2 gap-[1rem]">
+      <div className="flex flex-col gap-[1.1rem] mb-5">
+        <div className="grid grid-cols-2 gap-[.85rem]">
           <Field label="Prénom" required>
             <input type="text" placeholder="Sophie" className="input-underline"
               value={local.prenom} onChange={e => set('prenom', e.target.value)} />
@@ -79,7 +79,7 @@ export default function StepPhotos({
             value={local.email} onChange={e => set('email', e.target.value)} />
         </Field>
 
-        <div className="grid grid-cols-2 gap-[1rem]">
+        <div className="grid grid-cols-2 gap-[.85rem]">
           <Field label="Téléphone" required>
             <input type="tel" placeholder="+1 514 …" className="input-underline"
               value={local.telephone} onChange={e => set('telephone', e.target.value)} />
@@ -143,7 +143,7 @@ export function Field({
   if (asGroup) {
     return (
       <div
-        className="flex flex-col gap-[.6rem] pt-[.4rem]"
+        className="flex flex-col gap-[.5rem]"
         role="group"
         aria-label={`${label}${required ? ' (requis)' : ''}`}
       >
@@ -153,10 +153,8 @@ export function Field({
     )
   }
 
-  /* pt-[.4rem] : espace entre l'élément du dessus et ce label.
-     gap-[.6rem] : espace entre le label et son input. */
   return (
-    <label className="flex flex-col gap-[.6rem] pt-[.4rem]">
+    <label className="flex flex-col gap-[.5rem]">
       <span className={cls} style={style}>{labelText}</span>
       {children}
     </label>

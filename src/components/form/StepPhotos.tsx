@@ -187,15 +187,28 @@ export function CtaButton({
   disabled?: boolean
   onClick?: () => void
 }) {
+  /* shake : auto-géré dans le composant — pas besoin de remonter l'état.
+     aria-disabled remplace disabled pour que le click soit toujours captable. */
+  const [shaking, setShaking] = useState(false)
+
+  const handleClick = () => {
+    if (disabled) {
+      setShaking(true)
+      setTimeout(() => setShaking(false), 480)
+      return
+    }
+    onClick?.()
+  }
+
   return (
     /* form-cta : sticky en bas de la carte sur mobile, static sur desktop.
        Fondu blanc au-dessus pour signaler qu'il y a du contenu à scroller. */
     <div className="form-cta">
       <button
         type="button"
-        disabled={disabled}
-        onClick={onClick}
-        className="btn-couture w-full flex items-center justify-between"
+        aria-disabled={disabled}
+        onClick={handleClick}
+        className={`btn-couture w-full flex items-center justify-between${shaking ? ' shake' : ''}`}
         style={{
           padding: '.75rem .75rem .75rem 1.4rem',
           opacity: disabled ? 0.38 : 1,

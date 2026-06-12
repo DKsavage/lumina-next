@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Montserrat, Geist } from 'next/font/google'
 import CustomCursor from '@/components/CustomCursor'
 import './globals.css'
@@ -26,6 +26,15 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
   display: 'swap',
 })
+
+/* interactiveWidget: 'resizes-content' → le navigateur rétrécit le contenu
+   quand le clavier virtuel apparaît (au lieu de le superposer).
+   Corrige le bug iOS Safari où le formulaire est masqué derrière le clavier. */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  interactiveWidget: 'resizes-content',
+}
 
 export const metadata: Metadata = {
   title: 'Lumina Photography — Casting Montréal',

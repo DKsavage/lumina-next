@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 
 /* 5 photos en bande horizontale.
-   Chaque carte a un ratio portrait 3:4, overflow:hidden pour l'effet scale au hover.
+   Le container utilise staggerChildren → chaque photo entre avec 80ms de décalage.
    En prod : remplacer les URLs picsum par Supabase Storage. */
 const PHOTOS = [
   { seed: 'strip1', alt: 'Mannequin Lumina — portrait éditorial' },
@@ -14,13 +14,26 @@ const PHOTOS = [
   { seed: 'strip5', alt: 'Mannequin Lumina — lookbook été' },
 ]
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
+/* stagger : le container déclenche les enfants en cascade */
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+}
+/* chaque photo entre par le bas + légère mise à l'échelle */
+const photo = {
+  hidden:  { opacity: 0, y: 24, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 1.0, ease: EASE } },
+}
+
 export default function PhotoStrip() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      variants={container}
+      initial="hidden"
+      whileInView="visible"
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(5, 1fr)',
@@ -28,9 +41,10 @@ export default function PhotoStrip() {
         background: 'var(--ink)',
       }}
     >
-      {PHOTOS.map((photo, i) => (
-        <div
-          key={photo.seed}
+      {PHOTOS.map((p, i) => (
+        <motion.div
+          key={p.seed}
+          variants={photo}
           className="photo-strip-item group"
           style={{
             position: 'relative',
@@ -38,8 +52,7 @@ export default function PhotoStrip() {
             overflow: 'hidden',
           }}
         >
-          {/* Scale up légèrement au hover — transform sur le container,
-              pas sur <Image> directement (règle next/image). */}
+          {/* Scale au hover sur le container, jamais sur <Image> directement */}
           <div
             className="photo-strip-inner"
             style={{
@@ -49,8 +62,8 @@ export default function PhotoStrip() {
             }}
           >
             <Image
-              src={`https://picsum.photos/seed/${photo.seed}/500/700`}
-              alt={photo.alt}
+              src={`https://picsum.photos/seed/${p.seed}/500/700`}
+              alt={p.alt}
               fill
               sizes="20vw"
               className="object-cover"
@@ -69,7 +82,7 @@ export default function PhotoStrip() {
               zIndex: 2,
             }}
           />
-        </div>
+        </motion.div>
       ))}
     </motion.div>
   )

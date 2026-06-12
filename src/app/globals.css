@@ -916,35 +916,9 @@ select.input-underline {
 }
 
 /* ═══════════════════════════════════════════════
-   LUXE LAYER — grain, curseur, entrées animées
-   Tous ces styles s'appliquent par-dessus le DA
-   Couture Blanche sans toucher aux tokens.
+   LUXE LAYER — entrées animées, microinteractions
+   Grain et curseur sont déjà définis plus haut.
    ═══════════════════════════════════════════════ */
-
-/* ── GRAIN PAPIER — texture SVG inline, aucune requête réseau.
-   position: fixed = immobile même si la page scroll.
-   opacity: 0.028 = imperceptible consciemment mais ressenti. */
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  z-index: 9998;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C%2Fsvg%3E");
-  background-size: 200px 200px;
-  background-repeat: repeat;
-  opacity: 0.028;
-}
-
-/* ── CURSEUR CROIX ROUGE — signature visuelle des agences mode.
-   pointer: fine = souris précise seulement (exclut les écrans tactiles). */
-@media (min-width: 768px) and (pointer: fine) {
-  html {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cline x1='10' y1='2' x2='10' y2='18' stroke='%238B0020' stroke-width='1.2'/%3E%3Cline x1='2' y1='10' x2='18' y2='10' stroke='%238B0020' stroke-width='1.2'/%3E%3C%2Fsvg%3E") 10 10, crosshair;
-  }
-  a, button, label, .upload-zone, .chip, [role="button"] {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cline x1='10' y1='2' x2='10' y2='18' stroke='%238B0020' stroke-width='1.2'/%3E%3Cline x1='2' y1='10' x2='18' y2='10' stroke='%238B0020' stroke-width='1.2'/%3E%3C%2Fsvg%3E") 10 10, pointer;
-  }
-}
 
 /* ── SHELL ENTRANCE — la carte remonte en douceur au chargement ── */
 .lum-shell {
@@ -999,12 +973,30 @@ body::after {
 }
 .lum-nav-link:hover::after { width: 100%; }
 
+/* ── SHAKE — feedback visuel quand CTA cliqué avec formulaire incomplet ──
+   Utilisé par CtaButton quand aria-disabled=true et qu'on clique quand même. */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  40%       { transform: translateX(5px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(3px); }
+}
+.shake { animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+/* ── MOBILE KEYBOARD — assure que les inputs restent visibles
+   quand le clavier virtuel apparaît (iOS Safari + Android Chrome) */
+@media (max-width: 767px) {
+  .lum-form-card { scroll-padding-bottom: 2rem; }
+}
+
 /* ── PREFERS-REDUCED-MOTION — aucune animation si l'utilisateur l'a désactivée.
    Accessibilité : certains utilisateurs ont des troubles vestibulaires. */
 @media (prefers-reduced-motion: reduce) {
   .form-fields > *,
   .lum-shell,
-  .upload-zone.has-file .up-ring { animation: none !important; }
+  .upload-zone.has-file .up-ring,
+  .shake { animation: none !important; }
   .input-underline { transition: none !important; }
   .lum-nav-link::after { transition: none !important; }
 }

@@ -2,35 +2,37 @@
 
 import { useState } from 'react'
 import { type FormData } from './CandidatureForm'
-import { Field, CtaButton, BackButton, Confidentialite } from './StepPhotos'
+import { Field, CtaButton, BackButton } from './StepPhotos'
 
-const YEUX     = ['Marron', 'Noisette', 'Vert', 'Bleu', 'Gris', 'Autre']
-const CHEVEUX  = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autre']
+const YEUX    = ['Marron', 'Noisette', 'Vert', 'Bleu', 'Gris', 'Autre']
+const CHEVEUX = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autre']
+const LONGUEURS = ['Rasé·e', 'Court·e', 'Mi-long·ue', 'Long·ue', 'Très long·ue']
 const POINTURES = Array.from({ length: 13 }, (_, i) => String(34 + i)) // 34 → 46
 
-/* Corps obligatoire : poitrine, taille, hanches, yeux
-   Optionnels : poids, pointure (EU — standard mode international), cheveux */
+/* Corps + pointure obligatoires — nécessaires pour tout projet ou casting.
+   Longueur des cheveux, couleur des cheveux, poids : optionnels. */
 function isValid(d: Partial<FormData>) {
-  return d.poitrine && d.tailleMes && d.hanches && d.yeux
+  return d.poitrine && d.tailleMes && d.hanches && d.pointure && d.yeux
 }
 
 export default function StepMesures({
   data,
-  onSubmit,
+  onNext,
   onPrev,
 }: {
-  data:     FormData
-  onSubmit: (patch: Partial<FormData>) => void
-  onPrev:   () => void
+  data:   FormData
+  onNext: (patch: Partial<FormData>) => void
+  onPrev: () => void
 }) {
   const [local, setLocal] = useState({
-    poitrine:  data.poitrine,
-    tailleMes: data.tailleMes,
-    hanches:   data.hanches,
-    poids:     data.poids,
-    pointure:  data.pointure,
-    yeux:      data.yeux,
-    cheveux:   data.cheveux,
+    poitrine:        data.poitrine,
+    tailleMes:       data.tailleMes,
+    hanches:         data.hanches,
+    poids:           data.poids,
+    pointure:        data.pointure,
+    longueurCheveux: data.longueurCheveux,
+    yeux:            data.yeux,
+    cheveux:         data.cheveux,
   })
 
   const set = (k: keyof typeof local, v: string) =>
@@ -61,7 +63,8 @@ export default function StepMesures({
             className="input-underline" value={local.poids}
             onChange={e => set('poids', e.target.value)} />
         </Field>
-        <Field label="Pointure EU" optional inline>
+        {/* Pointure EU — standard international de l'industrie mode */}
+        <Field label="Pointure EU" required inline>
           <select
             className="input-underline"
             value={local.pointure}
@@ -76,7 +79,7 @@ export default function StepMesures({
         </Field>
       </div>
 
-      {/* ── GROUPE B : STYLE ─────────────────────── */}
+      {/* ── GROUPE B : APPARENCE ─────────────────── */}
       <GroupLabel>Apparence</GroupLabel>
       <div className="flex flex-col gap-[1.1rem] mb-6 form-fields">
 
@@ -87,30 +90,38 @@ export default function StepMesures({
                 className={`chip ${local.yeux === v ? 'active' : ''}`}
                 aria-pressed={local.yeux === v}
                 onClick={() => set('yeux', v)}
-              >
-                {v}
-              </button>
+              >{v}</button>
             ))}
           </div>
         </Field>
 
-        <Field label="Couleur des cheveux" optional asGroup>
+        <Field label="Longueur cheveux" optional asGroup>
+          <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">
+            {LONGUEURS.map(v => (
+              <button key={v} type="button"
+                className={`chip ${local.longueurCheveux === v ? 'active' : ''}`}
+                aria-pressed={local.longueurCheveux === v}
+                onClick={() => set('longueurCheveux', v)}
+              >{v}</button>
+            ))}
+          </div>
+        </Field>
+
+        <Field label="Couleur cheveux" optional asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">
             {CHEVEUX.map(v => (
               <button key={v} type="button"
                 className={`chip ${local.cheveux === v ? 'active' : ''}`}
                 aria-pressed={local.cheveux === v}
                 onClick={() => set('cheveux', v)}
-              >
-                {v}
-              </button>
+              >{v}</button>
             ))}
           </div>
         </Field>
       </div>
 
-      <CtaButton disabled={!isValid(local)} onClick={() => onSubmit(local)}>
-        Envoyer ma candidature
+      <CtaButton disabled={!isValid(local)} onClick={() => onNext(local)}>
+        Continuer — Disponibilité
       </CtaButton>
       <BackButton onClick={onPrev} />
     </>

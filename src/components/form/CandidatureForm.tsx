@@ -45,6 +45,7 @@ export type FormData = {
   genre:       string
   // Étape 2
   ville:       string
+  pays:        string
   experience:  string
   instagram:   string
   // Étape 3
@@ -60,7 +61,7 @@ export type FormData = {
 const EMPTY: FormData = {
   profilFile: null, bodyFile: null,
   prenom: '', nom: '', email: '', telephone: '', taille: '', genre: 'Femme',
-  ville: '', experience: '', instagram: '',
+  ville: '', pays: '', experience: '', instagram: '',
   poitrine: '', tailleMes: '', hanches: '', poids: '', pointure: '', yeux: '', cheveux: '',
 }
 

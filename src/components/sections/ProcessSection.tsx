@@ -16,7 +16,7 @@ const STEPS = [
   {
     n: '03',
     title: 'Shooting test',
-    desc: 'Si retenu(e), vous êtes convoqué(e) pour un shooting test rémunéré à Montréal — premier pas dans notre réseau créatif.',
+    desc: 'Si retenu(e), vous êtes convoqué(e) pour un shooting test rémunéré — premier pas dans notre réseau créatif international.',
   },
 ]
 

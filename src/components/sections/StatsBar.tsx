@@ -64,7 +64,7 @@ const STATS = [
   { count: 200, suffix: '+', label: 'Modèles actifs' },
   { count: 50,  suffix: '+', label: 'Shootings / an' },
   { count: 8,   suffix: '',  label: 'Années d\'expérience' },
-  { isText: true, text: 'MTL', label: 'Montréal, Québec' },
+  { count: 18, suffix: '+', label: 'Nationalités' },
 ]
 
 export default function StatsBar() {
@@ -88,8 +88,6 @@ export default function StatsBar() {
             count={s.count}
             suffix={s.suffix}
             label={s.label}
-            isText={s.isText}
-            text={s.text}
             delay={i * 80}
           />
         </div>

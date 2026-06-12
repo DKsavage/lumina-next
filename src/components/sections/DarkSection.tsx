@@ -7,7 +7,7 @@ const CRITERIA = [
   'Aucune expérience requise — nous accompagnons les débutant(e)s avec soin.',
   'Shooting test rémunéré pour chaque profil retenu.',
   'Accès à notre réseau : photographes, stylistes, directeurs artistiques.',
-  'Projets éditoriaux, commerciaux et campagnes de mode au Québec.',
+  'Projets éditoriaux, commerciaux et campagnes de mode internationales.',
 ]
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -107,7 +107,7 @@ export default function DarkSection() {
             className="font-light leading-[1.9]"
             style={{ fontSize: '.85rem', color: 'rgba(247,243,238,.5)', marginBottom: '2.8rem', maxWidth: '380px' }}
           >
-            Lumina Photography est plus qu'une agence — c'est un collectif de créateurs. Depuis 2018, nous collaborons avec des marques locales exigeantes et des photographes reconnus au Québec.
+            Lumina Photography est plus qu'une agence — c'est un collectif de créateurs. Depuis 2018, nous collaborons avec des marques exigeantes et des photographes reconnus à l'international.
           </motion.p>
 
           <motion.a

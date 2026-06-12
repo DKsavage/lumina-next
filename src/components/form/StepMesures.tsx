@@ -8,10 +8,10 @@ const YEUX     = ['Marron', 'Noisette', 'Vert', 'Bleu', 'Gris', 'Autre']
 const CHEVEUX  = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autre']
 const POINTURES = Array.from({ length: 13 }, (_, i) => String(34 + i)) // 34 → 46
 
-/* Corps obligatoire : poitrine, taille, hanches, pointure, yeux
-   Optionnels : poids, cheveux */
+/* Corps obligatoire : poitrine, taille, hanches, yeux
+   Optionnels : poids, pointure (EU — standard mode international), cheveux */
 function isValid(d: Partial<FormData>) {
-  return d.poitrine && d.tailleMes && d.hanches && d.pointure && d.yeux
+  return d.poitrine && d.tailleMes && d.hanches && d.yeux
 }
 
 export default function StepMesures({
@@ -61,7 +61,7 @@ export default function StepMesures({
             className="input-underline" value={local.poids}
             onChange={e => set('poids', e.target.value)} />
         </Field>
-        <Field label="Pointure" required inline>
+        <Field label="Pointure EU" optional inline>
           <select
             className="input-underline"
             value={local.pointure}

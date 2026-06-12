@@ -1,17 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { type FormData } from './CandidatureForm'
-import { Field, CtaButton, BackButton, Confidentialite } from './StepPhotos'
+import { Field, CtaButton, BackButton } from './StepPhotos'
 
-const VILLES = ['Montréal', 'Laval', 'Longueuil', 'Québec', 'Ottawa', 'Autre']
+/* Expérience : chips seulement — pas de Select, pas de dropdown.
+   Ville et Pays : inputs libres → candidats internationaux bienvenus. */
 const EXPERIENCES = ['Débutant(e)', 'Quelques shootings', 'Expérimenté(e)']
 
 function isValid(d: Partial<FormData>) {
@@ -29,6 +23,7 @@ export default function StepProfil({
 }) {
   const [local, setLocal] = useState({
     ville:      data.ville,
+    pays:       data.pays,
     experience: data.experience,
     instagram:  data.instagram,
   })
@@ -40,23 +35,26 @@ export default function StepProfil({
     <>
       <div className="flex flex-col gap-[1.2rem] mb-6 form-fields">
 
-        {/* Ville — Select shadcn restyled */}
-        <Field label="Ville" required>
-          {/* SelectTrigger hérite de input-underline via la classe CSS injectée */}
-          <Select value={local.ville ?? ''} onValueChange={(v: string | null) => set('ville', v ?? '')}>
-            {/* color inline : React state > CSS attribute detection (plus fiable avec Base UI) */}
-            <SelectTrigger
-              className="select-underline"
-              style={{ color: local.ville ? 'var(--ink)' : 'rgba(12,11,9,.3)' }}
-            >
-              <SelectValue placeholder="Choisir une ville…" />
-            </SelectTrigger>
-            <SelectContent className="select-content-couture">
-              {VILLES.map(v => (
-                <SelectItem key={v} value={v} className="select-item-couture">{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Ville — input libre, ouvert à toutes les villes */}
+        <Field label="Ville" required inline>
+          <input
+            type="text"
+            placeholder="Paris, Montréal, London…"
+            className="input-underline"
+            value={local.ville}
+            onChange={e => set('ville', e.target.value)}
+          />
+        </Field>
+
+        {/* Pays — optionnel, pour les candidats hors Québec */}
+        <Field label="Pays" optional inline>
+          <input
+            type="text"
+            placeholder="France, Canada, Belgique…"
+            className="input-underline"
+            value={local.pays}
+            onChange={e => set('pays', e.target.value)}
+          />
         </Field>
 
         {/* Expérience — chips */}

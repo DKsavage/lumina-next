@@ -37,8 +37,8 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Lumina Photography — Casting Montréal',
-  description: 'Agence de casting photographique à Montréal. Shootings éditoriaux, commerciaux, campagnes de mode. Tous profils.',
+  title: 'Lumina Photography — Casting International',
+  description: 'Agence de casting photographique. Shootings éditoriaux, commerciaux, campagnes de mode internationales. Tous profils, toutes origines.',
 }
 
 export default function RootLayout({

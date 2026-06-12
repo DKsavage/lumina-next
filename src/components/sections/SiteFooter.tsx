@@ -59,7 +59,7 @@ export default function SiteFooter() {
         className="font-light"
         style={{ fontSize: '.52rem', color: 'rgba(12,11,9,.2)', letterSpacing: '.1em' }}
       >
-        © 2026 Lumina Photography · Montréal
+        © 2026 Lumina Photography
       </motion.p>
     </footer>
   )

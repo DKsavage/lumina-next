@@ -88,7 +88,7 @@ export default function HeroSplit() {
           <div className="lum-mobile-atmosphere">
             <div className="lum-eyebrow">
               <span className="lum-dash" aria-hidden="true">———</span>
-              Casting ouvert · Montréal 2026
+              Casting ouvert · 2026
               <span className="lum-dash" aria-hidden="true">———</span>
             </div>
           </div>

@@ -637,10 +637,12 @@ body:has(a:hover, button:hover) #cur-dot {
 .upload-zone::after {
   content: '';
   position: absolute; inset: 0;
+  /* z-index: 0 — reste derrière l'anneau et les labels (z-index: 1) */
+  z-index: 0;
   background: rgba(139, 0, 32, 0.05);
   /* fill remonte du bas — plus élégant que fill de gauche */
   transform: translateY(100%);
-  transition: transform 0.32s var(--ease-out);
+  transition: transform 0.32s var(--ease-out), background 0.4s;
 }
 .upload-zone:hover::after { transform: translateY(0); }
 .upload-zone:hover  { border-color: rgba(139, 0, 32, 0.4); }
@@ -652,11 +654,22 @@ body:has(a:hover, button:hover) #cur-dot {
   color: var(--white);
 }
 
+/* Quand une photo est chargée — overlay sombre pour que les labels restent lisibles */
+.upload-zone.has-file::after {
+  background: rgba(12, 11, 9, 0.50);
+  transform: translateY(0);
+  transition: background 0.3s;
+}
+.upload-zone.has-file:hover::after { background: rgba(12, 11, 9, 0.62); }
+.upload-zone.has-file { border-color: rgba(139, 0, 32, 0.5); border-style: solid; }
+
 .up-ring {
-  width: 2rem; height: 2rem;
+  width: 2.2rem; height: 2.2rem;
+  /* Cercle : échoue la géométrie carrée des chips — cohérent avec btn-circle */
+  border-radius: 50%;
   border: 1px solid rgba(139, 0, 32, 0.22);
   display: flex; align-items: center; justify-content: center;
-  color: var(--red); font-size: 0.8rem;
+  color: var(--red);
   position: relative; z-index: 1;
   flex-shrink: 0;
   /* transform + background — jamais transition:all */
@@ -731,7 +744,8 @@ body:has(a:hover, button:hover) #cur-dot {
   border-bottom-color: transparent;
   box-shadow: none;
 }
-.input-underline::placeholder { color: rgba(12, 11, 9, 0.18); font-weight: 300; }
+/* Italic sur placeholder : accord avec le DA Cormorant editorial — contraste Montserrat caps vs texte cursif */
+.input-underline::placeholder { color: rgba(12, 11, 9, 0.2); font-weight: 300; font-style: italic; font-family: var(--display); font-size: 0.82rem; }
 
 /* ── Chip genre ──────────────────────────────── */
 .chip {
@@ -743,7 +757,7 @@ body:has(a:hover, button:hover) #cur-dot {
   /* 2px : juste assez pour ôter la froideur du carré parfait */
   border-radius: 2px;
   background: var(--paper);
-  font-size: 0.52rem; font-weight: 500;
+  font-size: 0.55rem; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--muted); cursor: pointer; user-select: none;
   transition: background 0.22s var(--ease-out), border-color 0.22s var(--ease-out),
@@ -754,9 +768,8 @@ body:has(a:hover, button:hover) #cur-dot {
 .chip:active { transform: scale(0.96); }
 .chip.active {
   background: var(--red); border-color: var(--red); color: var(--white);
-  /* letter-spacing légèrement réduit sur l'actif — texte plus "posé", moins criant */
-  letter-spacing: 0.18em;
-  box-shadow: 0 2px 10px rgba(139, 0, 32, 0.22);
+  letter-spacing: 0.14em;
+  box-shadow: 0 2px 12px rgba(139, 0, 32, 0.28), 0 1px 4px rgba(139, 0, 32, 0.18);
 }
 
 /* ── Select shadcn restyled — DA Couture Blanche ──
@@ -983,6 +996,10 @@ select.input-underline {
   80%       { transform: translateX(3px); }
 }
 .shake { animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 /* ── MOBILE KEYBOARD — assure que les inputs restent visibles
    quand le clavier virtuel apparaît (iOS Safari + Android Chrome) */

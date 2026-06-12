@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { type FormData } from './CandidatureForm'
 
 const GENRES = ['Femme', 'Homme', 'Non-binaire']
@@ -28,38 +28,90 @@ export default function StepPhotos({
     genre:      data.genre,
   })
 
-  const set = (k: keyof typeof local, v: unknown) =>
+  /* previews : URL blob locales créées par URL.createObjectURL().
+     Elles ne quittent pas le navigateur et sont révoquées à chaque remplacement
+     pour éviter les fuites mémoire (revokeObjectURL). */
+  const [previews, setPreviews] = useState<{ profilFile: string; bodyFile: string }>({
+    profilFile: '', bodyFile: '',
+  })
+
+  useEffect(() => {
+    return () => {
+      if (previews.profilFile) URL.revokeObjectURL(previews.profilFile)
+      if (previews.bodyFile)   URL.revokeObjectURL(previews.bodyFile)
+    }
+    // Nettoyage uniquement au démontage du composant — pas à chaque changement
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleFile = (key: 'profilFile' | 'bodyFile', file: File | null) => {
+    setLocal(prev => ({ ...prev, [key]: file }))
+    setPreviews(prev => {
+      if (prev[key]) URL.revokeObjectURL(prev[key])
+      return { ...prev, [key]: file ? URL.createObjectURL(file) : '' }
+    })
+  }
+
+  const set = (k: Exclude<keyof typeof local, 'profilFile' | 'bodyFile'>, v: unknown) =>
     setLocal(prev => ({ ...prev, [k]: v }))
 
   return (
     <>
-      {/* UPLOAD ZONES */}
+      {/* UPLOAD ZONES — affiche la photo sélectionnée comme fond de zone */}
       <div className="grid grid-cols-2 gap-[.7rem] mb-5">
         {([
-          { key: 'profilFile', label: 'Visage',    sub: 'Portrait clair' },
-          { key: 'bodyFile',   label: 'Full body', sub: 'Corps entier'   },
-        ] as const).map(({ key, label, sub }) => (
-          <label key={key} className={`upload-zone flex flex-col items-center gap-[.45rem] p-6${local[key] ? ' has-file' : ''}`}>
-            {/* aria-hidden : icône décorative, l'info est dans le texte label */}
-            <div className="up-ring" aria-hidden="true">{local[key] ? '✓' : '+'}</div>
-            <span
-              className="font-medium tracking-[.1em] uppercase text-center relative z-[1]"
-              style={{ fontSize: '.58rem', color: local[key] ? 'var(--red)' : 'var(--ink)' }}
+          { key: 'profilFile' as const, label: 'Visage',    sub: 'Portrait clair' },
+          { key: 'bodyFile'   as const, label: 'Full body', sub: 'Corps entier'   },
+        ]).map(({ key, label, sub }) => {
+          const hasPreview = !!previews[key]
+          return (
+            <label
+              key={key}
+              className={`upload-zone flex flex-col items-center gap-[.45rem] p-6${local[key] ? ' has-file' : ''}`}
+              style={hasPreview ? {
+                backgroundImage:    `url(${previews[key]})`,
+                backgroundSize:     'cover',
+                backgroundPosition: 'center top',
+              } : undefined}
             >
-              {local[key] ? (local[key] as File).name.slice(0, 14) + '…' : label}
-            </span>
-            {/* Sous-titre en Cormorant italic — contraste Montserrat caps vs display sensoriel */}
-            <span className="font-display italic text-center relative z-[1]" style={{ fontSize: '.72rem', color: 'var(--muted)' }}>
-              {sub}
-            </span>
-            {/* sr-only positionné absolument — accessible au clavier et screen readers,
-                invisible visuellement. display:none le cacherait aux screen readers. */}
-            <input type="file" accept="image/*"
-              aria-label={label}
-              style={{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' }}
-              onChange={e => set(key, e.target.files?.[0] ?? null)} />
-          </label>
-        ))}
+              {/* aria-hidden : icône décorative, l'info est dans le texte label */}
+              <div className="up-ring" aria-hidden="true">
+                {local[key] ? (
+                  /* Check SVG — plus précis que le caractère ✓ */
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
+                    style={{ width: '.7rem', height: '.7rem', flexShrink: 0 }}>
+                    <path d="M3 8.5l3.5 3.5 6.5-7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  /* Plus SVG — plus fin que le + ASCII */
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                    style={{ width: '.7rem', height: '.7rem', flexShrink: 0 }}>
+                    <path d="M8 3v10M3 8h10" strokeLinecap="round" />
+                  </svg>
+                )}
+              </div>
+
+              {/* Quand la photo est chargée : label original + "Modifier" en sous-titre */}
+              <span
+                className="font-medium tracking-[.1em] uppercase text-center relative z-[1]"
+                style={{ fontSize: '.58rem', color: hasPreview ? 'rgba(247,243,238,.9)' : (local[key] ? 'var(--red)' : 'var(--ink)') }}
+              >
+                {label}
+              </span>
+              <span
+                className="font-display italic text-center relative z-[1]"
+                style={{ fontSize: '.72rem', color: hasPreview ? 'rgba(247,243,238,.45)' : 'var(--muted)' }}
+              >
+                {hasPreview ? 'Modifier ↺' : sub}
+              </span>
+
+              <input type="file" accept="image/*"
+                aria-label={`${label}${local[key] ? ' — modifier la photo' : ''}`}
+                style={{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' }}
+                onChange={e => handleFile(key, e.target.files?.[0] ?? null)} />
+            </label>
+          )
+        })}
       </div>
 
       {/* CHAMPS IDENTITÉ — inline : label gauche, input droite sur même baseline */}
@@ -80,7 +132,7 @@ export default function StepPhotos({
         </Field>
 
         <Field label="Téléphone" required inline>
-          <input type="tel" placeholder="+1 514 …" className="input-underline"
+          <input type="tel" placeholder="+1 234 567 8900" className="input-underline"
             value={local.telephone} onChange={e => set('telephone', e.target.value)} />
         </Field>
 
@@ -182,16 +234,20 @@ export function CtaButton({
   children,
   disabled,
   onClick,
+  loading = false,
 }: {
   children: React.ReactNode
   disabled?: boolean
   onClick?: () => void
+  loading?: boolean
 }) {
   /* shake : auto-géré dans le composant — pas besoin de remonter l'état.
-     aria-disabled remplace disabled pour que le click soit toujours captable. */
+     aria-disabled remplace disabled pour que le click soit toujours captable.
+     Pas de shake quand loading : l'envoi est déjà en cours. */
   const [shaking, setShaking] = useState(false)
 
   const handleClick = () => {
+    if (loading) return
     if (disabled) {
       setShaking(true)
       setTimeout(() => setShaking(false), 480)
@@ -200,31 +256,46 @@ export function CtaButton({
     onClick?.()
   }
 
+  const isBlocked = disabled || loading
+
   return (
     /* form-cta : sticky en bas de la carte sur mobile, static sur desktop.
        Fondu blanc au-dessus pour signaler qu'il y a du contenu à scroller. */
     <div className="form-cta">
       <button
         type="button"
-        aria-disabled={disabled}
+        aria-disabled={isBlocked}
+        aria-busy={loading}
         onClick={handleClick}
         className={`btn-couture w-full flex items-center justify-between${shaking ? ' shake' : ''}`}
         style={{
           padding: '.75rem .75rem .75rem 1.4rem',
-          opacity: disabled ? 0.38 : 1,
-          cursor:  disabled ? 'not-allowed' : 'pointer',
+          opacity: isBlocked ? 0.48 : 1,
+          cursor:  isBlocked ? (loading ? 'wait' : 'not-allowed') : 'pointer',
           color:   'white',
         }}
       >
         <span className="relative z-[1] font-medium tracking-[.32em] uppercase" style={{ fontSize: '.58rem' }}>
-          {children}
+          {loading ? 'Envoi en cours…' : children}
         </span>
-        {/* Cercle flottant — button-in-button (high-end-visual-design) */}
+        {/* Cercle flottant — button-in-button (high-end-visual-design).
+            Loading : spinner rotatif à la place de la flèche. */}
         <span className="btn-circle" aria-hidden="true">
-          <svg style={{ width: '.75rem', height: '.75rem' }}
-            viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M3 8h10M9 4l4 4-4 4" />
-          </svg>
+          {loading ? (
+            <span style={{
+              display: 'block',
+              width: '.75rem', height: '.75rem',
+              border: '1.5px solid rgba(255,255,255,.35)',
+              borderTopColor: 'white',
+              borderRadius: '50%',
+              animation: 'spin 0.75s linear infinite',
+            }} />
+          ) : (
+            <svg style={{ width: '.75rem', height: '.75rem' }}
+              viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          )}
         </span>
       </button>
       <p className="text-center mt-3 font-light tracking-[.06em]"

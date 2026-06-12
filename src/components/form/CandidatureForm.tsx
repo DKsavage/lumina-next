@@ -72,11 +72,24 @@ const EMPTY: FormData = {
   dateNaissance: '', disponibilite: '', langues: '', aspect: '',
 }
 
+/* Convertit un File JS en data URL base64 — seul format sérialisable via JSON.
+   FileReader est asynchrone, d'où la Promise wrapper. */
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader    = new FileReader()
+    reader.onload  = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 export default function CandidatureForm() {
-  const [step, setStep] = useState(0)
-  const [dir,  setDir]  = useState(1)
-  const [data, setData] = useState<FormData>(EMPTY)
-  const [done, setDone] = useState(false)
+  const [step,    setStep]    = useState(0)
+  const [dir,     setDir]     = useState(1)
+  const [data,    setData]    = useState<FormData>(EMPTY)
+  const [done,    setDone]    = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error,   setError]   = useState<string | null>(null)
 
   const goNext = (patch: Partial<FormData>) => {
     setData(prev => ({ ...prev, ...patch }))
@@ -89,9 +102,65 @@ export default function CandidatureForm() {
     setStep(s => s - 1)
   }
 
-  const submit = (patch: Partial<FormData>) => {
-    setData(prev => ({ ...prev, ...patch }))
-    setDone(true)
+  /* submit est async : convertit les photos en base64, appelle l'API,
+     affiche la confirmation seulement si le serveur répond success:true. */
+  const submit = async (patch: Partial<FormData>) => {
+    const full = { ...data, ...patch }
+    setLoading(true)
+    setError(null)
+
+    try {
+      const [photoProfil, photoBody] = await Promise.all([
+        fileToBase64(full.profilFile!),
+        fileToBase64(full.bodyFile!),
+      ])
+
+      const res = await fetch('/api/submit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prenom:          full.prenom,
+          nom:             full.nom,
+          email:           full.email,
+          telephone:       full.telephone,
+          taille:          full.taille,
+          genre:           full.genre,
+          ville:           full.ville,
+          pays:            full.pays,
+          experience:      full.experience,
+          instagram:       full.instagram,
+          poitrine:        full.poitrine,
+          tailleMes:       full.tailleMes,
+          hanches:         full.hanches,
+          poids:           full.poids,
+          pointure:        full.pointure,
+          longueurCheveux: full.longueurCheveux,
+          yeux:            full.yeux,
+          cheveux:         full.cheveux,
+          dateNaissance:   full.dateNaissance,
+          disponibilite:   full.disponibilite,
+          langues:         full.langues,
+          aspect:          full.aspect,
+          photoProfil,
+          photoBody,
+          website:        '',  // honeypot — doit être vide
+          recaptchaToken: '',  // TODO: injecter le token reCAPTCHA v3
+        }),
+      })
+
+      const json = await res.json()
+
+      if (!res.ok || !json.success) {
+        setError(json.message ?? 'Une erreur est survenue. Réessaie dans quelques instants.')
+      } else {
+        setData(full)
+        setDone(true)
+      }
+    } catch {
+      setError('Connexion impossible. Vérifie ta connexion internet et réessaie.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -176,7 +245,7 @@ export default function CandidatureForm() {
             </motion.div>
           ) : (
             <motion.div key="s3" custom={dir} variants={VARIANTS} initial="enter" animate="center" exit="exit">
-              <StepDisponibilite data={data} onSubmit={submit} onPrev={goPrev} />
+              <StepDisponibilite data={data} onSubmit={submit} onPrev={goPrev} loading={loading} error={error} />
             </motion.div>
           )}
         </AnimatePresence>

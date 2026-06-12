@@ -19,10 +19,14 @@ export default function StepDisponibilite({
   data,
   onSubmit,
   onPrev,
+  loading = false,
+  error   = null,
 }: {
   data:     FormData
-  onSubmit: (patch: Partial<FormData>) => void
+  onSubmit: (patch: Partial<FormData>) => void | Promise<void>
   onPrev:   () => void
+  loading?: boolean
+  error?:   string | null
 }) {
   const [local, setLocal] = useState({
     dateNaissance: data.dateNaissance,
@@ -40,9 +44,9 @@ export default function StepDisponibilite({
       <GroupLabel>Profil casting</GroupLabel>
       <div className="flex flex-col gap-[.85rem] mb-6 form-fields">
 
-        {/* Date de naissance — type="date" = picker natif iOS/Android.
-            Valeur retournée : string ISO YYYY-MM-DD, compatible Supabase. */}
-        <Field label="Date de naissance" required inline>
+        {/* Date de naissance — "Naissance" plus court pour le label inline (minWidth: 5rem).
+            type="date" = picker natif iOS/Android. Valeur ISO YYYY-MM-DD → Supabase date. */}
+        <Field label="Naissance" required inline>
           <input
             type="date"
             className="input-underline"
@@ -95,9 +99,25 @@ export default function StepDisponibilite({
         </Field>
       </div>
 
-      <CtaButton disabled={!isValid(local)} onClick={() => onSubmit(local)}>
+      <CtaButton
+        disabled={!isValid(local)}
+        loading={loading}
+        onClick={() => onSubmit(local)}
+      >
         Envoyer ma candidature
       </CtaButton>
+
+      {/* Message d'erreur — role="alert" = annoncé immédiatement par les screen readers */}
+      {error && (
+        <p
+          role="alert"
+          className="text-center"
+          style={{ fontSize: '.58rem', color: 'var(--red)', marginTop: '.75rem', letterSpacing: '.03em', lineHeight: 1.5 }}
+        >
+          {error}
+        </p>
+      )}
+
       <BackButton onClick={onPrev} />
     </>
   )

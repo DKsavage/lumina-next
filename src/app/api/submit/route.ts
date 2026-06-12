@@ -1,7 +1,20 @@
 import { NextResponse } from 'next/server'
 
+/* ── Supabase migration requise pour les nouveaux champs ────────────
+   ALTER TABLE candidatures
+     ADD COLUMN IF NOT EXISTS ville             text,
+     ADD COLUMN IF NOT EXISTS pays              text,
+     ADD COLUMN IF NOT EXISTS poids             numeric,
+     ADD COLUMN IF NOT EXISTS longueur_cheveux  text,
+     ADD COLUMN IF NOT EXISTS couleur_yeux      text,
+     ADD COLUMN IF NOT EXISTS couleur_cheveux   text,
+     ADD COLUMN IF NOT EXISTS date_naissance    date,
+     ADD COLUMN IF NOT EXISTS langues           text,
+     ADD COLUMN IF NOT EXISTS aspect            text;
+──────────────────────────────────────────────────────────────────── */
+
 const MAX_PHOTO_BYTES = 1.5 * 1024 * 1024
-const RATE_LIMIT_MS  = 60_000
+const RATE_LIMIT_MS   = 60_000
 
 /* Map en mémoire — persiste entre requêtes sur la même instance, se réinitialise au cold start */
 const lastSubmitByIp = new Map<string, number>()
@@ -29,9 +42,8 @@ async function uploadPhoto(buffer: Buffer, fileName: string): Promise<string> {
     headers: {
       'apikey':        supabaseKey,
       'Authorization': `Bearer ${supabaseKey}`,
-      'Content-Type': 'image/jpeg',
+      'Content-Type':  'image/jpeg',
     },
-    /* new Uint8Array() convertit Buffer<ArrayBufferLike> → Uint8Array<ArrayBuffer>, compatible avec BodyInit */
     body: new Uint8Array(buffer),
   })
 
@@ -57,34 +69,50 @@ async function sendConfirmationEmails(data: Record<string, string>) {
       html: `
         <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #0a0a0a;">
           <h1 style="font-weight: 300; font-size: 2rem; margin-bottom: 8px;">Lumina Photography</h1>
-          <p style="color: #6b6b6b; margin-bottom: 32px;">Agence de mannequinat</p>
+          <p style="color: #6b6b6b; margin-bottom: 32px;">Agence de casting international</p>
           <p>Bonjour <strong>${data.prenom}</strong>,</p>
-          <p>Tu as bien été enregistré(e) dans notre base de modèles. Nous te contacterons dès qu'un projet correspondant à ton profil se présente.</p>
+          <p>Ta candidature a bien été enregistrée. Nous te contacterons dès qu'un projet correspondant à ton profil se présente.</p>
           <p style="color: #6b6b6b; font-size: 0.9rem; margin-top: 32px;">L'équipe Lumina Photography</p>
         </div>
       `,
     }),
   })
 
+  /* Email admin — tableau complet pour le matching projet */
   const toAdmin = fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from:    'Lumina Photography <casting@luminamodels.ca>',
       to:      ['luminaphotography.mtl@gmail.com'],
-      subject: `Nouveau modèle inscrit — ${data.prenom} ${data.nom}`,
+      subject: `Nouveau modèle — ${data.prenom} ${data.nom}`,
       html: `
-        <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #0a0a0a;">
+        <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #0a0a0a;">
           <h2 style="font-weight: 300;">Nouveau modèle inscrit</h2>
           <table style="width:100%; border-collapse: collapse; font-size: 0.9rem;">
-            <tr><td style="padding: 8px 0; color:#6b6b6b;">Nom</td><td><strong>${data.prenom} ${data.nom}</strong></td></tr>
-            <tr><td style="padding: 8px 0; color:#6b6b6b;">Email</td><td>${data.email}</td></tr>
-            <tr><td style="padding: 8px 0; color:#6b6b6b;">Téléphone</td><td>${data.telephone}</td></tr>
-            <tr><td style="padding: 8px 0; color:#6b6b6b;">Genre</td><td>${data.genre}</td></tr>
-            <tr><td style="padding: 8px 0; color:#6b6b6b;">Taille</td><td>${data.taille} cm</td></tr>
-            <tr><td style="padding: 8px 0; color:#6b6b6b;">Expérience</td><td>${data.experience}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b;width:160px">Nom</td><td><strong>${data.prenom} ${data.nom}</strong></td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Email</td><td>${data.email}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Téléphone</td><td>${data.telephone}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Genre</td><td>${data.genre}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Taille</td><td>${data.taille} cm</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Mensurations</td><td>${data.poitrine}-${data.tailleMes}-${data.hanches} cm</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Pointure EU</td><td>${data.pointure || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Yeux</td><td>${data.yeux || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Cheveux</td><td>${data.longueurCheveux || ''} ${data.cheveux || ''}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Ville / Pays</td><td>${data.ville}${data.pays ? ', ' + data.pays : ''}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Naissance</td><td>${data.dateNaissance || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Disponibilité</td><td>${data.disponibilite || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Langues</td><td>${data.langues || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Aspect</td><td>${data.aspect || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Expérience</td><td>${data.experience || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b6b6b">Instagram</td><td>${data.instagram ? '@' + data.instagram : '—'}</td></tr>
           </table>
-          <p style="margin-top: 24px;"><a href="https://luminamodels.ca/admin/dashboard" style="background:#0a0a0a; color:#fff; padding: 12px 24px; text-decoration: none; font-size: 0.8rem; letter-spacing: 0.1em;">Voir le dashboard →</a></p>
+          <p style="margin-top:24px;">
+            <a href="https://luminamodels.ca/admin/dashboard"
+               style="background:#8B0020;color:#fff;padding:12px 24px;text-decoration:none;font-size:0.8rem;letter-spacing:0.1em;">
+              Voir le dashboard →
+            </a>
+          </p>
         </div>
       `,
     }),
@@ -93,53 +121,51 @@ async function sendConfirmationEmails(data: Record<string, string>) {
   await Promise.all([toCandidate, toAdmin])
 }
 
-/* Limite de durée Vercel — 60s pour laisser le temps aux uploads */
 export const maxDuration = 60
 
 export async function POST(request: Request) {
   const data = await request.json()
 
-  /* ── 1. HONEYPOT — réponse 200 silencieuse pour ne pas révéler le piège */
-  if (data.website) {
-    return NextResponse.json({ success: true })
-  }
+  /* ── 1. HONEYPOT ── */
+  if (data.website) return NextResponse.json({ success: true })
 
   /* ── 2. RATE LIMIT ── */
-  const ip       = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
-  const now      = Date.now()
+  const ip      = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const now     = Date.now()
   const lastTime = lastSubmitByIp.get(ip) ?? 0
 
   if (now - lastTime < RATE_LIMIT_MS) {
     const waitSec = Math.ceil((RATE_LIMIT_MS - (now - lastTime)) / 1000)
     return NextResponse.json(
-      { success: false, message: `Merci de patienter encore ${waitSec} secondes avant de soumettre.` },
+      { success: false, message: `Merci de patienter encore ${waitSec} secondes.` },
       { status: 429 }
     )
   }
-
   lastSubmitByIp.set(ip, now)
 
-  /* ── 3. RECAPTCHA v3 — seuil 0.5 */
-  const secret     = process.env.RECAPTCHA_SECRET_KEY!
-  const verifyUrl  = `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${data.recaptchaToken}`
-  const rcRes      = await fetch(verifyUrl, { method: 'POST' })
-  const rcJson     = await rcRes.json()
+  /* ── 3. RECAPTCHA v3 — seulement si la clé est configurée (dev: skippé) ── */
+  if (process.env.RECAPTCHA_SECRET_KEY && data.recaptchaToken) {
+    const secret    = process.env.RECAPTCHA_SECRET_KEY
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${data.recaptchaToken}`
+    const rcRes     = await fetch(verifyUrl, { method: 'POST' })
+    const rcJson    = await rcRes.json()
 
-  if (!rcJson.success || rcJson.score < 0.5) {
-    return NextResponse.json(
-      { success: false, message: 'Vérification anti-bot échouée. Réessaie dans quelques instants.' },
-      { status: 403 }
-    )
+    if (!rcJson.success || rcJson.score < 0.5) {
+      return NextResponse.json(
+        { success: false, message: 'Vérification anti-bot échouée. Réessaie dans quelques instants.' },
+        { status: 403 }
+      )
+    }
   }
 
-  /* ── 4. VALIDATION TAILLE PHOTOS — max 1.5 Mo par photo */
+  /* ── 4. VALIDATION PHOTOS ── */
   try {
     const profilSize = getBase64Size(data.photoProfil)
     const bodySize   = getBase64Size(data.photoBody)
 
     if (profilSize > MAX_PHOTO_BYTES || bodySize > MAX_PHOTO_BYTES) {
       return NextResponse.json(
-        { success: false, message: "Une photo dépasse la limite de 1,5 Mo. Essaie de la compresser avant d'envoyer." },
+        { success: false, message: "Une photo dépasse la limite de 1,5 Mo. Compresse-la avant d'envoyer." },
         { status: 400 }
       )
     }
@@ -148,15 +174,11 @@ export async function POST(request: Request) {
   }
 
   /* ── 5. UPLOAD PHOTOS ── */
-  const timestamp = Date.now()
-  const baseName  = data.email.replace(/[@.]/g, '_') + '_' + timestamp
-
-  const profilBuffer = base64ToBuffer(data.photoProfil)
-  const bodyBuffer   = base64ToBuffer(data.photoBody)
-
+  const timestamp  = Date.now()
+  const baseName   = data.email.replace(/[@.]/g, '_') + '_' + timestamp
   const [profilPath, bodyPath] = await Promise.all([
-    uploadPhoto(profilBuffer, `${baseName}_profil.jpg`),
-    uploadPhoto(bodyBuffer,   `${baseName}_body.jpg`),
+    uploadPhoto(base64ToBuffer(data.photoProfil), `${baseName}_profil.jpg`),
+    uploadPhoto(base64ToBuffer(data.photoBody),   `${baseName}_body.jpg`),
   ])
 
   /* ── 6. INSERT Supabase ── */
@@ -172,21 +194,34 @@ export async function POST(request: Request) {
       'Prefer':        'return=minimal',
     },
     body: JSON.stringify({
-      prenom:        data.prenom,
-      nom:           data.nom,
-      email:         data.email,
-      telephone:     data.telephone,
-      instagram:     data.instagram     || null,
-      taille:        data.taille        ? parseInt(data.taille)     : null,
-      genre:         data.genre         || null,
-      poitrine:      data.poitrine      ? parseInt(data.poitrine)   : null,
-      tour_taille:   data.tourTaille    ? parseInt(data.tourTaille) : null,
-      hanches:       data.hanches       ? parseInt(data.hanches)    : null,
-      pointure:      data.pointure      ? parseInt(data.pointure)   : null,
-      taille_haut:   data.tailleHaut    || null,
-      taille_bas:    data.tailleBas     || null,
-      experience:    data.experience    || null,
-      disponibilite: data.disponibilite || null,
+      /* Identité */
+      prenom:     data.prenom,
+      nom:        data.nom,
+      email:      data.email,
+      telephone:  data.telephone,
+      instagram:  data.instagram     || null,
+      genre:      data.genre         || null,
+      /* Physique */
+      taille:     data.taille        ? parseInt(data.taille)     : null,
+      poitrine:   data.poitrine      ? parseInt(data.poitrine)   : null,
+      tour_taille: data.tailleMes    ? parseInt(data.tailleMes)  : null,
+      hanches:    data.hanches       ? parseInt(data.hanches)    : null,
+      poids:      data.poids         ? parseFloat(data.poids)    : null,
+      pointure:   data.pointure      ? parseInt(data.pointure)   : null,
+      /* Apparence */
+      couleur_yeux:     data.yeux            || null,
+      longueur_cheveux: data.longueurCheveux || null,
+      couleur_cheveux:  data.cheveux         || null,
+      aspect:           data.aspect          || null,
+      /* Localisation */
+      ville: data.ville || null,
+      pays:  data.pays  || null,
+      /* Casting */
+      experience:      data.experience    || null,
+      date_naissance:  data.dateNaissance || null,
+      disponibilite:   data.disponibilite || null,
+      langues:         data.langues       || null,
+      /* Photos */
       photo_profil_url: profilPath,
       photo_body_url:   bodyPath,
     }),
@@ -197,8 +232,6 @@ export async function POST(request: Request) {
     throw new Error(`Supabase: ${dbRes.status} — ${errText}`)
   }
 
-  /* Emails de confirmation — non bloquant, erreurs logguées silencieusement */
   sendConfirmationEmails(data).catch(err => console.error('Email error:', err))
-
   return NextResponse.json({ success: true })
 }

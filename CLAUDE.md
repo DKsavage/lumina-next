@@ -199,17 +199,57 @@ RECAPTCHA_SECRET_KEY=6Ldd...  # v3
 - [x] International : ville/pays libre, pointure EU, stats "Nationalités", sans références Montréal
 - [x] Supabase migration colonnes nouvelles (juin 2026)
 - [x] `npx tsc --noEmit` → 0 erreur
-- [ ] Variables d'env → configurer dans Vercel dashboard (lumina-next)
-- [ ] Domaine `luminamodels.ca` → Vercel custom domain
-- [ ] Test end-to-end : soumettre une vraie candidature
+- [x] Variables d'env configurées sur Vercel (Production) — 6 variables chiffrées
+- [x] Domaine `luminamodels.ca` + `www.luminamodels.ca` → Vercel Production (juin 2026)
+- [x] Tests API prod confirmés : GET / → 200, honeypot → success silencieux, payload vide → erreur propre
+- [ ] Test end-to-end : soumettre une vraie candidature avec photos
+- [ ] Compression image automatique côté client (Option C — voir section ci-dessous)
+
+---
+
+## Prochaine feature — Compression image automatique (Option C)
+
+**Décision (juin 2026) :** implémenter la compression hybride côté client.
+
+### Comportement attendu
+1. Candidat sélectionne une photo → si > 1 Mo, compression auto via Web Worker
+2. Zone upload affiche une animation "Optimisation…" dans l'anneau (pulsation)
+3. Après compression → preview normale + ✓ comme d'habitude
+4. Si toujours > 1,5 Mo après compression (ex: vidéo par erreur) → erreur élégante dans la zone
+
+### Package à installer
+```bash
+npm install browser-image-compression
+```
+
+### Paramètres cibles
+```ts
+{ maxSizeMB: 1.2, maxWidthOrHeight: 2400, useWebWorker: true }
+```
+
+### Fichiers à modifier
+- `src/components/form/StepPhotos.tsx` — `handleFile()` + state `compressing`
+- `src/app/globals.css` — animation `optimizing` sur `.up-ring`
+
+### Pourquoi Web Worker
+`browser-image-compression` tourne dans un Web Worker par défaut → ne bloque pas le thread principal → l'animation reste fluide pendant la compression.
+
+---
+
+## État du projet (juin 2026)
+
+- **Site live** : `luminamodels.ca` → Vercel Production, 0 erreur TypeScript
+- **Formulaire** : 4 étapes fonctionnelles, API connectée, Supabase + Resend opérationnels
+- **À faire** : compression image auto + test end-to-end complet
 
 ---
 
 ## Points techniques critiques
 
 1. **reCAPTCHA** : v3, seuil 0.5 — conditionnel en dev (skippé si clé absente)
-2. **Photos** : max 1,5 Mo — validé côté serveur via `getBase64Size()`
+2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression client à venir
 3. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
 4. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
 5. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)
 6. **Ken Burns** : CSS animation sur le container, pas sur `next/image` directement
+7. **`browser-image-compression`** : Web Worker → thread principal non bloqué pendant la compression

@@ -5,6 +5,13 @@ import { type FormData } from './CandidatureForm'
 
 const GENRES = ['Femme', 'Homme', 'Non-binaire']
 
+/* Seuils compression image (Option C).
+   En-dessous de 1 Mo : on n'optimise pas, la photo passe telle quelle.
+   Au-dessus : compression hybride côté client via Web Worker.
+   1,5 Mo = limite serveur (getBase64Size dans submit/route) — au-delà, refus. */
+const COMPRESS_THRESHOLD = 1024 * 1024
+const MAX_AFTER_COMPRESS = 1.5 * 1024 * 1024
+
 /* Champs requis pour valider et passer à l'étape 2 */
 function isValid(d: Partial<FormData>) {
   return d.profilFile && d.bodyFile && d.prenom && d.nom && d.email && d.telephone && d.taille && d.genre
@@ -35,6 +42,16 @@ export default function StepPhotos({
     profilFile: '', bodyFile: '',
   })
 
+  /* Pendant la compression : l'anneau pulse et le sous-titre affiche "Optimisation…".
+     errors : message élégant affiché dans la zone si le fichier reste trop lourd
+     ou s'il est illisible (ex : vidéo déposée par erreur). */
+  const [compressing, setCompressing] = useState<{ profilFile: boolean; bodyFile: boolean }>({
+    profilFile: false, bodyFile: false,
+  })
+  const [errors, setErrors] = useState<{ profilFile: string; bodyFile: string }>({
+    profilFile: '', bodyFile: '',
+  })
+
   useEffect(() => {
     return () => {
       if (previews.profilFile) URL.revokeObjectURL(previews.profilFile)
@@ -44,11 +61,51 @@ export default function StepPhotos({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleFile = (key: 'profilFile' | 'bodyFile', file: File | null) => {
-    setLocal(prev => ({ ...prev, [key]: file }))
+  const handleFile = async (key: 'profilFile' | 'bodyFile', file: File | null) => {
+    /* Retrait du fichier : on nettoie tout (file, preview, erreur). */
+    if (!file) {
+      setErrors(prev => ({ ...prev, [key]: '' }))
+      setLocal(prev => ({ ...prev, [key]: null }))
+      setPreviews(prev => {
+        if (prev[key]) URL.revokeObjectURL(prev[key])
+        return { ...prev, [key]: '' }
+      })
+      return
+    }
+
+    setErrors(prev => ({ ...prev, [key]: '' }))
+
+    let finalFile = file
+    if (file.size > COMPRESS_THRESHOLD) {
+      setCompressing(prev => ({ ...prev, [key]: true }))
+      try {
+        /* Import dynamique : le worker de compression n'est chargé que si une
+           photo dépasse réellement le seuil — il reste hors du bundle initial. */
+        const { default: imageCompression } = await import('browser-image-compression')
+        finalFile = await imageCompression(file, {
+          maxSizeMB: 1.2,
+          maxWidthOrHeight: 2400,
+          useWebWorker: true,
+        })
+      } catch {
+        setErrors(prev => ({ ...prev, [key]: 'Image illisible — réessayez avec une photo' }))
+        return
+      } finally {
+        setCompressing(prev => ({ ...prev, [key]: false }))
+      }
+    }
+
+    /* Toujours > 1,5 Mo après compression : le serveur refuserait — on bloque ici
+       avec un message clair plutôt que de laisser partir une requête vouée à l'échec. */
+    if (finalFile.size > MAX_AFTER_COMPRESS) {
+      setErrors(prev => ({ ...prev, [key]: 'Photo trop lourde — choisissez une autre image' }))
+      return
+    }
+
+    setLocal(prev => ({ ...prev, [key]: finalFile }))
     setPreviews(prev => {
       if (prev[key]) URL.revokeObjectURL(prev[key])
-      return { ...prev, [key]: file ? URL.createObjectURL(file) : '' }
+      return { ...prev, [key]: URL.createObjectURL(finalFile) }
     })
   }
 
@@ -75,8 +132,8 @@ export default function StepPhotos({
               } : undefined}
             >
               {/* aria-hidden : icône décorative, l'info est dans le texte label */}
-              <div className="up-ring" aria-hidden="true">
-                {local[key] ? (
+              <div className={`up-ring${compressing[key] ? ' optimizing' : ''}`} aria-hidden="true">
+                {compressing[key] ? null : local[key] ? (
                   /* Check SVG — plus précis que le caractère ✓ */
                   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
                     style={{ width: '.7rem', height: '.7rem', flexShrink: 0 }}>
@@ -100,9 +157,13 @@ export default function StepPhotos({
               </span>
               <span
                 className="font-display italic text-center relative z-[1]"
-                style={{ fontSize: '.72rem', color: hasPreview ? 'rgba(247,243,238,.45)' : 'var(--muted)' }}
+                style={{ fontSize: '.72rem', color: errors[key] ? 'var(--red)' : hasPreview ? 'rgba(247,243,238,.45)' : 'var(--muted)' }}
               >
-                {hasPreview ? 'Modifier ↺' : sub}
+                {errors[key]
+                  ? errors[key]
+                  : compressing[key]
+                  ? 'Optimisation…'
+                  : hasPreview ? 'Modifier ↺' : sub}
               </span>
 
               <input type="file" accept="image/*"

@@ -107,8 +107,7 @@ src/
 └── components/
     ├── hero/
     │   ├── HeroSplit.tsx         → Split 48/52
-    │   ├── PhotoSlideshow.tsx    → Ken Burns 5 slides
-    │   └── ScrollIndicator.tsx
+    │   └── PhotoSlideshow.tsx    → Ken Burns 5 slides
     ├── form/
     │   ├── CandidatureForm.tsx   → Multi-step + appel API async
     │   ├── StepPhotos.tsx        → Étape 1 (photos + identité) + composants partagés
@@ -203,7 +202,7 @@ RECAPTCHA_SECRET_KEY=6Ldd...  # v3
 - [x] Domaine `luminamodels.ca` + `www.luminamodels.ca` → Vercel Production (juin 2026)
 - [x] Tests API prod confirmés : GET / → 200, honeypot → success silencieux, payload vide → erreur propre
 - [ ] Test end-to-end : soumettre une vraie candidature avec photos
-- [ ] Compression image automatique côté client (Option C — voir section ci-dessous)
+- [x] Compression image automatique côté client (Option C) — browser-image-compression, Web Worker, seuils 1 Mo / 1,5 Mo
 
 ---
 
@@ -240,14 +239,14 @@ npm install browser-image-compression
 
 - **Site live** : `luminamodels.ca` → Vercel Production, 0 erreur TypeScript
 - **Formulaire** : 4 étapes fonctionnelles, API connectée, Supabase + Resend opérationnels
-- **À faire** : compression image auto + test end-to-end complet
+- **À faire** : test end-to-end complet (soumission réelle avec photos)
 
 ---
 
 ## Points techniques critiques
 
 1. **reCAPTCHA** : v3, seuil 0.5 — conditionnel en dev (skippé si clé absente)
-2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression client à venir
+2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression client active (Option C) si > 1 Mo, via `browser-image-compression` (Web Worker) dans `StepPhotos.handleFile()`
 3. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
 4. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
 5. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)

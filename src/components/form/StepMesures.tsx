@@ -9,7 +9,7 @@ const CHEVEUX   = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autr
 const LONGUEURS = ['Rasé·e', 'Court·e', 'Mi-long·ue', 'Long·ue', 'Très long·ue']
 const POINTURES = Array.from({ length: 13 }, (_, i) => String(34 + i)) // 34 → 46
 const TAILLES_HAUT = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
-const TAILLES_BAS  = Array.from({ length: 10 }, (_, i) => String(30 + i * 2)) // 30 → 48
+const TAILLES_BAS  = ['24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '36', '38', '40']
 const TEINTS    = ['Très clair', 'Clair', 'Medium', 'Mat', 'Foncé', 'Ébène']
 
 /* Corps + pointure obligatoires — nécessaires pour tout projet ou casting.

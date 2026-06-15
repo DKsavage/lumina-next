@@ -8,7 +8,8 @@ const YEUX      = ['Marron', 'Noisette', 'Vert', 'Bleu', 'Gris', 'Autre']
 const CHEVEUX   = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autre']
 const LONGUEURS = ['Rasé·e', 'Court·e', 'Mi-long·ue', 'Long·ue', 'Très long·ue']
 const POINTURES = Array.from({ length: 13 }, (_, i) => String(34 + i)) // 34 → 46
-const TAILLES_VETEMENT = Array.from({ length: 9 }, (_, i) => String(32 + i * 2)) // 32 → 48
+const TAILLES_HAUT = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
+const TAILLES_BAS  = Array.from({ length: 10 }, (_, i) => String(30 + i * 2)) // 30 → 48
 const TEINTS    = ['Très clair', 'Clair', 'Medium', 'Mat', 'Foncé', 'Ébène']
 
 /* Corps + pointure obligatoires — nécessaires pour tout projet ou casting.
@@ -76,20 +77,20 @@ export default function StepMesures({
             {POINTURES.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </Field>
-        <Field label="Taille haut EU" required inline>
+        <Field label="Haut" required inline>
           <select className="input-underline" value={local.tailleHaut}
             onChange={e => set('tailleHaut', e.target.value)}
             style={{ cursor: 'pointer', paddingRight: '1rem' }}>
-            <option value="" disabled>— EU</option>
-            {TAILLES_VETEMENT.map(t => <option key={t} value={t}>{t}</option>)}
+            <option value="" disabled>—</option>
+            {TAILLES_HAUT.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </Field>
-        <Field label="Taille bas EU" required inline>
+        <Field label="Pantalon" required inline>
           <select className="input-underline" value={local.tailleBas}
             onChange={e => set('tailleBas', e.target.value)}
             style={{ cursor: 'pointer', paddingRight: '1rem' }}>
-            <option value="" disabled>— EU</option>
-            {TAILLES_VETEMENT.map(t => <option key={t} value={t}>{t}</option>)}
+            <option value="" disabled>—</option>
+            {TAILLES_BAS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </Field>
       </div>

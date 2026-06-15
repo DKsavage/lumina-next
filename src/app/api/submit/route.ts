@@ -174,12 +174,21 @@ export async function POST(request: Request) {
   }
 
   /* ── 5. UPLOAD PHOTOS ── */
-  const timestamp  = Date.now()
-  const baseName   = data.email.replace(/[@.]/g, '_') + '_' + timestamp
-  const [profilPath, bodyPath] = await Promise.all([
-    uploadPhoto(base64ToBuffer(data.photoProfil), `${baseName}_profil.jpg`),
-    uploadPhoto(base64ToBuffer(data.photoBody),   `${baseName}_body.jpg`),
-  ])
+  let profilPath: string, bodyPath: string
+  try {
+    const timestamp = Date.now()
+    const baseName  = data.email.replace(/[@.]/g, '_') + '_' + timestamp;
+    [profilPath, bodyPath] = await Promise.all([
+      uploadPhoto(base64ToBuffer(data.photoProfil), `${baseName}_profil.jpg`),
+      uploadPhoto(base64ToBuffer(data.photoBody),   `${baseName}_body.jpg`),
+    ])
+  } catch (err) {
+    console.error('Upload error:', err)
+    return NextResponse.json(
+      { success: false, message: "Erreur lors de l'envoi des photos. Réessaie dans quelques instants." },
+      { status: 500 }
+    )
+  }
 
   /* ── 6. INSERT Supabase ── */
   const supabaseUrl = process.env.SUPABASE_URL!
@@ -229,7 +238,11 @@ export async function POST(request: Request) {
 
   if (!dbRes.ok) {
     const errText = await dbRes.text()
-    throw new Error(`Supabase: ${dbRes.status} — ${errText}`)
+    console.error('DB error:', dbRes.status, errText)
+    return NextResponse.json(
+      { success: false, message: 'Erreur base de données. Réessaie dans quelques instants.' },
+      { status: 500 }
+    )
   }
 
   sendConfirmationEmails(data).catch(err => console.error('Email error:', err))

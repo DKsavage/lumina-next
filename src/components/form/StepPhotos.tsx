@@ -75,8 +75,13 @@ export default function StepPhotos({
 
     setErrors(prev => ({ ...prev, [key]: '' }))
 
+    /* HEIC/HEIF (iPhone) : le navigateur ne peut pas afficher ces formats nativement
+       hors Safari iOS. On force toujours la compression → sortie JPEG universelle. */
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif'
+      || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')
+
     let finalFile = file
-    if (file.size > COMPRESS_THRESHOLD) {
+    if (isHeic || file.size > COMPRESS_THRESHOLD) {
       setCompressing(prev => ({ ...prev, [key]: true }))
       try {
         /* Import dynamique : le worker de compression n'est chargé que si une
@@ -86,9 +91,10 @@ export default function StepPhotos({
           maxSizeMB: 1.2,
           maxWidthOrHeight: 2400,
           useWebWorker: true,
+          fileType: 'image/jpeg',  // ponytail: force JPEG pour HEIC et normalise tous les formats
         })
       } catch {
-        setErrors(prev => ({ ...prev, [key]: 'Image illisible — réessayez avec une photo' }))
+        setErrors(prev => ({ ...prev, [key]: 'Image illisible — réessayez avec une photo JPEG ou PNG' }))
         return
       } finally {
         setCompressing(prev => ({ ...prev, [key]: false }))
@@ -166,7 +172,7 @@ export default function StepPhotos({
                   : hasPreview ? 'Modifier ↺' : sub}
               </span>
 
-              <input type="file" accept="image/*"
+              <input type="file" accept="image/*,.heic,.heif"
                 aria-label={`${label}${local[key] ? ' — modifier la photo' : ''}`}
                 style={{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' }}
                 onChange={e => handleFile(key, e.target.files?.[0] ?? null)} />

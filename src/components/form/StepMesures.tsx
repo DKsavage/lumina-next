@@ -4,15 +4,17 @@ import { useState } from 'react'
 import { type FormData } from './CandidatureForm'
 import { Field, CtaButton, BackButton } from './StepPhotos'
 
-const YEUX    = ['Marron', 'Noisette', 'Vert', 'Bleu', 'Gris', 'Autre']
-const CHEVEUX = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autre']
+const YEUX      = ['Marron', 'Noisette', 'Vert', 'Bleu', 'Gris', 'Autre']
+const CHEVEUX   = ['Noir', 'Brun', 'Châtain', 'Blond', 'Roux', 'Coloré', 'Autre']
 const LONGUEURS = ['Rasé·e', 'Court·e', 'Mi-long·ue', 'Long·ue', 'Très long·ue']
 const POINTURES = Array.from({ length: 13 }, (_, i) => String(34 + i)) // 34 → 46
+const TAILLES_VETEMENT = Array.from({ length: 9 }, (_, i) => String(32 + i * 2)) // 32 → 48
+const TEINTS    = ['Très clair', 'Clair', 'Medium', 'Mat', 'Foncé', 'Ébène']
 
 /* Corps + pointure obligatoires — nécessaires pour tout projet ou casting.
    Longueur des cheveux, couleur des cheveux, poids : optionnels. */
 function isValid(d: Partial<FormData>) {
-  return d.poitrine && d.tailleMes && d.hanches && d.pointure && d.yeux
+  return d.poitrine && d.tailleMes && d.hanches && d.pointure && d.tailleHaut && d.tailleBas && d.teint && d.yeux
 }
 
 export default function StepMesures({
@@ -30,6 +32,9 @@ export default function StepMesures({
     hanches:         data.hanches,
     poids:           data.poids,
     pointure:        data.pointure,
+    tailleHaut:      data.tailleHaut,
+    tailleBas:       data.tailleBas,
+    teint:           data.teint,
     longueurCheveux: data.longueurCheveux,
     yeux:            data.yeux,
     cheveux:         data.cheveux,
@@ -48,7 +53,7 @@ export default function StepMesures({
             className="input-underline" value={local.poitrine}
             onChange={e => set('poitrine', e.target.value)} />
         </Field>
-        <Field label="Taille cm" required inline>
+        <Field label="Tour de taille cm" required inline>
           <input type="number" placeholder="68" min="50" max="120"
             className="input-underline" value={local.tailleMes}
             onChange={e => set('tailleMes', e.target.value)} />
@@ -63,18 +68,28 @@ export default function StepMesures({
             className="input-underline" value={local.poids}
             onChange={e => set('poids', e.target.value)} />
         </Field>
-        {/* Pointure EU — standard international de l'industrie mode */}
         <Field label="Pointure EU" required inline>
-          <select
-            className="input-underline"
-            value={local.pointure}
+          <select className="input-underline" value={local.pointure}
             onChange={e => set('pointure', e.target.value)}
-            style={{ cursor: 'pointer', paddingRight: '1rem' }}
-          >
+            style={{ cursor: 'pointer', paddingRight: '1rem' }}>
             <option value="" disabled>— EU</option>
-            {POINTURES.map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
+            {POINTURES.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </Field>
+        <Field label="Taille haut EU" required inline>
+          <select className="input-underline" value={local.tailleHaut}
+            onChange={e => set('tailleHaut', e.target.value)}
+            style={{ cursor: 'pointer', paddingRight: '1rem' }}>
+            <option value="" disabled>— EU</option>
+            {TAILLES_VETEMENT.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </Field>
+        <Field label="Taille bas EU" required inline>
+          <select className="input-underline" value={local.tailleBas}
+            onChange={e => set('tailleBas', e.target.value)}
+            style={{ cursor: 'pointer', paddingRight: '1rem' }}>
+            <option value="" disabled>— EU</option>
+            {TAILLES_VETEMENT.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </Field>
       </div>
@@ -82,6 +97,15 @@ export default function StepMesures({
       {/* ── GROUPE B : APPARENCE ─────────────────── */}
       <GroupLabel>Apparence</GroupLabel>
       <div className="flex flex-col gap-[1.1rem] mb-6 form-fields">
+
+        <Field label="Teint" required inline>
+          <select className="input-underline" value={local.teint}
+            onChange={e => set('teint', e.target.value)}
+            style={{ cursor: 'pointer', paddingRight: '1rem' }}>
+            <option value="" disabled>—</option>
+            {TEINTS.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </Field>
 
         <Field label="Couleur des yeux" required asGroup>
           <div className="flex gap-[.35rem] flex-wrap pt-[.3rem]">

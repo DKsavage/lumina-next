@@ -217,7 +217,10 @@ export async function POST(request: Request) {
       hanches:    data.hanches       ? parseInt(data.hanches)    : null,
       poids:      data.poids         ? parseFloat(data.poids)    : null,
       pointure:   data.pointure      ? parseInt(data.pointure)   : null,
+      taille_haut: data.tailleHaut   || null,
+      taille_bas:  data.tailleBas    || null,
       /* Apparence */
+      teint:            data.teint           || null,
       couleur_yeux:     data.yeux            || null,
       longueur_cheveux: data.longueurCheveux || null,
       couleur_cheveux:  data.cheveux         || null,

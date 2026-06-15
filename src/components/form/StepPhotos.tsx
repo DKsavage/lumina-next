@@ -257,7 +257,7 @@ export function Field({
     </>
   )
   const cls   = "font-medium tracking-[.22em] uppercase flex gap-1 items-center"
-  const style = { fontSize: '.65rem', color: 'rgba(12,11,9,.55)' } as const
+  const style = { fontSize: '.72rem', color: 'rgba(12,11,9,.72)' } as const
 
   /* Mode inline : label à gauche + input à droite sur la même baseline.
      Disposition editorial — label visible sans doubler la hauteur du champ. */
@@ -266,7 +266,7 @@ export function Field({
       <label className="flex items-baseline gap-3">
         <span
           className="font-medium uppercase tracking-[.18em] flex gap-[.18em] items-center flex-shrink-0"
-          style={{ fontSize: '.52rem', color: 'rgba(12,11,9,.38)', minWidth: '5rem' }}
+          style={{ fontSize: '.62rem', color: 'rgba(12,11,9,.68)', minWidth: '5rem' }}
         >
           {labelText}
         </span>

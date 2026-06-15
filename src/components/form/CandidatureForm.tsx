@@ -53,6 +53,9 @@ export type FormData = {
   hanches:         string
   poids:           string
   pointure:        string
+  tailleHaut:      string
+  tailleBas:       string
+  teint:           string
   longueurCheveux: string
   yeux:            string
   cheveux:         string
@@ -68,7 +71,8 @@ const EMPTY: FormData = {
   prenom: '', nom: '', email: '', telephone: '', taille: '', genre: 'Femme',
   ville: '', pays: '', experience: '', instagram: '',
   poitrine: '', tailleMes: '', hanches: '', poids: '',
-  pointure: '', longueurCheveux: '', yeux: '', cheveux: '',
+  pointure: '', tailleHaut: '', tailleBas: '', teint: '',
+  longueurCheveux: '', yeux: '', cheveux: '',
   dateNaissance: '', disponibilite: '', langues: '', aspect: '',
 }
 

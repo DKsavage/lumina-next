@@ -45,7 +45,7 @@ Agence de casting international, formulaire d'inscription mannequins.
 
 - **Repo** : `lumina-next`, branche `main` → auto-deploy Vercel
 - **Ancien site** : `studio-modeles/` (HTML vanilla, Vercel Functions)
-- **URL cible** : `https://luminamodels.ca` (domaine à configurer)
+- **URL** : `https://luminamodels.ca` — live en production
 
 ---
 
@@ -139,6 +139,9 @@ src/
 | 2 | `pays`, `instagram` | string | Optionnel |
 | 3 | `poitrine`, `tailleMes`, `hanches` | string (cm) | Requis |
 | 3 | `pointure` | string (EU 34-46) | Requis |
+| 3 | `tailleHaut` | string (XXS/XS/S/M/L/XL/XXL) | Requis |
+| 3 | `tailleBas` | string (US 24-40) | Requis |
+| 3 | `teint` | string (Très clair→Ébène) | Requis |
 | 3 | `yeux` | string (chips) | Requis |
 | 3 | `poids`, `longueurCheveux`, `cheveux` | string | Optionnel |
 | 4 | `dateNaissance` | string (ISO) | Requis |
@@ -150,33 +153,35 @@ src/
 ## Mapping API → Supabase
 
 `tailleMes` (formulaire) → `tour_taille` (colonne DB).
+`tailleHaut` → `taille_haut`, `tailleBas` → `taille_bas`, `teint` → `teint`.
 Photos base64 uploadées sur `photos-candidatures/` bucket.
 
-### Migration Supabase — colonnes ajoutées (juin 2026)
-```sql
-ALTER TABLE candidatures
-  ADD COLUMN IF NOT EXISTS ville             text,
-  ADD COLUMN IF NOT EXISTS pays              text,
-  ADD COLUMN IF NOT EXISTS poids             numeric,
-  ADD COLUMN IF NOT EXISTS longueur_cheveux  text,
-  ADD COLUMN IF NOT EXISTS couleur_yeux      text,
-  ADD COLUMN IF NOT EXISTS couleur_cheveux   text,
-  ADD COLUMN IF NOT EXISTS date_naissance    date,
-  ADD COLUMN IF NOT EXISTS langues           text,
-  ADD COLUMN IF NOT EXISTS aspect            text;
+### Colonnes DB actives (juin 2026)
 ```
+id, prenom, nom, email, telephone, instagram, genre
+taille, poitrine, tour_taille, hanches, poids, pointure
+taille_haut, taille_bas (text — non supprimées, maintenant remplies)
+teint, couleur_yeux, longueur_cheveux, couleur_cheveux, aspect
+ville, pays, date_naissance, langues, disponibilite, experience
+photo_profil_url, photo_body_url, date_inscription (DEFAULT now())
+```
+Colonnes présentes mais inutilisées (ne pas supprimer pour l'instant) : aucune.
 
 ---
 
 ## Variables d'environnement
 
 ```bash
-SUPABASE_URL=https://...supabase.co
-SUPABASE_SERVICE_KEY=eyJ...   # service_role — serveur uniquement
-SUPABASE_ANON_KEY=eyJ...      # anon — auth admin
+SUPABASE_URL=https://xkkvudlpuvvctkbklsox.supabase.co  # SANS /rest/v1/ — sinon storage cassé
+SUPABASE_SERVICE_KEY=eyJ...   # service_role — serveur uniquement (bypass RLS)
+SUPABASE_ANON_KEY=eyJ...      # anon — auth admin OTP uniquement
 RESEND_API_KEY=re_...
 RECAPTCHA_SECRET_KEY=6Ldd...  # v3
 ```
+
+> **Piège connu** : `SUPABASE_URL` avec `/rest/v1/` suffit → storage retourne 404 PGRST125.
+> `SUPABASE_SERVICE_KEY` doit être la clé `service_role` (pas `anon`) — sinon RLS bloque l'upload.
+> Vérifier le rôle JWT : `JSON.parse(atob(key.split('.')[1])).role` doit retourner `"service_role"`.
 
 ---
 
@@ -201,54 +206,33 @@ RECAPTCHA_SECRET_KEY=6Ldd...  # v3
 - [x] Variables d'env configurées sur Vercel (Production) — 6 variables chiffrées
 - [x] Domaine `luminamodels.ca` + `www.luminamodels.ca` → Vercel Production (juin 2026)
 - [x] Tests API prod confirmés : GET / → 200, honeypot → success silencieux, payload vide → erreur propre
-- [ ] Test end-to-end : soumettre une vraie candidature avec photos
+- [x] Test end-to-end : soumission réelle confirmée (Playwright + vérification DB juin 2026)
 - [x] Compression image automatique côté client (Option C) — browser-image-compression, Web Worker, seuils 1 Mo / 1,5 Mo
-
----
-
-## Prochaine feature — Compression image automatique (Option C)
-
-**Décision (juin 2026) :** implémenter la compression hybride côté client.
-
-### Comportement attendu
-1. Candidat sélectionne une photo → si > 1 Mo, compression auto via Web Worker
-2. Zone upload affiche une animation "Optimisation…" dans l'anneau (pulsation)
-3. Après compression → preview normale + ✓ comme d'habitude
-4. Si toujours > 1,5 Mo après compression (ex: vidéo par erreur) → erreur élégante dans la zone
-
-### Package à installer
-```bash
-npm install browser-image-compression
-```
-
-### Paramètres cibles
-```ts
-{ maxSizeMB: 1.2, maxWidthOrHeight: 2400, useWebWorker: true }
-```
-
-### Fichiers à modifier
-- `src/components/form/StepPhotos.tsx` — `handleFile()` + state `compressing`
-- `src/app/globals.css` — animation `optimizing` sur `.up-ring`
-
-### Pourquoi Web Worker
-`browser-image-compression` tourne dans un Web Worker par défaut → ne bloque pas le thread principal → l'animation reste fluide pendant la compression.
+- [x] Support HEIC/HEIF (iPhone) — détection par type/extension + conversion forcée JPEG
+- [x] Gestion erreurs API : try/catch global dans POST /api/submit → JSON en cas d'erreur (plus de "connexion impossible")
+- [x] Nouveaux champs formulaire étape 3 : tailleHaut (XXS→XXL), tailleBas (US 24-40), teint (6 valeurs)
+- [x] Labels formulaire plus visibles : .52rem/38% → .62rem/68% (inline), .65rem/55% → .72rem/72% (groupe)
 
 ---
 
 ## État du projet (juin 2026)
 
 - **Site live** : `luminamodels.ca` → Vercel Production, 0 erreur TypeScript
-- **Formulaire** : 4 étapes fonctionnelles, API connectée, Supabase + Resend opérationnels
-- **À faire** : test end-to-end complet (soumission réelle avec photos)
+- **Formulaire** : 4 étapes fonctionnelles, 15 champs requis + 6 optionnels, API connectée
+- **Supabase** : storage bucket `photos-candidatures` opérationnel, toutes colonnes remplies
+- **Resend** : emails candidat + admin envoyés à chaque soumission
+- **Test E2E** : confirmé via Playwright (juin 2026) — soumission → DB → storage → confirmation
 
 ---
 
 ## Points techniques critiques
 
 1. **reCAPTCHA** : v3, seuil 0.5 — conditionnel en dev (skippé si clé absente)
-2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression client active (Option C) si > 1 Mo, via `browser-image-compression` (Web Worker) dans `StepPhotos.handleFile()`
-3. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
-4. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
-5. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)
-6. **Ken Burns** : CSS animation sur le container, pas sur `next/image` directement
-7. **`browser-image-compression`** : Web Worker → thread principal non bloqué pendant la compression
+2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression client si > 1 Mo via `browser-image-compression` (Web Worker, `fileType:'image/jpeg'`)
+3. **HEIC** : détecté par `file.type === 'image/heic'` ou extension `.heic/.heif` → compression forcée → sortie JPEG universelle
+4. **Erreurs API** : try/catch autour de uploadPhoto + DB insert → `NextResponse.json({success:false, message})` — jamais de HTML 500 brut
+5. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
+6. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
+7. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)
+8. **Ken Burns** : CSS animation sur le container, pas sur `next/image` directement
+9. **Supabase Storage** : bucket `photos-candidatures` privé (RLS actif, 0 policy) — bypass uniquement via clé `service_role`

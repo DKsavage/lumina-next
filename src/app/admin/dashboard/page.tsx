@@ -177,6 +177,8 @@ export default function DashboardPage() {
   const [loading,         setLoading]         = useState(true)
   const [search,          setSearch]          = useState('')
   const [selectedIds,     setSelectedIds]     = useState<Set<string>>(new Set())
+  const [filterGenre,     setFilterGenre]     = useState<string | null>(null)
+  const [filterSelectionne, setFilterSelectionne] = useState(false)
   const [composerOpen,    setComposerOpen]    = useState(false)
   const [session,         setSession]         = useState<SessionForm>(defaultSession)
   const [sending,         setSending]         = useState(false)
@@ -296,13 +298,13 @@ export default function DashboardPage() {
     setSession(prev => ({ ...prev, groups: prev.groups.filter((_, idx) => idx !== i) }))
   }
 
-  /* ── Filtrage par recherche ── */
+  /* ── Filtrage ── */
   const filtered = candidatures.filter(c => {
     const q = search.toLowerCase()
-    return !q
-      || c.prenom.toLowerCase().includes(q)
-      || c.nom.toLowerCase().includes(q)
-      || c.email.toLowerCase().includes(q)
+    if (q && !c.prenom.toLowerCase().includes(q) && !c.nom.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
+    if (filterGenre && c.genre !== filterGenre) return false
+    if (filterSelectionne && !c.selectionne) return false
+    return true
   })
 
   const selectedCount = selectedIds.size
@@ -381,6 +383,54 @@ export default function DashboardPage() {
           onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
           onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
         />
+      </div>
+
+      {/* ── FILTRES ── */}
+      <div className="flex items-center gap-[.5rem] flex-wrap" style={{ padding: '1.2rem 2rem 0' }}>
+        {(['Femme', 'Homme', 'Non-binaire'] as const).map(g => (
+          <button
+            key={g}
+            type="button"
+            onClick={() => setFilterGenre(filterGenre === g ? null : g)}
+            className="font-medium uppercase transition-colors duration-200"
+            style={{
+              fontSize: '.44rem', letterSpacing: '.22em',
+              border: `1px solid ${filterGenre === g ? 'var(--red)' : 'var(--border)'}`,
+              color: filterGenre === g ? 'var(--red)' : 'var(--muted)',
+              background: filterGenre === g ? 'rgba(139,0,32,.04)' : 'transparent',
+              padding: '.35rem .8rem', cursor: 'pointer',
+            }}
+          >
+            {g}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => setFilterSelectionne(v => !v)}
+          className="font-medium uppercase transition-colors duration-200"
+          style={{
+            fontSize: '.44rem', letterSpacing: '.22em',
+            border: `1px solid ${filterSelectionne ? 'var(--red)' : 'var(--border)'}`,
+            color: filterSelectionne ? 'var(--red)' : 'var(--muted)',
+            background: filterSelectionne ? 'rgba(139,0,32,.04)' : 'transparent',
+            padding: '.35rem .8rem', cursor: 'pointer',
+          }}
+        >
+          Sélectionnés
+        </button>
+        {(filterGenre || filterSelectionne) && (
+          <button
+            type="button"
+            onClick={() => { setFilterGenre(null); setFilterSelectionne(false) }}
+            className="font-medium uppercase text-muted transition-colors duration-200 hover:text-red"
+            style={{ fontSize: '.44rem', letterSpacing: '.22em', background: 'none', padding: '.35rem .5rem' }}
+          >
+            Réinitialiser ×
+          </button>
+        )}
+        <span className="text-muted font-light" style={{ fontSize: '.55rem', marginLeft: 'auto' }}>
+          {filtered.length} / {candidatures.length}
+        </span>
       </div>
 
       {/* ── GRILLE CANDIDATURES ── */}

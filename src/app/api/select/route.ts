@@ -83,5 +83,19 @@ export async function POST(request: Request) {
     )
   }
 
+  /* Marque le candidat comme sélectionné en DB */
+  const supabaseUrl = process.env.SUPABASE_URL!
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY!
+  await fetch(`${supabaseUrl}/rest/v1/candidatures?email=eq.${encodeURIComponent(email)}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey':        supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type':  'application/json',
+      'Prefer':        'return=minimal',
+    },
+    body: JSON.stringify({ selectionne: true }),
+  })
+
   return NextResponse.json({ success: true })
 }

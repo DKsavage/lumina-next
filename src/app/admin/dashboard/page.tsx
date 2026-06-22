@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface Candidature {
-  id: number
+  id: string
   prenom: string
   nom: string
   email: string
@@ -56,7 +56,7 @@ const defaultSession: SessionForm = {
 /* ── Composant carte candidature ────────────────────────────── */
 function CandidatureCard({
   c, selected, onToggle,
-}: { c: Candidature; selected: boolean; onToggle: (id: number) => void }) {
+}: { c: Candidature; selected: boolean; onToggle: (id: string) => void }) {
   const date = new Date(c.date_inscription).toLocaleDateString('fr-CA', {
     year: 'numeric', month: 'short', day: 'numeric',
   })
@@ -154,7 +154,7 @@ export default function DashboardPage() {
   const [candidatures,    setCandidatures]    = useState<Candidature[]>([])
   const [loading,         setLoading]         = useState(true)
   const [search,          setSearch]          = useState('')
-  const [selectedIds,     setSelectedIds]     = useState<Set<number>>(new Set())
+  const [selectedIds,     setSelectedIds]     = useState<Set<string>>(new Set())
   const [composerOpen,    setComposerOpen]    = useState(false)
   const [session,         setSession]         = useState<SessionForm>(defaultSession)
   const [sending,         setSending]         = useState(false)
@@ -195,7 +195,7 @@ export default function DashboardPage() {
     router.replace('/admin/login')
   }
 
-  function toggleSelect(id: number) {
+  function toggleSelect(id: string) {
     setSelectedIds(prev => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { type FormData } from './CandidatureForm'
 
 const GENRES = ['Femme', 'Homme', 'Non-binaire']
@@ -41,6 +41,8 @@ export default function StepPhotos({
   const [previews, setPreviews] = useState<{ profilFile: string; bodyFile: string }>({
     profilFile: '', bodyFile: '',
   })
+  const previewsRef = useRef(previews)
+  useEffect(() => { previewsRef.current = previews }, [previews])
 
   /* Pendant la compression : l'anneau pulse et le sous-titre affiche "Optimisation…".
      errors : message élégant affiché dans la zone si le fichier reste trop lourd
@@ -54,11 +56,9 @@ export default function StepPhotos({
 
   useEffect(() => {
     return () => {
-      if (previews.profilFile) URL.revokeObjectURL(previews.profilFile)
-      if (previews.bodyFile)   URL.revokeObjectURL(previews.bodyFile)
+      if (previewsRef.current.profilFile) URL.revokeObjectURL(previewsRef.current.profilFile)
+      if (previewsRef.current.bodyFile)   URL.revokeObjectURL(previewsRef.current.bodyFile)
     }
-    // Nettoyage uniquement au démontage du composant — pas à chaque changement
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleFile = async (key: 'profilFile' | 'bodyFile', file: File | null) => {
@@ -175,6 +175,7 @@ export default function StepPhotos({
               <input type="file" accept="image/*,.heic,.heif"
                 aria-label={`${label}${local[key] ? ' — modifier la photo' : ''}`}
                 style={{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' }}
+                onClick={e => { (e.target as HTMLInputElement).value = '' }}
                 onChange={e => handleFile(key, e.target.files?.[0] ?? null)} />
             </label>
           )

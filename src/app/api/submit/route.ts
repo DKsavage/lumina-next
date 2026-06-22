@@ -144,7 +144,13 @@ export async function POST(request: Request) {
   lastSubmitByIp.set(ip, now)
 
   /* ── 3. RECAPTCHA v3 — seulement si la clé est configurée (dev: skippé) ── */
-  if (process.env.RECAPTCHA_SECRET_KEY && data.recaptchaToken) {
+  if (process.env.RECAPTCHA_SECRET_KEY) {
+    if (!data.recaptchaToken) {
+      return NextResponse.json(
+        { success: false, message: 'Vérification de sécurité manquante. Recharge la page et réessaie.' },
+        { status: 403 }
+      )
+    }
     const secret    = process.env.RECAPTCHA_SECRET_KEY
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${data.recaptchaToken}`
     const rcRes     = await fetch(verifyUrl, { method: 'POST' })

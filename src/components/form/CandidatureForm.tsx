@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import StepPhotos        from './StepPhotos'
 import StepProfil        from './StepProfil'
@@ -66,6 +66,8 @@ export type FormData = {
   aspect:          string
 }
 
+const RECAPTCHA_SITE_KEY = '6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ'
+
 const EMPTY: FormData = {
   profilFile: null, bodyFile: null,
   prenom: '', nom: '', email: '', telephone: '', taille: '', genre: 'Femme',
@@ -95,6 +97,14 @@ export default function CandidatureForm() {
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState<string | null>(null)
 
+  useEffect(() => {
+    const s = document.createElement('script')
+    s.src   = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`
+    s.async = true
+    document.head.appendChild(s)
+    return () => { document.head.removeChild(s) }
+  }, [])
+
   const goNext = (patch: Partial<FormData>) => {
     setData(prev => ({ ...prev, ...patch }))
     setDir(1)
@@ -112,6 +122,13 @@ export default function CandidatureForm() {
     const full = { ...data, ...patch }
     setLoading(true)
     setError(null)
+
+    let recaptchaToken = ''
+    try {
+      type GR = { execute: (k: string, o: { action: string }) => Promise<string> }
+      const gr = (window as unknown as { grecaptcha?: GR }).grecaptcha
+      if (gr) recaptchaToken = await gr.execute(RECAPTCHA_SITE_KEY, { action: 'submit' })
+    } catch { /* script non chargé ou bloqué */ }
 
     try {
       const [photoProfil, photoBody] = await Promise.all([
@@ -151,7 +168,7 @@ export default function CandidatureForm() {
           photoProfil,
           photoBody,
           website:        '',  // honeypot — doit être vide
-          recaptchaToken: '',  // TODO: injecter le token reCAPTCHA v3
+          recaptchaToken,
         }),
       })
 

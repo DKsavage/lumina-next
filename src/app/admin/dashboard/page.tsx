@@ -38,23 +38,12 @@ interface Candidature {
   photo_body_signed?: string | null
 }
 
-interface Group {
-  name: string
-  time: string
-  members: string
-}
+interface Group { name: string; time: string; members: string }
 
 interface SessionForm {
-  project:   string
-  dateFr:    string
-  dateEn:    string
-  addressFr: string
-  groups:    Group[]
-  notesFr:   string
-  notesEn:   string
-  unpaid:    boolean
-  moodboard: boolean
-  whatsapp:  string
+  project: string; dateFr: string; dateEn: string; addressFr: string
+  groups: Group[]; notesFr: string; notesEn: string
+  unpaid: boolean; moodboard: boolean; whatsapp: string
 }
 
 const defaultSession: SessionForm = {
@@ -65,14 +54,22 @@ const defaultSession: SessionForm = {
 
 type SortKey = 'date' | 'nom' | 'taille'
 
+function calcAge(dateStr: string | null | undefined): number | null {
+  if (!dateStr) return null
+  const birth = new Date(dateStr)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
+}
+
 /* ── Carte candidature ──────────────────────────────────────── */
 function CandidatureCard({
   c, selected, onToggle, onViewDetail,
 }: { c: Candidature; selected: boolean; onToggle: (id: string) => void; onViewDetail: (c: Candidature) => void }) {
   const [hovered, setHovered] = useState(false)
-  const date = new Date(c.date_inscription).toLocaleDateString('fr-CA', {
-    year: 'numeric', month: 'short', day: 'numeric',
-  })
+  const date     = new Date(c.date_inscription).toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' })
   const activeSrc = hovered && c.photo_body_signed ? c.photo_body_signed : c.photo_profil_signed
 
   return (
@@ -81,19 +78,11 @@ function CandidatureCard({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="relative cursor-pointer transition-all duration-300"
-      style={{
-        border: selected ? '1px solid var(--red)' : '1px solid var(--border)',
-        background: selected ? 'rgba(139,0,32,.03)' : 'var(--paper)',
-        padding: '0', userSelect: 'none',
-      }}
+      style={{ border: selected ? '1px solid var(--red)' : '1px solid var(--border)', background: selected ? 'rgba(139,0,32,.03)' : 'var(--paper)', userSelect: 'none' }}
     >
       <div className="relative overflow-hidden bg-[#E8E3DC]" style={{ aspectRatio: '3/4' }}>
         {activeSrc ? (
-          <Image
-            src={activeSrc} alt={`${c.prenom} ${c.nom}`} fill
-            className="object-cover object-top transition-opacity duration-300"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
+          <Image src={activeSrc} alt={`${c.prenom} ${c.nom}`} fill className="object-cover object-top transition-opacity duration-300" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '3rem', color: 'rgba(139,0,32,.18)' }}>
@@ -102,21 +91,13 @@ function CandidatureCard({
           </div>
         )}
 
-        {/* Full body hint */}
         {c.photo_body_signed && !selected && (
-          <div
-            className="absolute bottom-2 right-2 font-medium uppercase"
-            style={{
-              fontSize: '.38rem', letterSpacing: '.18em',
-              background: 'rgba(12,11,9,.45)', color: 'rgba(247,243,238,.8)',
-              padding: '.2rem .45rem', opacity: hovered ? 0 : 1, transition: 'opacity .2s',
-            }}
-          >
+          <div className="absolute bottom-2 right-2 font-medium uppercase"
+            style={{ fontSize: '.38rem', letterSpacing: '.18em', background: 'rgba(12,11,9,.45)', color: 'rgba(247,243,238,.8)', padding: '.2rem .45rem', opacity: hovered ? 0 : 1, transition: 'opacity .2s' }}>
             Full body
           </div>
         )}
 
-        {/* Badge sélection active */}
         {selected && (
           <div className="absolute top-2 right-2 flex items-center justify-center"
             style={{ width: '1.6rem', height: '1.6rem', background: 'var(--red)', borderRadius: '50%' }}>
@@ -126,51 +107,32 @@ function CandidatureCard({
           </div>
         )}
 
-        {/* Badge "déjà notifié" (persistant DB) */}
         {c.selectionne && !selected && (
-          <div
-            className="absolute top-2 left-2 font-medium uppercase"
-            style={{
-              fontSize: '.36rem', letterSpacing: '.15em',
-              background: 'rgba(20,120,60,.82)', color: '#fff',
-              padding: '.2rem .45rem',
-            }}
-          >
+          <div className="absolute top-2 left-2 font-medium uppercase"
+            style={{ fontSize: '.36rem', letterSpacing: '.15em', background: 'rgba(20,120,60,.82)', color: '#fff', padding: '.2rem .45rem' }}>
             Notifié
           </div>
         )}
       </div>
 
       <div style={{ padding: '1rem 1rem .9rem' }}>
-        <div className="text-ink font-medium mb-1 truncate"
-          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.78rem', letterSpacing: '.01em' }}>
+        <div className="text-ink font-medium mb-1 truncate" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.78rem', letterSpacing: '.01em' }}>
           {c.prenom} {c.nom}
         </div>
-        <div className="text-muted font-light truncate" style={{ fontSize: '.62rem', marginBottom: '.5rem' }}>
-          {c.email}
-        </div>
+        <div className="text-muted font-light truncate" style={{ fontSize: '.62rem', marginBottom: '.5rem' }}>{c.email}</div>
         <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '.5rem' }}>
           {c.genre && (
-            <span className="font-medium uppercase text-muted"
-              style={{ fontSize: '.44rem', letterSpacing: '.25em', border: '1px solid var(--border)', padding: '.2rem .5rem' }}>
+            <span className="font-medium uppercase text-muted" style={{ fontSize: '.44rem', letterSpacing: '.25em', border: '1px solid var(--border)', padding: '.2rem .5rem' }}>
               {c.genre}
             </span>
           )}
-          {c.taille && (
-            <span className="text-muted font-light tabular-nums" style={{ fontSize: '.62rem' }}>
-              {c.taille} cm
-            </span>
-          )}
+          {c.taille && <span className="text-muted font-light tabular-nums" style={{ fontSize: '.62rem' }}>{c.taille} cm</span>}
         </div>
         <div className="flex items-center justify-between">
           <div className="text-muted font-light" style={{ fontSize: '.55rem', letterSpacing: '.02em' }}>{date}</div>
-          <button
-            type="button"
-            onClick={e => { e.stopPropagation(); onViewDetail(c) }}
+          <button type="button" onClick={e => { e.stopPropagation(); onViewDetail(c) }}
             className="text-muted transition-colors duration-200 hover:text-red"
-            style={{ background: 'none', fontSize: '.7rem', lineHeight: 1, padding: '.2rem' }}
-            aria-label="Voir le profil"
-          >→</button>
+            style={{ background: 'none', fontSize: '.7rem', lineHeight: 1, padding: '.2rem' }} aria-label="Voir le profil">→</button>
         </div>
       </div>
     </div>
@@ -198,7 +160,11 @@ export default function DashboardPage() {
   const [notifying,         setNotifying]         = useState(false)
   const [confirmNotify,     setConfirmNotify]     = useState(false)
   const [detail,            setDetail]            = useState<Candidature | null>(null)
+  const [confirmDelete,     setConfirmDelete]     = useState(false)
   const [lightbox,          setLightbox]          = useState<string | null>(null)
+
+  /* Reset confirm delete quand on change de profil */
+  useEffect(() => { setConfirmDelete(false) }, [detail])
 
   const fetchCandidatures = useCallback(async () => {
     const token = localStorage.getItem('lumina_token')
@@ -208,8 +174,7 @@ export default function DashboardPage() {
     const data = await res.json()
     if (!data.success) {
       if (res.status === 401) { localStorage.removeItem('lumina_token'); router.replace('/admin/login') }
-      setLoading(false)
-      return
+      setLoading(false); return
     }
     setCandidatures(data.data)
     setLoading(false)
@@ -227,10 +192,7 @@ export default function DashboardPage() {
     const refresh = async () => {
       const refreshToken = localStorage.getItem('lumina_refresh')
       if (!refreshToken) return
-      const res  = await fetch('/api/refresh', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      })
+      const res  = await fetch('/api/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken }) })
       const data = await res.json()
       if (data.success) {
         localStorage.setItem('lumina_token', data.token)
@@ -244,6 +206,54 @@ export default function DashboardPage() {
     return () => clearInterval(id)
   }, [router])
 
+  /* ── Filtrage + tri ── */
+  const filtered = candidatures
+    .filter(c => {
+      const q = search.toLowerCase()
+      if (q && !c.prenom.toLowerCase().includes(q) && !c.nom.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
+      if (filterGenre && c.genre !== filterGenre) return false
+      if (filterSelectionne && !c.selectionne) return false
+      if (tailleMin && (c.taille ?? 0) < Number(tailleMin)) return false
+      if (tailleMax && (c.taille ?? 999) > Number(tailleMax)) return false
+      return true
+    })
+    .sort((a, b) => {
+      let cmp = 0
+      if (sortBy === 'nom')    cmp = `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`)
+      if (sortBy === 'taille') cmp = (a.taille ?? 0) - (b.taille ?? 0)
+      if (sortBy === 'date')   cmp = new Date(a.date_inscription).getTime() - new Date(b.date_inscription).getTime()
+      return sortAsc ? cmp : -cmp
+    })
+
+  const detailIdx   = detail ? filtered.findIndex(c => c.id === detail.id) : -1
+  const selectedCount = selectedIds.size
+  const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedIds.has(c.id))
+
+  /* Genre breakdown pour la barre flottante */
+  const selectedBreakdown = (() => {
+    const counts: Record<string, number> = {}
+    candidatures.filter(c => selectedIds.has(c.id)).forEach(c => {
+      const k = c.genre === 'Femme' ? 'F' : c.genre === 'Homme' ? 'H' : c.genre ? 'NB' : '?'
+      counts[k] = (counts[k] ?? 0) + 1
+    })
+    return Object.entries(counts).map(([k, n]) => `${n}${k}`).join(' · ')
+  })()
+
+  /* ── Keyboard navigation ── */
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        if (lightbox) { setLightbox(null); return }
+        if (detail)   { setDetail(null); return }
+      }
+      if (!detail || detailIdx < 0) return
+      if (e.key === 'ArrowLeft'  && detailIdx > 0)                   setDetail(filtered[detailIdx - 1])
+      if (e.key === 'ArrowRight' && detailIdx < filtered.length - 1) setDetail(filtered[detailIdx + 1])
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightbox, detail, detailIdx, filtered])
+
   function logout() {
     localStorage.removeItem('lumina_token'); localStorage.removeItem('lumina_refresh')
     router.replace('/admin/login')
@@ -251,6 +261,14 @@ export default function DashboardPage() {
 
   function toggleSelect(id: string) {
     setSelectedIds(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
+  }
+
+  function toggleSelectAll() {
+    if (allFilteredSelected) {
+      setSelectedIds(prev => { const next = new Set(prev); filtered.forEach(c => next.delete(c.id)); return next })
+    } else {
+      setSelectedIds(prev => { const next = new Set(prev); filtered.forEach(c => next.add(c.id)); return next })
+    }
   }
 
   function clearSelection() { setSelectedIds(new Set()); setConfirmNotify(false) }
@@ -263,11 +281,12 @@ export default function DashboardPage() {
   }
 
   function handleExportCSV() {
-    const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Date inscription','Notifié']
+    const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Âge','Date inscription','Notifié']
     const rows = candidatures.map(c => [
       c.prenom, c.nom, c.email, c.telephone, c.genre ?? '',
       c.taille ?? '', c.ville ?? '', c.pays ?? '',
       c.experience ?? '', c.disponibilite ?? '', c.langues ?? '',
+      calcAge(c.date_naissance) ?? '',
       new Date(c.date_inscription).toLocaleDateString('fr-CA'),
       c.selectionne ? 'Oui' : 'Non',
     ])
@@ -289,12 +308,37 @@ export default function DashboardPage() {
         body: JSON.stringify({ email: c.email, prenom: c.prenom, nom: c.nom }),
       }))
     )
-    const sent       = results.filter(r => r.status === 'fulfilled').length
+    const sent        = results.filter(r => r.status === 'fulfilled').length
     const notifiedIds = new Set(models.map(c => c.id))
-    // Mise à jour locale — plus besoin de reload
     setCandidatures(prev => prev.map(c => notifiedIds.has(c.id) ? { ...c, selectionne: true } : c))
     setNotifying(false); setConfirmNotify(false)
     showToast(`Notifications envoyées à ${sent} modèle(s).`)
+  }
+
+  async function handleToggleSelectionne(c: Candidature) {
+    const token  = localStorage.getItem('lumina_token')!
+    const newVal = !c.selectionne
+    const res    = await fetch(`/api/candidatures/${c.id}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectionne: newVal }),
+    })
+    if (!res.ok) { showToast('Erreur lors de la mise à jour.'); return }
+    setCandidatures(prev => prev.map(x => x.id === c.id ? { ...x, selectionne: newVal } : x))
+    setDetail(prev => prev?.id === c.id ? { ...prev, selectionne: newVal } : prev)
+    showToast(newVal ? 'Marqué comme notifié.' : 'Notification annulée.')
+  }
+
+  async function handleDelete(id: string) {
+    const token = localStorage.getItem('lumina_token')!
+    const res   = await fetch(`/api/candidatures/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    if (!res.ok) { showToast('Erreur lors de la suppression.'); return }
+    setCandidatures(prev => prev.filter(c => c.id !== id))
+    setDetail(null)
+    showToast('Candidature supprimée.')
   }
 
   async function handleSendSession(e: FormEvent) {
@@ -319,29 +363,8 @@ export default function DashboardPage() {
   function updateGroup(i: number, field: keyof Group, val: string) {
     setSession(prev => { const groups = [...prev.groups]; groups[i] = { ...groups[i], [field]: val }; return { ...prev, groups } })
   }
-  function addGroup()        { setSession(prev => ({ ...prev, groups: [...prev.groups, { name: '', time: '', members: '' }] })) }
+  function addGroup()           { setSession(prev => ({ ...prev, groups: [...prev.groups, { name: '', time: '', members: '' }] })) }
   function removeGroup(i: number) { setSession(prev => ({ ...prev, groups: prev.groups.filter((_, idx) => idx !== i) })) }
-
-  /* ── Filtrage + tri ── */
-  const filtered = candidatures
-    .filter(c => {
-      const q = search.toLowerCase()
-      if (q && !c.prenom.toLowerCase().includes(q) && !c.nom.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
-      if (filterGenre && c.genre !== filterGenre) return false
-      if (filterSelectionne && !c.selectionne) return false
-      if (tailleMin && (c.taille ?? 0) < Number(tailleMin)) return false
-      if (tailleMax && (c.taille ?? 999) > Number(tailleMax)) return false
-      return true
-    })
-    .sort((a, b) => {
-      let cmp = 0
-      if (sortBy === 'nom')    cmp = `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`)
-      if (sortBy === 'taille') cmp = (a.taille ?? 0) - (b.taille ?? 0)
-      if (sortBy === 'date')   cmp = new Date(a.date_inscription).getTime() - new Date(b.date_inscription).getTime()
-      return sortAsc ? cmp : -cmp
-    })
-
-  const selectedCount = selectedIds.size
 
   const inputStyle: React.CSSProperties = {
     fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.85rem',
@@ -373,55 +396,34 @@ export default function DashboardPage() {
             Dashboard Admin
           </span>
         </div>
-
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-6">
             <div className="text-center">
-              <div className="text-ink font-light tabular-nums" style={{ fontSize: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
-                {candidatures.length}
-              </div>
+              <div className="text-ink font-light tabular-nums" style={{ fontSize: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>{candidatures.length}</div>
               <div className="text-muted font-medium uppercase" style={{ fontSize: '.4rem', letterSpacing: '.25em' }}>Modèles</div>
             </div>
             <div style={{ width: '1px', height: '2rem', background: 'var(--border)' }} />
             <div className="text-center">
-              <div className="text-red font-light tabular-nums" style={{ fontSize: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
-                {candidatures.filter(c => c.selectionne).length}
-              </div>
+              <div className="text-red font-light tabular-nums" style={{ fontSize: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>{candidatures.filter(c => c.selectionne).length}</div>
               <div className="text-muted font-medium uppercase" style={{ fontSize: '.4rem', letterSpacing: '.25em' }}>Notifiés</div>
             </div>
           </div>
-
-          {/* Refresh */}
-          <button
-            onClick={fetchCandidatures} disabled={loading}
+          <button onClick={fetchCandidatures} disabled={loading}
             className="text-muted transition-colors duration-200 hover:text-ink"
             style={{ background: 'none', fontSize: '1rem', lineHeight: 1, opacity: loading ? .4 : 1 }}
-            aria-label="Rafraîchir" title="Rafraîchir les données"
-          >↺</button>
-
-          {/* Export CSV */}
-          <button
-            onClick={handleExportCSV}
+            aria-label="Rafraîchir" title="Rafraîchir">↺</button>
+          <button onClick={handleExportCSV}
             className="font-medium uppercase text-muted transition-colors duration-200 hover:text-ink"
-            style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}
-          >
-            Export CSV
-          </button>
-
-          <button
-            onClick={logout}
+            style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}>Export CSV</button>
+          <button onClick={logout}
             className="font-medium uppercase text-muted transition-colors duration-200 hover:text-red"
-            style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}
-          >
-            Déconnexion
-          </button>
+            style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}>Déconnexion</button>
         </div>
       </nav>
 
       {/* ── SEARCH ── */}
       <div style={{ padding: '2rem 2rem 0', maxWidth: '42rem' }}>
-        <input
-          type="search" placeholder="Rechercher par nom ou email…"
+        <input type="search" placeholder="Rechercher par nom ou email…"
           value={search} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
           className="w-full bg-transparent text-ink font-light outline-none"
           style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.9rem', borderBottom: '1px solid var(--border)', paddingBottom: '.75rem', transition: 'border-color .2s' }}
@@ -432,67 +434,57 @@ export default function DashboardPage() {
 
       {/* ── FILTRES + TRI ── */}
       <div style={{ padding: '1.2rem 2rem 0' }}>
-        {/* Ligne 1 — genre + notifiés */}
+        {/* Ligne 1 */}
         <div className="flex items-center gap-[.5rem] flex-wrap mb-[.75rem]">
           {(['Femme', 'Homme', 'Non-binaire'] as const).map(g => (
             <button key={g} type="button" onClick={() => setFilterGenre(filterGenre === g ? null : g)}
               className="font-medium uppercase transition-colors duration-200"
-              style={{
-                fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer',
-                border: `1px solid ${filterGenre === g ? 'var(--red)' : 'var(--border)'}`,
-                color: filterGenre === g ? 'var(--red)' : 'var(--muted)',
-                background: filterGenre === g ? 'rgba(139,0,32,.04)' : 'transparent',
-                padding: '.35rem .8rem',
-              }}
-            >{g}</button>
+              style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterGenre === g ? 'var(--red)' : 'var(--border)'}`, color: filterGenre === g ? 'var(--red)' : 'var(--muted)', background: filterGenre === g ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}>
+              {g}
+            </button>
           ))}
           <button type="button" onClick={() => setFilterSelectionne(v => !v)}
             className="font-medium uppercase transition-colors duration-200"
-            style={{
-              fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer',
-              border: `1px solid ${filterSelectionne ? 'var(--red)' : 'var(--border)'}`,
-              color: filterSelectionne ? 'var(--red)' : 'var(--muted)',
-              background: filterSelectionne ? 'rgba(139,0,32,.04)' : 'transparent',
-              padding: '.35rem .8rem',
-            }}
-          >Notifiés</button>
+            style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterSelectionne ? 'var(--red)' : 'var(--border)'}`, color: filterSelectionne ? 'var(--red)' : 'var(--muted)', background: filterSelectionne ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}>
+            Notifiés
+          </button>
           {(filterGenre || filterSelectionne || tailleMin || tailleMax) && (
-            <button type="button"
-              onClick={() => { setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('') }}
+            <button type="button" onClick={() => { setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('') }}
               className="font-medium uppercase text-muted transition-colors duration-200 hover:text-red"
-              style={{ fontSize: '.44rem', letterSpacing: '.22em', background: 'none', padding: '.35rem .5rem' }}
-            >Réinitialiser ×</button>
+              style={{ fontSize: '.44rem', letterSpacing: '.22em', background: 'none', padding: '.35rem .5rem' }}>
+              Réinitialiser ×
+            </button>
           )}
-          <span className="text-muted font-light" style={{ fontSize: '.55rem', marginLeft: 'auto' }}>
-            {filtered.length} / {candidatures.length}
-          </span>
+          <div className="flex items-center gap-2" style={{ marginLeft: 'auto' }}>
+            {/* Tout sélectionner */}
+            <button type="button" onClick={toggleSelectAll}
+              className="font-medium uppercase transition-colors duration-200"
+              style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${allFilteredSelected ? 'var(--ink)' : 'var(--border)'}`, color: allFilteredSelected ? 'var(--ink)' : 'var(--muted)', background: 'transparent', padding: '.35rem .8rem' }}>
+              {allFilteredSelected ? 'Tout désélect.' : 'Tout sélect.'}
+            </button>
+            <span className="text-muted font-light" style={{ fontSize: '.55rem' }}>
+              {filtered.length} / {candidatures.length}
+            </span>
+          </div>
         </div>
 
         {/* Ligne 2 — taille + tri */}
         <div className="flex items-center gap-[.5rem] flex-wrap" style={{ marginBottom: '.5rem' }}>
-          {/* Filtre taille */}
           <div className="flex items-center gap-1" style={{ border: '1px solid var(--border)', padding: '.25rem .6rem' }}>
             <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em' }}>Taille</span>
-            <input
-              type="number" value={tailleMin} onChange={e => setTailleMin(e.target.value)} placeholder="min"
-              style={{ width: '3rem', background: 'transparent', border: 'none', outline: 'none', fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', textAlign: 'center' }}
-            />
+            <input type="number" value={tailleMin} onChange={e => setTailleMin(e.target.value)} placeholder="min"
+              style={{ width: '3rem', background: 'transparent', border: 'none', outline: 'none', fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', textAlign: 'center' }} />
             <span className="text-muted" style={{ fontSize: '.55rem' }}>—</span>
-            <input
-              type="number" value={tailleMax} onChange={e => setTailleMax(e.target.value)} placeholder="max"
-              style={{ width: '3rem', background: 'transparent', border: 'none', outline: 'none', fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', textAlign: 'center' }}
-            />
+            <input type="number" value={tailleMax} onChange={e => setTailleMax(e.target.value)} placeholder="max"
+              style={{ width: '3rem', background: 'transparent', border: 'none', outline: 'none', fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', textAlign: 'center' }} />
             <span className="text-muted" style={{ fontSize: '.4rem' }}>cm</span>
           </div>
-
-          {/* Tri */}
           <div className="flex items-center gap-1" style={{ marginLeft: 'auto' }}>
             <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em', marginRight: '.3rem' }}>Tri</span>
             {([['date','Date'],['nom','Nom'],['taille','Taille']] as [SortKey, string][]).map(([key, label]) => (
               <button key={key} type="button"
                 onClick={() => { if (sortBy === key) setSortAsc(v => !v); else { setSortBy(key); setSortAsc(key === 'nom') } }}
-                style={sortBtnStyle(sortBy === key)}
-              >
+                style={sortBtnStyle(sortBy === key)}>
                 {label}{sortBy === key ? (sortAsc ? ' ↑' : ' ↓') : ''}
               </button>
             ))}
@@ -504,16 +496,12 @@ export default function DashboardPage() {
       <div style={{ padding: '2rem 2rem 8rem' }}>
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <div className="font-light text-muted" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '1.2rem' }}>
-              Chargement…
-            </div>
+            <div className="font-light text-muted" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '1.2rem' }}>Chargement…</div>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center py-24">
             <div className="text-center">
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '2rem', color: 'rgba(139,0,32,.15)', marginBottom: '1rem' }}>
-                Aucun résultat
-              </div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '2rem', color: 'rgba(139,0,32,.15)', marginBottom: '1rem' }}>Aucun résultat</div>
               <div className="text-muted font-light" style={{ fontSize: '.7rem' }}>
                 {search ? `Aucun modèle ne correspond à "${search}"` : 'Aucune candidature enregistrée.'}
               </div>
@@ -535,28 +523,28 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <button onClick={clearSelection}
               className="flex items-center justify-center transition-opacity duration-200 hover:opacity-60"
-              style={{ width: '1.6rem', height: '1.6rem', border: '1px solid rgba(247,243,238,.2)', background: 'none' }}
-              aria-label="Effacer la sélection">
+              style={{ width: '1.6rem', height: '1.6rem', border: '1px solid rgba(247,243,238,.2)', background: 'none' }} aria-label="Effacer">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
               </svg>
             </button>
-            <span className="font-medium"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.1rem' }}>
-              {selectedCount} sélectionné{selectedCount > 1 ? 's' : ''}
-            </span>
+            <div>
+              <span className="font-medium" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.1rem' }}>
+                {selectedCount} sélectionné{selectedCount > 1 ? 's' : ''}
+              </span>
+              {selectedBreakdown && (
+                <span className="font-medium uppercase" style={{ fontSize: '.4rem', letterSpacing: '.2em', color: 'rgba(247,243,238,.45)', marginLeft: '.75rem' }}>
+                  {selectedBreakdown}
+                </span>
+              )}
+            </div>
           </div>
-
           <div className="flex items-center gap-3">
             {confirmNotify ? (
               <div className="flex items-center gap-2">
                 <button onClick={handleNotify} disabled={notifying}
                   className="font-medium uppercase transition-opacity duration-200"
-                  style={{
-                    fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em',
-                    color: 'var(--paper)', background: 'var(--red)', padding: '.65rem 1.2rem',
-                    opacity: notifying ? .5 : 1, cursor: notifying ? 'not-allowed' : 'pointer',
-                  }}>
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em', color: 'var(--paper)', background: 'var(--red)', padding: '.65rem 1.2rem', opacity: notifying ? .5 : 1, cursor: notifying ? 'not-allowed' : 'pointer' }}>
                   {notifying ? 'Envoi…' : `Confirmer — ${selectedCount} modèle${selectedCount > 1 ? 's' : ''}`}
                 </button>
                 {!notifying && (
@@ -592,22 +580,16 @@ export default function DashboardPage() {
             style={{ maxHeight: '90dvh', borderRadius: '1rem 1rem 0 0', padding: '2rem', borderTop: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between mb-8">
               <div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.5rem', color: 'var(--ink)' }}>
-                  Composer une session
-                </div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.5rem', color: 'var(--ink)' }}>Composer une session</div>
                 <div className="text-muted font-medium uppercase mt-1" style={{ fontSize: '.44rem', letterSpacing: '.25em' }}>
                   {selectedCount} modèle{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
                 </div>
               </div>
-              <button onClick={() => setComposerOpen(false)}
-                className="text-muted transition-colors duration-200 hover:text-red"
-                style={{ background: 'none', fontSize: '1.2rem', lineHeight: 1 }} aria-label="Fermer">×</button>
+              <button onClick={() => setComposerOpen(false)} className="text-muted transition-colors duration-200 hover:text-red" style={{ background: 'none', fontSize: '1.2rem', lineHeight: 1 }} aria-label="Fermer">×</button>
             </div>
-
             <form onSubmit={handleSendSession}>
               <label className="block font-medium uppercase text-muted mb-2" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Nom du projet *</label>
               <input required value={session.project} onChange={e => updateSession('project', e.target.value)} placeholder="Ex: Campagne Printemps 2026" style={inputStyle} />
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-medium uppercase text-muted mb-2" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Date (FR) *</label>
@@ -618,40 +600,29 @@ export default function DashboardPage() {
                   <input value={session.dateEn} onChange={e => updateSession('dateEn', e.target.value)} placeholder="Thursday, June 12, 2026" style={inputStyle} />
                 </div>
               </div>
-
               <label className="block font-medium uppercase text-muted mb-2" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Adresse *</label>
               <input required value={session.addressFr} onChange={e => updateSession('addressFr', e.target.value)} placeholder="123 rue Sainte-Catherine, Montréal" style={inputStyle} />
-
               <div className="flex items-center justify-between mb-3">
                 <label className="font-medium uppercase text-muted" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Groupes (call times)</label>
-                <button type="button" onClick={addGroup}
-                  className="font-medium uppercase text-red transition-opacity duration-200 hover:opacity-70"
-                  style={{ background: 'none', fontSize: '.44rem', letterSpacing: '.25em' }}>+ Ajouter</button>
+                <button type="button" onClick={addGroup} className="font-medium uppercase text-red transition-opacity duration-200 hover:opacity-70" style={{ background: 'none', fontSize: '.44rem', letterSpacing: '.25em' }}>+ Ajouter</button>
               </div>
-
               {session.groups.map((g, i) => (
                 <div key={i} className="grid gap-2 mb-3" style={{ gridTemplateColumns: '1fr 1fr 1fr auto', alignItems: 'end' }}>
                   <input value={g.name} onChange={e => updateGroup(i, 'name', e.target.value)} placeholder="Groupe A" style={{ ...inputStyle, marginBottom: 0 }} />
                   <input value={g.time} onChange={e => updateGroup(i, 'time', e.target.value)} placeholder="10h00" style={{ ...inputStyle, marginBottom: 0 }} />
                   <input value={g.members} onChange={e => updateGroup(i, 'members', e.target.value)} placeholder="Membres" style={{ ...inputStyle, marginBottom: 0 }} />
                   {session.groups.length > 1 && (
-                    <button type="button" onClick={() => removeGroup(i)}
-                      className="text-muted transition-colors duration-200 hover:text-red"
-                      style={{ background: 'none', paddingBottom: '.6rem', fontSize: '.9rem' }}>×</button>
+                    <button type="button" onClick={() => removeGroup(i)} className="text-muted transition-colors duration-200 hover:text-red" style={{ background: 'none', paddingBottom: '.6rem', fontSize: '.9rem' }}>×</button>
                   )}
                 </div>
               ))}
               <div style={{ height: '1rem' }} />
-
               <label className="block font-medium uppercase text-muted mb-2" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Notes (FR)</label>
               <textarea value={session.notesFr} onChange={e => updateSession('notesFr', e.target.value)} rows={2} placeholder="Instructions supplémentaires en français…" style={{ ...inputStyle, resize: 'none' }} />
-
               <label className="block font-medium uppercase text-muted mb-2" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Notes (EN)</label>
               <textarea value={session.notesEn} onChange={e => updateSession('notesEn', e.target.value)} rows={2} placeholder="Additional instructions in English…" style={{ ...inputStyle, resize: 'none' }} />
-
               <label className="block font-medium uppercase text-muted mb-2" style={{ fontSize: '.44rem', letterSpacing: '.28em' }}>Lien WhatsApp</label>
               <input type="url" value={session.whatsapp} onChange={e => updateSession('whatsapp', e.target.value)} placeholder="https://chat.whatsapp.com/…" style={inputStyle} />
-
               <div className="flex gap-6 mb-8">
                 {([['unpaid','Participation non rémunérée'],['moodboard','Moodboard joint']] as const).map(([key, label]) => (
                   <label key={key} className="flex items-center gap-2 cursor-pointer">
@@ -660,9 +631,7 @@ export default function DashboardPage() {
                   </label>
                 ))}
               </div>
-
-              <button type="submit" disabled={sending}
-                className="w-full font-medium uppercase text-paper transition-opacity duration-200"
+              <button type="submit" disabled={sending} className="w-full font-medium uppercase text-paper transition-opacity duration-200"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.58rem', letterSpacing: '.3em', background: 'var(--red)', padding: '1rem', opacity: sending ? .6 : 1, cursor: sending ? 'not-allowed' : 'pointer' }}>
                 {sending ? 'Envoi en cours…' : `Envoyer à ${selectedCount} modèle${selectedCount > 1 ? 's' : ''}`}
               </button>
@@ -682,7 +651,7 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="sticky top-0 bg-paper z-10 flex items-start justify-between"
               style={{ padding: '1.8rem 1.8rem 1rem', borderBottom: '1px solid var(--border)' }}>
-              <div>
+              <div className="flex-1 min-w-0">
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.8rem', color: 'var(--ink)', lineHeight: 1.15 }}>
                   {detail.prenom}<br />{detail.nom}
                 </div>
@@ -699,10 +668,25 @@ export default function DashboardPage() {
                   </span>
                 )}
               </div>
-              <button onClick={() => setDetail(null)}
-                className="text-muted transition-colors duration-200 hover:text-red"
-                style={{ background: 'none', fontSize: '1.4rem', lineHeight: 1, marginTop: '.2rem' }}
-                aria-label="Fermer">×</button>
+              {/* Nav prev/next + fermer */}
+              <div className="flex items-center gap-1 flex-shrink-0 ml-3" style={{ marginTop: '.2rem' }}>
+                <button onClick={() => detailIdx > 0 && setDetail(filtered[detailIdx - 1])}
+                  disabled={detailIdx <= 0}
+                  className="transition-opacity duration-200 text-muted hover:text-ink"
+                  style={{ background: 'none', fontSize: '1rem', lineHeight: 1, padding: '.3rem', opacity: detailIdx <= 0 ? .25 : 1 }}
+                  aria-label="Précédent (←)">←</button>
+                <span className="text-muted" style={{ fontSize: '.44rem', minWidth: '2.5rem', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                  {detailIdx + 1}/{filtered.length}
+                </span>
+                <button onClick={() => detailIdx < filtered.length - 1 && setDetail(filtered[detailIdx + 1])}
+                  disabled={detailIdx >= filtered.length - 1}
+                  className="transition-opacity duration-200 text-muted hover:text-ink"
+                  style={{ background: 'none', fontSize: '1rem', lineHeight: 1, padding: '.3rem', opacity: detailIdx >= filtered.length - 1 ? .25 : 1 }}
+                  aria-label="Suivant (→)">→</button>
+                <button onClick={() => setDetail(null)}
+                  className="text-muted transition-colors duration-200 hover:text-red"
+                  style={{ background: 'none', fontSize: '1.4rem', lineHeight: 1, marginLeft: '.4rem' }} aria-label="Fermer">×</button>
+              </div>
             </div>
 
             {/* Photos cliquables → lightbox */}
@@ -731,14 +715,14 @@ export default function DashboardPage() {
             {/* Infos */}
             <div style={{ padding: '0 1.8rem 6rem' }}>
               <DetailSection label="Corps">
-                <DetailRow label="Taille"        value={detail.taille       ? `${detail.taille} cm`      : null} />
-                <DetailRow label="Poitrine"       value={detail.poitrine     ? `${detail.poitrine} cm`    : null} />
-                <DetailRow label="Tour de taille" value={detail.tour_taille  ? `${detail.tour_taille} cm` : null} />
-                <DetailRow label="Hanches"        value={detail.hanches      ? `${detail.hanches} cm`     : null} />
-                <DetailRow label="Poids"          value={detail.poids        ? `${detail.poids} kg`       : null} />
-                <DetailRow label="Pointure EU"    value={detail.pointure     ? String(detail.pointure)    : null} />
-                <DetailRow label="Haut"           value={detail.taille_haut} />
-                <DetailRow label="Pantalon"       value={detail.taille_bas} />
+                <DetailRow label="Taille"         value={detail.taille       ? `${detail.taille} cm`      : null} />
+                <DetailRow label="Poitrine"        value={detail.poitrine     ? `${detail.poitrine} cm`    : null} />
+                <DetailRow label="Tour de taille"  value={detail.tour_taille  ? `${detail.tour_taille} cm` : null} />
+                <DetailRow label="Hanches"         value={detail.hanches      ? `${detail.hanches} cm`     : null} />
+                <DetailRow label="Poids"           value={detail.poids        ? `${detail.poids} kg`       : null} />
+                <DetailRow label="Pointure EU"     value={detail.pointure     ? String(detail.pointure)    : null} />
+                <DetailRow label="Haut"            value={detail.taille_haut} />
+                <DetailRow label="Pantalon"        value={detail.taille_bas} />
               </DetailSection>
               <DetailSection label="Apparence">
                 <DetailRow label="Teint"   value={detail.teint} />
@@ -747,11 +731,22 @@ export default function DashboardPage() {
                 <DetailRow label="Aspect"  value={detail.aspect} />
               </DetailSection>
               <DetailSection label="Profil casting">
-                <DetailRow label="Expérience"   value={detail.experience} />
+                <DetailRow label="Expérience"    value={detail.experience} />
                 <DetailRow label="Disponibilité" value={detail.disponibilite} />
                 <DetailRow label="Langues"       value={detail.langues} />
-                <DetailRow label="Naissance"     value={detail.date_naissance} />
-                <DetailRow label="Localisation"  value={[detail.ville, detail.pays].filter(Boolean).join(', ') || null} />
+                {/* Âge calculé */}
+                {detail.date_naissance && (
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="font-medium uppercase text-muted flex-shrink-0" style={{ fontSize: '.4rem', letterSpacing: '.18em' }}>Âge</span>
+                    <span className="font-light text-ink text-right" style={{ fontSize: '.72rem' }}>
+                      {calcAge(detail.date_naissance)} ans
+                      <span className="text-muted" style={{ fontSize: '.6rem', marginLeft: '.4rem' }}>
+                        ({new Date(detail.date_naissance).toLocaleDateString('fr-CA')})
+                      </span>
+                    </span>
+                  </div>
+                )}
+                <DetailRow label="Localisation" value={[detail.ville, detail.pays].filter(Boolean).join(', ') || null} />
               </DetailSection>
               <DetailSection label="Contact">
                 {/* Email + copier */}
@@ -764,17 +759,28 @@ export default function DashboardPage() {
                       style={{ background: 'none', fontSize: '.65rem', lineHeight: 1 }} title="Copier">⎘</button>
                   </div>
                 </div>
-                <DetailRow label="Téléphone" value={detail.telephone} />
+                {/* Téléphone cliquable + copier */}
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-medium uppercase text-muted flex-shrink-0" style={{ fontSize: '.4rem', letterSpacing: '.18em' }}>Téléphone</span>
+                  <div className="flex items-center gap-2">
+                    <a href={`tel:${detail.telephone}`}
+                      className="font-light text-right transition-colors duration-200 hover:text-red"
+                      style={{ fontSize: '.72rem', color: 'var(--ink)', textDecoration: 'none' }}>
+                      {detail.telephone}
+                    </a>
+                    <button type="button" onClick={() => copyToClipboard(detail.telephone)}
+                      className="text-muted transition-colors duration-200 hover:text-ink flex-shrink-0"
+                      style={{ background: 'none', fontSize: '.65rem', lineHeight: 1 }} title="Copier">⎘</button>
+                  </div>
+                </div>
                 {/* Instagram cliquable */}
                 {detail.instagram && (
                   <div className="flex items-baseline justify-between gap-3">
                     <span className="font-medium uppercase text-muted flex-shrink-0" style={{ fontSize: '.4rem', letterSpacing: '.18em' }}>Instagram</span>
-                    <a
-                      href={`https://instagram.com/${detail.instagram.replace(/^@/, '')}`}
+                    <a href={`https://instagram.com/${detail.instagram.replace(/^@/, '')}`}
                       target="_blank" rel="noopener noreferrer"
                       className="font-light text-right transition-colors duration-200 hover:text-red"
-                      style={{ fontSize: '.72rem', color: 'var(--ink)', textDecoration: 'none' }}
-                    >
+                      style={{ fontSize: '.72rem', color: 'var(--ink)', textDecoration: 'none' }}>
                       @{detail.instagram.replace(/^@/, '')}
                     </a>
                   </div>
@@ -782,18 +788,45 @@ export default function DashboardPage() {
               </DetailSection>
             </div>
 
-            {/* Footer sélection */}
+            {/* Footer — actions */}
             <div className="sticky bottom-0 bg-paper" style={{ padding: '1rem 1.8rem', borderTop: '1px solid var(--border)' }}>
+              {/* Sélectionner */}
               <button onClick={() => toggleSelect(detail.id)}
                 className="w-full font-medium uppercase transition-all duration-200"
-                style={{
-                  fontFamily: "'Montserrat', sans-serif", fontSize: '.52rem', letterSpacing: '.28em',
-                  background: selectedIds.has(detail.id) ? 'transparent' : 'var(--red)',
-                  color: selectedIds.has(detail.id) ? 'var(--red)' : 'var(--paper)',
-                  border: '1px solid var(--red)', padding: '.9rem', cursor: 'pointer',
-                }}>
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.52rem', letterSpacing: '.28em', background: selectedIds.has(detail.id) ? 'transparent' : 'var(--red)', color: selectedIds.has(detail.id) ? 'var(--red)' : 'var(--paper)', border: '1px solid var(--red)', padding: '.9rem', cursor: 'pointer', marginBottom: '.6rem' }}>
                 {selectedIds.has(detail.id) ? '✓ Sélectionné — Retirer' : 'Sélectionner ce modèle'}
               </button>
+
+              {/* Annuler notification */}
+              {detail.selectionne && (
+                <button onClick={() => handleToggleSelectionne(detail)}
+                  className="w-full font-medium uppercase transition-all duration-200 hover:opacity-70"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.28em', background: 'transparent', color: 'rgba(20,120,60,.9)', border: '1px solid rgba(20,120,60,.4)', padding: '.7rem', cursor: 'pointer', marginBottom: '.6rem' }}>
+                  Annuler la notification
+                </button>
+              )}
+
+              {/* Supprimer avec confirmation */}
+              {confirmDelete ? (
+                <div className="flex gap-2">
+                  <button onClick={() => handleDelete(detail.id)}
+                    className="flex-1 font-medium uppercase transition-opacity duration-200 hover:opacity-80"
+                    style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.2em', background: '#7a0000', color: '#fff', border: 'none', padding: '.7rem', cursor: 'pointer' }}>
+                    Confirmer la suppression
+                  </button>
+                  <button onClick={() => setConfirmDelete(false)}
+                    className="font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+                    style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.2em', background: 'none', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.7rem 1rem', cursor: 'pointer' }}>
+                    Annuler
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDelete(true)}
+                  className="w-full font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.28em', background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.7rem', cursor: 'pointer' }}>
+                  Supprimer la candidature
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -804,11 +837,8 @@ export default function DashboardPage() {
         <div className="fixed inset-0 z-[250] flex items-center justify-center"
           style={{ background: 'rgba(12,11,9,.92)', backdropFilter: 'blur(8px)', cursor: 'zoom-out' }}
           onClick={() => setLightbox(null)}>
-          <Image
-            src={lightbox} alt="Photo plein écran" width={800} height={1100}
-            className="object-contain"
-            style={{ maxWidth: '90vw', maxHeight: '90dvh', width: 'auto', height: 'auto' }}
-          />
+          <Image src={lightbox} alt="Photo plein écran" width={800} height={1100}
+            className="object-contain" style={{ maxWidth: '90vw', maxHeight: '90dvh', width: 'auto', height: 'auto' }} />
           <button onClick={() => setLightbox(null)}
             className="absolute top-6 right-6 text-paper transition-opacity duration-200 hover:opacity-60"
             style={{ background: 'none', fontSize: '1.8rem', lineHeight: 1 }} aria-label="Fermer">×</button>
@@ -818,12 +848,7 @@ export default function DashboardPage() {
       {/* ── TOAST ── */}
       {toast && (
         <div className="fixed top-6 left-1/2 z-[300] font-medium"
-          style={{
-            transform: 'translateX(-50%)',
-            fontFamily: "'Montserrat', sans-serif", fontSize: '.62rem', letterSpacing: '.08em',
-            background: 'var(--ink)', color: 'var(--paper)',
-            padding: '.75rem 1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,.18)', whiteSpace: 'nowrap',
-          }}>
+          style={{ transform: 'translateX(-50%)', fontFamily: "'Montserrat', sans-serif", fontSize: '.62rem', letterSpacing: '.08em', background: 'var(--ink)', color: 'var(--paper)', padding: '.75rem 1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,.18)', whiteSpace: 'nowrap' }}>
           {toast}
         </div>
       )}
@@ -834,9 +859,7 @@ export default function DashboardPage() {
 function DetailSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--ivory)' }}>
-      <div className="font-medium uppercase" style={{ fontSize: '.42rem', letterSpacing: '.28em', color: 'var(--red)', marginBottom: '.6rem' }}>
-        {label}
-      </div>
+      <div className="font-medium uppercase" style={{ fontSize: '.42rem', letterSpacing: '.28em', color: 'var(--red)', marginBottom: '.6rem' }}>{label}</div>
       <div className="flex flex-col gap-[.45rem]">{children}</div>
     </div>
   )

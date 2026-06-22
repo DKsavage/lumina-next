@@ -18,8 +18,18 @@ interface Candidature {
   tour_taille?: number | null
   hanches?: number | null
   pointure?: number | null
+  poids?: number | null
   taille_haut?: string | null
   taille_bas?: string | null
+  teint?: string | null
+  couleur_yeux?: string | null
+  longueur_cheveux?: string | null
+  couleur_cheveux?: string | null
+  aspect?: string | null
+  ville?: string | null
+  pays?: string | null
+  date_naissance?: string | null
+  langues?: string | null
   experience?: string | null
   disponibilite?: string | null
   date_inscription: string
@@ -55,8 +65,8 @@ const defaultSession: SessionForm = {
 
 /* ── Composant carte candidature ────────────────────────────── */
 function CandidatureCard({
-  c, selected, onToggle,
-}: { c: Candidature; selected: boolean; onToggle: (id: string) => void }) {
+  c, selected, onToggle, onViewDetail,
+}: { c: Candidature; selected: boolean; onToggle: (id: string) => void; onViewDetail: (c: Candidature) => void }) {
   const [hovered, setHovered] = useState(false)
   const date = new Date(c.date_inscription).toLocaleDateString('fr-CA', {
     year: 'numeric', month: 'short', day: 'numeric',
@@ -161,8 +171,19 @@ function CandidatureCard({
           )}
         </div>
 
-        <div className="text-muted font-light" style={{ fontSize: '.55rem', letterSpacing: '.02em' }}>
-          {date}
+        <div className="flex items-center justify-between">
+          <div className="text-muted font-light" style={{ fontSize: '.55rem', letterSpacing: '.02em' }}>
+            {date}
+          </div>
+          <button
+            type="button"
+            onClick={e => { e.stopPropagation(); onViewDetail(c) }}
+            className="text-muted transition-colors duration-200 hover:text-red"
+            style={{ background: 'none', fontSize: '.7rem', lineHeight: 1, padding: '.2rem' }}
+            aria-label="Voir le profil"
+          >
+            →
+          </button>
         </div>
       </div>
     </div>
@@ -185,6 +206,7 @@ export default function DashboardPage() {
   const [toast,           setToast]           = useState('')
   const [notifying,       setNotifying]       = useState(false)
   const [confirmNotify,   setConfirmNotify]   = useState(false)
+  const [detail,          setDetail]          = useState<Candidature | null>(null)
 
   /* ── Vérifie le token et charge les candidatures ── */
   const fetchCandidatures = useCallback(async () => {
@@ -469,6 +491,7 @@ export default function DashboardPage() {
                 c={c}
                 selected={selectedIds.has(c.id)}
                 onToggle={toggleSelect}
+                onViewDetail={setDetail}
               />
             ))}
           </div>
@@ -764,6 +787,116 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* ── PANEL DÉTAIL ── */}
+      {detail && (
+        <div
+          className="fixed inset-0 z-[150] flex justify-end"
+          style={{ background: 'rgba(12,11,9,.45)', backdropFilter: 'blur(3px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setDetail(null) }}
+        >
+          <div
+            className="relative h-full overflow-y-auto bg-paper"
+            style={{ width: '100%', maxWidth: '26rem', borderLeft: '1px solid var(--border)' }}
+          >
+            {/* Header */}
+            <div
+              className="sticky top-0 bg-paper z-10 flex items-start justify-between"
+              style={{ padding: '1.8rem 1.8rem 1rem', borderBottom: '1px solid var(--border)' }}
+            >
+              <div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.8rem', color: 'var(--ink)', lineHeight: 1.15 }}>
+                  {detail.prenom}<br />{detail.nom}
+                </div>
+                {detail.genre && (
+                  <span
+                    className="font-medium uppercase text-muted"
+                    style={{ fontSize: '.42rem', letterSpacing: '.25em', borderLeft: '2px solid var(--red)', paddingLeft: '.5rem', marginTop: '.5rem', display: 'block' }}
+                  >
+                    {detail.genre}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setDetail(null)}
+                className="text-muted transition-colors duration-200 hover:text-red"
+                style={{ background: 'none', fontSize: '1.4rem', lineHeight: 1, marginTop: '.2rem' }}
+                aria-label="Fermer"
+              >×</button>
+            </div>
+
+            {/* Photos */}
+            <div className="grid grid-cols-2 gap-[.5rem]" style={{ padding: '1.2rem 1.8rem .8rem' }}>
+              {([
+                { src: detail.photo_profil_signed, label: 'Visage' },
+                { src: detail.photo_body_signed,   label: 'Full body' },
+              ] as const).map(({ src, label }) => (
+                <div key={label}>
+                  <div className="relative overflow-hidden bg-[#E8E3DC]" style={{ aspectRatio: '3/4' }}>
+                    {src ? (
+                      <Image src={src} alt={label} fill className="object-cover object-top" sizes="13vw" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-muted font-light" style={{ fontSize: '.6rem' }}>—</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="font-medium uppercase text-muted text-center mt-1" style={{ fontSize: '.38rem', letterSpacing: '.2em' }}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Sections infos */}
+            <div style={{ padding: '0 1.8rem 6rem' }}>
+              <DetailSection label="Corps">
+                <DetailRow label="Taille"         value={detail.taille        ? `${detail.taille} cm`       : null} />
+                <DetailRow label="Poitrine"        value={detail.poitrine      ? `${detail.poitrine} cm`     : null} />
+                <DetailRow label="Tour de taille"  value={detail.tour_taille   ? `${detail.tour_taille} cm`  : null} />
+                <DetailRow label="Hanches"         value={detail.hanches       ? `${detail.hanches} cm`      : null} />
+                <DetailRow label="Poids"           value={detail.poids         ? `${detail.poids} kg`        : null} />
+                <DetailRow label="Pointure EU"     value={detail.pointure      ? String(detail.pointure)     : null} />
+                <DetailRow label="Haut"            value={detail.taille_haut} />
+                <DetailRow label="Pantalon"        value={detail.taille_bas} />
+              </DetailSection>
+              <DetailSection label="Apparence">
+                <DetailRow label="Teint"           value={detail.teint} />
+                <DetailRow label="Yeux"            value={detail.couleur_yeux} />
+                <DetailRow label="Cheveux"         value={[detail.longueur_cheveux, detail.couleur_cheveux].filter(Boolean).join(' · ') || null} />
+                <DetailRow label="Aspect"          value={detail.aspect} />
+              </DetailSection>
+              <DetailSection label="Profil casting">
+                <DetailRow label="Expérience"      value={detail.experience} />
+                <DetailRow label="Disponibilité"   value={detail.disponibilite} />
+                <DetailRow label="Langues"         value={detail.langues} />
+                <DetailRow label="Naissance"       value={detail.date_naissance} />
+                <DetailRow label="Localisation"    value={[detail.ville, detail.pays].filter(Boolean).join(', ') || null} />
+              </DetailSection>
+              <DetailSection label="Contact">
+                <DetailRow label="Email"           value={detail.email} />
+                <DetailRow label="Téléphone"       value={detail.telephone} />
+                <DetailRow label="Instagram"       value={detail.instagram ? `@${detail.instagram}` : null} />
+              </DetailSection>
+            </div>
+
+            {/* Footer — sélection */}
+            <div className="sticky bottom-0 bg-paper" style={{ padding: '1rem 1.8rem', borderTop: '1px solid var(--border)' }}>
+              <button
+                onClick={() => toggleSelect(detail.id)}
+                className="w-full font-medium uppercase transition-all duration-200"
+                style={{
+                  fontFamily: "'Montserrat', sans-serif", fontSize: '.52rem', letterSpacing: '.28em',
+                  background: selectedIds.has(detail.id) ? 'transparent' : 'var(--red)',
+                  color: selectedIds.has(detail.id) ? 'var(--red)' : 'var(--paper)',
+                  border: '1px solid var(--red)',
+                  padding: '.9rem', cursor: 'pointer',
+                }}
+              >
+                {selectedIds.has(detail.id) ? '✓ Sélectionné — Retirer' : 'Sélectionner ce modèle'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── TOAST ── */}
       {toast && (
         <div
@@ -780,6 +913,27 @@ export default function DashboardPage() {
           {toast}
         </div>
       )}
+    </div>
+  )
+}
+
+function DetailSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--ivory)' }}>
+      <div className="font-medium uppercase" style={{ fontSize: '.42rem', letterSpacing: '.28em', color: 'var(--red)', marginBottom: '.6rem' }}>
+        {label}
+      </div>
+      <div className="flex flex-col gap-[.45rem]">{children}</div>
+    </div>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: string | number | null | undefined }) {
+  if (!value) return null
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <span className="font-medium uppercase text-muted flex-shrink-0" style={{ fontSize: '.4rem', letterSpacing: '.18em' }}>{label}</span>
+      <span className="font-light text-ink text-right" style={{ fontSize: '.72rem' }}>{value}</span>
     </div>
   )
 }

@@ -13,6 +13,8 @@ async function verifyToken(request: Request): Promise<boolean> {
   return userRes.ok
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /* ── DELETE — supprime la candidature + ses photos storage ── */
 export async function DELETE(
   request: Request,
@@ -22,12 +24,14 @@ export async function DELETE(
   if (!isValid) return NextResponse.json({ success: false }, { status: 401 })
 
   const { id } = await params
+  if (!UUID_RE.test(id)) return NextResponse.json({ success: false }, { status: 400 })
+
   const url = process.env.SUPABASE_URL!
   const key = process.env.SUPABASE_SERVICE_KEY!
 
   /* Récupérer les chemins photos avant suppression */
   const getRes = await fetch(
-    `${url}/rest/v1/candidatures?id=eq.${id}&select=photo_profil_url,photo_body_url`,
+    `${url}/rest/v1/candidatures?id=eq.${encodeURIComponent(id)}&select=photo_profil_url,photo_body_url`,
     { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } }
   )
   const [record] = await getRes.json()
@@ -47,7 +51,7 @@ export async function DELETE(
   }
 
   /* Supprimer la ligne DB */
-  const delRes = await fetch(`${url}/rest/v1/candidatures?id=eq.${id}`, {
+  const delRes = await fetch(`${url}/rest/v1/candidatures?id=eq.${encodeURIComponent(id)}`, {
     method: 'DELETE',
     headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Prefer': 'return=minimal' },
   })
@@ -56,7 +60,7 @@ export async function DELETE(
   return NextResponse.json({ success: true })
 }
 
-/* ── PATCH — mise à jour partielle (selectionne, etc.) ── */
+/* ── PATCH — mise à jour partielle (selectionne uniquement) ── */
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -65,11 +69,19 @@ export async function PATCH(
   if (!isValid) return NextResponse.json({ success: false }, { status: 401 })
 
   const { id } = await params
+  if (!UUID_RE.test(id)) return NextResponse.json({ success: false }, { status: 400 })
+
   const url  = process.env.SUPABASE_URL!
   const key  = process.env.SUPABASE_SERVICE_KEY!
   const body = await request.json()
 
-  const patchRes = await fetch(`${url}/rest/v1/candidatures?id=eq.${id}`, {
+  /* Allowlist — seul selectionne est modifiable via cette route */
+  if (typeof body.selectionne !== 'boolean') {
+    return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })
+  }
+  const safe = { selectionne: body.selectionne }
+
+  const patchRes = await fetch(`${url}/rest/v1/candidatures?id=eq.${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: {
       'apikey':        key,
@@ -77,7 +89,7 @@ export async function PATCH(
       'Content-Type':  'application/json',
       'Prefer':        'return=minimal',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(safe),
   })
 
   if (!patchRes.ok) return NextResponse.json({ success: false }, { status: 500 })

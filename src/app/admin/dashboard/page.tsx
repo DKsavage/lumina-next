@@ -184,6 +184,7 @@ export default function DashboardPage() {
   const [sending,         setSending]         = useState(false)
   const [toast,           setToast]           = useState('')
   const [notifying,       setNotifying]       = useState(false)
+  const [confirmNotify,   setConfirmNotify]   = useState(false)
 
   /* ── Vérifie le token et charge les candidatures ── */
   const fetchCandidatures = useCallback(async () => {
@@ -229,6 +230,7 @@ export default function DashboardPage() {
 
   function clearSelection() {
     setSelectedIds(new Set())
+    setConfirmNotify(false)
   }
 
   function showToast(msg: string) {
@@ -254,6 +256,7 @@ export default function DashboardPage() {
 
     const sent = results.filter(r => r.status === 'fulfilled').length
     setNotifying(false)
+    setConfirmNotify(false)
     showToast(`Notifications envoyées à ${sent} modèle(s).`)
   }
 
@@ -502,19 +505,48 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleNotify}
-              disabled={notifying}
-              className="font-medium uppercase transition-opacity duration-200 hover:opacity-70"
-              style={{
-                fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em',
-                color: 'var(--paper)', background: 'none',
-                border: '1px solid rgba(247,243,238,.3)', padding: '.65rem 1.2rem',
-                opacity: notifying ? .5 : 1, cursor: notifying ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {notifying ? 'Envoi…' : 'Notifier la sélection'}
-            </button>
+            {confirmNotify ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleNotify}
+                  disabled={notifying}
+                  className="font-medium uppercase transition-opacity duration-200"
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em',
+                    color: 'var(--paper)', background: 'var(--red)',
+                    padding: '.65rem 1.2rem',
+                    opacity: notifying ? .5 : 1, cursor: notifying ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {notifying ? 'Envoi…' : `Confirmer — ${selectedCount} modèle${selectedCount > 1 ? 's' : ''}`}
+                </button>
+                {!notifying && (
+                  <button
+                    onClick={() => setConfirmNotify(false)}
+                    className="font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em',
+                      color: 'rgba(247,243,238,.5)', background: 'none', padding: '.65rem .8rem',
+                    }}
+                  >
+                    Annuler
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmNotify(true)}
+                disabled={notifying}
+                className="font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+                style={{
+                  fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em',
+                  color: 'var(--paper)', background: 'none',
+                  border: '1px solid rgba(247,243,238,.3)', padding: '.65rem 1.2rem',
+                }}
+              >
+                Notifier la sélection
+              </button>
+            )}
             <button
               onClick={() => { setComposerOpen(true); setSession(defaultSession) }}
               className="font-medium uppercase"

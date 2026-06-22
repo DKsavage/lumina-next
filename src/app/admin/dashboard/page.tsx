@@ -57,13 +57,19 @@ const defaultSession: SessionForm = {
 function CandidatureCard({
   c, selected, onToggle,
 }: { c: Candidature; selected: boolean; onToggle: (id: string) => void }) {
+  const [hovered, setHovered] = useState(false)
   const date = new Date(c.date_inscription).toLocaleDateString('fr-CA', {
     year: 'numeric', month: 'short', day: 'numeric',
   })
 
+  const showBody = hovered && !!c.photo_body_signed
+  const activeSrc = showBody ? c.photo_body_signed! : c.photo_profil_signed
+
   return (
     <div
       onClick={() => onToggle(c.id)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className="relative cursor-pointer transition-all duration-300"
       style={{
         border: selected ? '1px solid var(--red)' : '1px solid var(--border)',
@@ -72,14 +78,14 @@ function CandidatureCard({
         userSelect: 'none',
       }}
     >
-      {/* Photo portrait */}
+      {/* Photo — profil par défaut, body au hover */}
       <div className="relative overflow-hidden bg-[#E8E3DC]" style={{ aspectRatio: '3/4' }}>
-        {c.photo_profil_signed ? (
+        {activeSrc ? (
           <Image
-            src={c.photo_profil_signed}
+            src={activeSrc}
             alt={`${c.prenom} ${c.nom}`}
             fill
-            className="object-cover object-top"
+            className="object-cover object-top transition-opacity duration-300"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
         ) : (
@@ -94,6 +100,22 @@ function CandidatureCard({
             >
               {c.prenom[0]}{c.nom[0]}
             </span>
+          </div>
+        )}
+
+        {/* Indicateur photo body disponible */}
+        {c.photo_body_signed && !selected && (
+          <div
+            className="absolute bottom-2 right-2 font-medium uppercase"
+            style={{
+              fontSize: '.38rem', letterSpacing: '.18em',
+              background: 'rgba(12,11,9,.45)', color: 'rgba(247,243,238,.8)',
+              padding: '.2rem .45rem',
+              opacity: hovered ? 0 : 1,
+              transition: 'opacity .2s',
+            }}
+          >
+            Full body
           </div>
         )}
 

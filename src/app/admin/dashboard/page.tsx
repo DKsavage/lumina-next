@@ -237,8 +237,33 @@ export default function DashboardPage() {
     fetchCandidatures()
   }, [fetchCandidatures, router])
 
+  /* Renouvelle le token 10min avant l'expiration (Supabase = 1h par défaut) */
+  useEffect(() => {
+    const refresh = async () => {
+      const refreshToken = localStorage.getItem('lumina_refresh')
+      if (!refreshToken) return
+      const res  = await fetch('/api/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        localStorage.setItem('lumina_token', data.token)
+        if (data.refreshToken) localStorage.setItem('lumina_refresh', data.refreshToken)
+      } else {
+        localStorage.removeItem('lumina_token')
+        localStorage.removeItem('lumina_refresh')
+        router.replace('/admin/login')
+      }
+    }
+    const id = setInterval(refresh, 50 * 60 * 1000)
+    return () => clearInterval(id)
+  }, [router])
+
   function logout() {
     localStorage.removeItem('lumina_token')
+    localStorage.removeItem('lumina_refresh')
     router.replace('/admin/login')
   }
 

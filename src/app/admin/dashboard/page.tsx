@@ -167,13 +167,12 @@ export default function DashboardPage() {
   useEffect(() => { setConfirmDelete(false) }, [detail])
 
   const fetchCandidatures = useCallback(async () => {
-    const token = localStorage.getItem('lumina_token')
-    if (!token) { router.replace('/admin/login'); return }
     setLoading(true)
-    const res  = await fetch('/api/candidatures', { headers: { 'Authorization': `Bearer ${token}` } })
+    // Le cookie httpOnly est envoyé automatiquement par le navigateur.
+    const res  = await fetch('/api/candidatures')
     const data = await res.json()
     if (!data.success) {
-      if (res.status === 401) { localStorage.removeItem('lumina_token'); router.replace('/admin/login') }
+      if (res.status === 401) router.replace('/admin/login')
       setLoading(false); return
     }
     setCandidatures(data.data)
@@ -181,26 +180,16 @@ export default function DashboardPage() {
   }, [router])
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('lumina_token')) {
-      router.replace('/admin/login'); return
-    }
     fetchCandidatures()
-  }, [fetchCandidatures, router])
+  }, [fetchCandidatures])
 
-  /* Refresh token 10min avant expiration */
+  /* Refresh token 50min avant expiration — cookie renouvelé silencieusement */
   useEffect(() => {
     const refresh = async () => {
-      const refreshToken = localStorage.getItem('lumina_refresh')
-      if (!refreshToken) return
-      const res  = await fetch('/api/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken }) })
+      // Le cookie lumina_refresh est lu par l'API — aucun body nécessaire.
+      const res  = await fetch('/api/refresh', { method: 'POST' })
       const data = await res.json()
-      if (data.success) {
-        localStorage.setItem('lumina_token', data.token)
-        if (data.refreshToken) localStorage.setItem('lumina_refresh', data.refreshToken)
-      } else {
-        localStorage.removeItem('lumina_token'); localStorage.removeItem('lumina_refresh')
-        router.replace('/admin/login')
-      }
+      if (!data.success) router.replace('/admin/login')
     }
     const id = setInterval(refresh, 50 * 60 * 1000)
     return () => clearInterval(id)
@@ -254,8 +243,8 @@ export default function DashboardPage() {
     return () => window.removeEventListener('keydown', onKey)
   }, [lightbox, detail, detailIdx, filtered])
 
-  function logout() {
-    localStorage.removeItem('lumina_token'); localStorage.removeItem('lumina_refresh')
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' })
     router.replace('/admin/login')
   }
 
@@ -298,13 +287,12 @@ export default function DashboardPage() {
   }
 
   async function handleNotify() {
-    const token  = localStorage.getItem('lumina_token')!
     const models = candidatures.filter(c => selectedIds.has(c.id))
     setNotifying(true)
     const results = await Promise.allSettled(
       models.map(c => fetch('/api/select', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: c.email, prenom: c.prenom, nom: c.nom }),
       }))
     )
@@ -316,11 +304,10 @@ export default function DashboardPage() {
   }
 
   async function handleToggleSelectionne(c: Candidature) {
-    const token  = localStorage.getItem('lumina_token')!
     const newVal = !c.selectionne
     const res    = await fetch(`/api/candidatures/${c.id}`, {
       method: 'PATCH',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ selectionne: newVal }),
     })
     if (!res.ok) { showToast('Erreur lors de la mise à jour.'); return }
@@ -330,11 +317,7 @@ export default function DashboardPage() {
   }
 
   async function handleDelete(id: string) {
-    const token = localStorage.getItem('lumina_token')!
-    const res   = await fetch(`/api/candidatures/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-    })
+    const res = await fetch(`/api/candidatures/${id}`, { method: 'DELETE' })
     if (!res.ok) { showToast('Erreur lors de la suppression.'); return }
     setCandidatures(prev => prev.filter(c => c.id !== id))
     setDetail(null)
@@ -343,12 +326,11 @@ export default function DashboardPage() {
 
   async function handleSendSession(e: FormEvent) {
     e.preventDefault()
-    const token  = localStorage.getItem('lumina_token')!
     const models = candidatures.filter(c => selectedIds.has(c.id)).map(c => ({ email: c.email, prenom: c.prenom }))
     setSending(true)
     const res  = await fetch('/api/send-session', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ models, ...session }),
     })
     const data = await res.json()

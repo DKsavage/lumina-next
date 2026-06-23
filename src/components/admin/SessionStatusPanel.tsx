@@ -73,8 +73,8 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
               type="button"
               onClick={() => setFilter(f)}
               style={{
-                fontSize: '.4rem',
-                letterSpacing: '.2em',
+                fontSize: '.65rem',
+                letterSpacing: '.15em',
                 fontWeight: 600,
                 background: filter === f ? 'var(--ink)' : 'transparent',
                 color:      filter === f ? 'var(--paper)' : 'var(--muted)',

@@ -27,16 +27,16 @@ function formatDate(iso: string, locale: 'fr-CA' | 'en-CA') {
   return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function cancelDeadlineDate(date: string, days: number): string {
-  const d = new Date(date + 'T12:00:00')
-  d.setDate(d.getDate() - days)
-  return d.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' })
-}
-
 function addMinutes(time: string, mins: number): string {
   const [h, m] = time.replace('h', ':').split(':').map(Number)
   const total = (h * 60) + (m || 0) + mins
   return `${Math.floor(total / 60)}h${String(total % 60).padStart(2, '0')}`
+}
+
+function cancelDeadlineDateLocale(date: string, days: number, locale: 'fr-CA' | 'en-CA'): string {
+  const d = new Date(date + 'T12:00:00')
+  d.setDate(d.getDate() - days)
+  return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 function buildEmail(params: {
@@ -44,12 +44,13 @@ function buildEmail(params: {
   session: SerializedSessionForm
   group: SerializedGroup | null
   token: string
+  lang: string
 }): string {
-  const { prenom, session, group, token } = params
+  const { prenom, session, group, token, lang } = params
   const confirmUrl = `${SITE_URL}/confirm/${token}?status=confirmed`
   const cancelUrl  = `${SITE_URL}/confirm/${token}?status=cancelled`
   const dateFr     = formatDate(session.date, 'fr-CA')
-  const deadline   = cancelDeadlineDate(session.date, session.cancel_deadline_days)
+  const deadline   = cancelDeadlineDateLocale(session.date, session.cancel_deadline_days, 'fr-CA')
 
   // Mettre en évidence le groupe du modèle en rouge — chaque groupe a son call time distinct.
   const groupRowsFr = session.groups
@@ -116,6 +117,100 @@ function buildEmail(params: {
 
   const typeLabel = { photo: 'photoshoot', video: 'tournage vidéo', hybrid: 'session photo & vidéo' }[session.type]
 
+  // Section EN — construite seulement si la langue du modèle requiert l'anglais
+  const showEn = lang === 'en' || lang === 'both'
+  let sectionEn = ''
+  if (showEn) {
+    const typeLabelEn = { photo: 'photoshoot', video: 'video shoot', hybrid: 'photo & video session' }[session.type]
+    const dateEn       = formatDate(session.date, 'en-CA')
+    const deadlineEn   = cancelDeadlineDateLocale(session.date, session.cancel_deadline_days, 'en-CA')
+
+    const groupRowsEn = session.groups
+      .filter(g => g.name || g.call_time)
+      .map(g => {
+        const isOwn = group ? g === group : false
+        const end   = g.call_time && g.duration_min
+          ? ` → ~${addMinutes(g.call_time, g.duration_min)}`
+          : ''
+        return `<tr><td style="padding:3px 0;font-size:15px;color:#0a0a0a;line-height:1.7;${isOwn ? 'font-weight:700;color:#8B0020;' : ''}">
+          <strong>${esc(g.name)}</strong> — ${esc(g.call_time)}${end}${isOwn ? ' ← <strong>Your call time</strong>' : ''}
+        </td></tr>`
+      }).join('')
+
+    const teamItemsEn = [
+      session.team.makeup  && '✓ Makeup artist on set',
+      session.team.hair    && '✓ Hairstylist on set',
+      session.team.stylist && '✓ Stylist on set',
+    ].filter(Boolean)
+
+    const teamEn = teamItemsEn.length
+      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>On-set team:</strong><br>${teamItemsEn.join('<br>')}</p>`
+      : ''
+
+    const prepEn = session.prep_notes
+      ? `<p style="margin:16px 0 0;font-size:14px;background:#f9f6f2;border-left:3px solid #8B0020;padding:12px 16px;color:#0a0a0a;line-height:1.7;"><strong>Preparation:</strong><br>${esc(session.prep_notes)}</p>`
+      : ''
+
+    const lookEn = group?.look_brief
+      ? `<p style="margin:16px 0 0;font-size:14px;background:#f9f6f2;border-left:3px solid #8B0020;padding:12px 16px;color:#0a0a0a;line-height:1.7;"><strong>Requested look:</strong> ${esc(group.look_brief)}</p>`
+      : ''
+
+    const bringEn = group?.bring_items
+      ? `<p style="margin:16px 0 0;font-size:14px;color:#0a0a0a;line-height:1.7;"><strong>Please bring:</strong> ${esc(group.bring_items)}</p>`
+      : ''
+
+    const compensationEn = (() => {
+      if (session.compensation_type === 'tfp')
+        return '<p style="margin:16px 0 0;font-size:13px;color:#6b6b6b;line-height:1.7;">Unpaid participation (TFP). An image rights authorization contract will be provided.</p>'
+      if (session.compensation_type === 'paid')
+        return `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Rate:</strong> ${esc(session.compensation_amount)}${session.compensation_method ? ` · ${esc(session.compensation_method)}` : ''}${session.compensation_delay ? ` · ${esc(session.compensation_delay)}` : ''}</p>`
+      return `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Allowance:</strong> ${esc(session.compensation_amount)} ${session.compensation_method} ${session.compensation_delay}</p>`
+    })()
+
+    const accessEn = session.access_instructions
+      ? `<p style="margin:6px 0 0;font-size:14px;color:#6b6b6b;line-height:1.7;">${esc(session.access_instructions)}</p>`
+      : ''
+
+    const contactEn = session.contact_name
+      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>On-site contact:</strong> ${esc(session.contact_name)}${session.contact_phone ? ` · <a href="tel:${esc(session.contact_phone)}" style="color:#8B0020;">${esc(session.contact_phone)}</a>` : ''}</p>`
+      : ''
+
+    const notesEn = session.notes_models
+      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.notes_models)}</p>`
+      : ''
+
+    const wappEn = session.whatsapp
+      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">WhatsApp group: <a href="${esc(session.whatsapp)}" style="color:#8B0020;">${esc(session.whatsapp)}</a></p>`
+      : ''
+
+    const moodEn = session.moodboard_url
+      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Moodboard: <a href="${esc(session.moodboard_url)}" style="color:#8B0020;">View moodboard →</a></p>`
+      : ''
+
+    sectionEn = `
+    <tr><td style="padding:24px 40px 0;"><hr style="border:none;border-top:1px solid #e2e2e2;margin:0 0 24px;"></td></tr>
+    <tr><td style="padding:0 40px 32px;">
+      <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Hi ${esc(prenom)},</p>
+      <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
+        You have been selected for the ${esc(typeLabelEn)} <strong>${esc(session.project)}</strong> on <strong>${esc(dateEn)}</strong>.
+      </p>
+      <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">📍 Location</p>
+      <p style="margin:0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.address)}</p>
+      ${accessEn}
+      <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">🕐 Schedule</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">${groupRowsEn}</table>
+      ${prepEn}${lookEn}${bringEn}${teamEn}${compensationEn}${contactEn}${notesEn}${moodEn}${wappEn}
+      <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Please confirm by <strong>${deadlineEn}</strong>:</p>
+      <table cellpadding="0" cellspacing="0" style="margin:20px 0;">
+        <tr>
+          <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">✓ I confirm</a></td>
+          <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">I cannot attend</a></td>
+        </tr>
+      </table>
+      <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Looking forward to seeing you!</p>
+    </td></tr>`
+  }
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -148,6 +243,7 @@ function buildEmail(params: {
     </table>
     <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Au plaisir de vous retrouver !</p>
   </td></tr>
+  ${sectionEn}
   <tr><td style="padding:20px 40px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;line-height:1.7;">
       <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Lumina</span>
@@ -249,9 +345,7 @@ export async function POST(request: NextRequest) {
     models.map(async (m) => {
       // Chercher le groupe explicitement assigné par email de candidature
       // assignedIds est un tableau ici (désérialisé depuis JSON) — utiliser includes(), pas has()
-      const groupMatch = groupRows.find(g => g?.assignedIds?.includes(m.email))
-        ?? groupRows.find(g => g?.assignedIds?.length === 0)
-        ?? null
+      const groupMatch = groupRows.find(g => g?.assignedIds?.includes(m.email)) ?? null
 
       const smRes = await fetch(`${url}/rest/v1/session_models?select=token`, {
         method:  'POST',
@@ -272,7 +366,7 @@ export async function POST(request: NextRequest) {
 
       // Retrouver le groupe d'origine (SerializedGroup) pour injecter look_brief / bring_items dans l'email
       const group = session.groups.find(g => g.assignedIds?.includes(m.email)) ?? null
-      const html  = buildEmail({ prenom: m.prenom, session, group, token: smRow.token })
+      const html  = buildEmail({ prenom: m.prenom, session, group, token: smRow.token, lang: m.langue ?? 'fr' })
 
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',

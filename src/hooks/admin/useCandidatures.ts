@@ -122,15 +122,27 @@ export function useCandidatures() {
   ) {
     const models = candidatures
       .filter(c => selectedIds.has(c.id))
-      .map(c => ({ email: c.email, prenom: c.prenom }))
-    const res  = await fetch('/api/send-session', {
+      // Inclure la langue pour adapter le call time en email bilingue si besoin
+      .map(c => ({ email: c.email, prenom: c.prenom, langue: c.langues?.includes('English') ? 'en' : 'fr' }))
+
+    // Set<string> n'est pas JSON-sérialisable — convertir chaque assignedIds en tableau avant fetch
+    const res = await fetch('/api/send-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ models, ...session }),
+      body: JSON.stringify({
+        models,
+        session: {
+          ...session,
+          groups: session.groups.map(g => ({
+            ...g,
+            assignedIds: [...g.assignedIds],
+          })),
+        },
+      }),
     })
     if (!res.ok) { onDone(0, models.length); return }
-    const data  = await res.json()
-    const sent  = typeof data.sent   === 'number' ? data.sent   : 0
+    const data   = await res.json()
+    const sent   = typeof data.sent   === 'number' ? data.sent   : 0
     const failed = typeof data.failed === 'number' ? data.failed : 0
     onDone(sent, failed)
   }

@@ -970,6 +970,22 @@ select.input-underline {
   100% { transform: scale(1);   opacity: 1; }
 }
 
+/* ── UPLOAD OPTIMIZING — pulsation pendant la compression image (Option C).
+   La classe .optimizing est ajoutée par React sur .up-ring tant que
+   browser-image-compression tourne dans le Web Worker. Même spécificité que
+   .upload-zone.has-file .up-ring mais déclarée après → gagne sur égalité,
+   donc la pulsation prime même quand on remplace une photo déjà chargée. */
+.upload-zone .up-ring.optimizing {
+  animation: ringOptimize 1s ease-in-out infinite;
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--white);
+}
+@keyframes ringOptimize {
+  0%, 100% { transform: scale(1);    opacity: 0.55; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+
 /* ── NAV HOVER UNDERLINE — trait remonte de gauche à droite.
    position: relative est nécessaire pour que ::after se positionne
    relativement au lien, pas à son parent. */
@@ -1013,6 +1029,7 @@ select.input-underline {
   .form-fields > *,
   .lum-shell,
   .upload-zone.has-file .up-ring,
+  .up-ring.optimizing,
   .shake { animation: none !important; }
   .input-underline { transition: none !important; }
   .lum-nav-link::after { transition: none !important; }

@@ -24,8 +24,8 @@ Quand l'utilisateur tape `/graphify` → invoquer le skill `graphify` avant tout
 ### Économie de tokens — CLAUDE.md (< 150 lignes, < 8 Ko)
 
 À chaque session :
-1. **Supprimer les items terminés** : tout `[x]` dans une checklist → effacer (historique dans `git log`).
-2. **Supprimer les arborescences** : les arbres `├── fichier.tsx` → lisibles via `ls` ou le graphe.
+1. **Supprimer les items terminés** : tout `[x]` → effacer (historique dans `git log`).
+2. **Supprimer les arborescences** : les arbres `├──` → lisibles via `ls` ou le graphe.
 3. **Ne pas dupliquer le graphe** : ce qui est dans `graphify-out/` ne doit pas être ici.
 4. **Phases terminées** : condenser en 1 ligne, jamais de détail par item.
 5. **Limite stricte** : si ce fichier > 150 lignes → tailler avant de commencer.
@@ -61,7 +61,7 @@ Migration **Lumina Photography** de HTML vanilla → Next.js 15.
 Agence de casting international, formulaire d'inscription mannequins.
 
 - **Repo** : `lumina-next`, branche `main` → auto-deploy Vercel
-- **URL prod** : `https://luminamodels.ca` (live juin 2026)
+- **URL prod** : `https://luminamodels.ca` — live en production
 
 ---
 
@@ -77,36 +77,34 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 ---
 
-
 ## FormData — champs
 
-- **Étape 1** : `profilFile`, `bodyFile` (File) · `prenom`, `nom`, `email`, `telephone`, `taille`, `genre` (string)
+- **Étape 1** : `profilFile`, `bodyFile` (File) · `prenom`, `nom`, `email`, `telephone`, `taille`, `genre`
 - **Étape 2** : `ville`, `experience` · optionnel : `pays`, `instagram`
-- **Étape 3** : `poitrine`, `tailleMes`→`tour_taille`, `hanches`, `pointure` (EU), `yeux` · optionnel : `poids`, `longueurCheveux`, `cheveux`
+- **Étape 3** : `poitrine`, `tailleMes`→`tour_taille`, `hanches`, `pointure` (EU), `tailleHaut` (XXS→XXL), `tailleBas` (US 24-40), `teint`, `yeux` · optionnel : `poids`, `longueurCheveux`, `cheveux`
 - **Étape 4** : `dateNaissance` (ISO), `disponibilite` · optionnel : `langues`, `aspect`
 
 ---
 
-
 ## Variables d'environnement
 
-`SUPABASE_URL` · `SUPABASE_SERVICE_KEY` (serveur uniquement) · `SUPABASE_ANON_KEY` · `RESEND_API_KEY` · `RECAPTCHA_SECRET_KEY`
+`SUPABASE_URL` (`https://xkkvudlpuvvctkbklsox.supabase.co` — **SANS `/rest/v1/`**, sinon storage → 404) · `SUPABASE_SERVICE_KEY` (service_role, bypass RLS) · `SUPABASE_ANON_KEY` · `RESEND_API_KEY` · `RECAPTCHA_SECRET_KEY`
 
 ---
 
 ## Checklist migration Phase 7
 
-Phases 0–17 terminées (init, DA, hero, formulaire, animations, sections, API, dashboard, prod, domaine). Reste :
-
-- [ ] Test end-to-end : soumettre une vraie candidature avec photos
-- [ ] Compression image automatique côté client (`browser-image-compression`)
+Tout terminé (init, DA, hero, formulaire 4 étapes, animations, API, dashboard, prod, domaine, compression HEIC, E2E juin 2026). Aucun item restant.
 
 ---
 
 ## Points techniques critiques
 
 1. **reCAPTCHA** : v3, seuil 0.5 — conditionnel en dev (skippé si clé absente)
-2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`)
-3. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
-4. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
-5. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)
+2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression si > 1 Mo via `browser-image-compression` (Web Worker, `fileType:'image/jpeg'`)
+3. **HEIC** : `file.type === 'image/heic'` ou extension `.heic/.heif` → compression forcée → sortie JPEG
+4. **Erreurs API** : try/catch global → `NextResponse.json({success:false, message})` — jamais de HTML 500 brut
+5. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
+6. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
+7. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)
+8. **Supabase Storage** : bucket privé (RLS actif) — bypass via clé `service_role` uniquement

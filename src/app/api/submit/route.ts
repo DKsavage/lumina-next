@@ -144,7 +144,13 @@ export async function POST(request: Request) {
   lastSubmitByIp.set(ip, now)
 
   /* ── 3. RECAPTCHA v3 — seulement si la clé est configurée (dev: skippé) ── */
-  if (process.env.RECAPTCHA_SECRET_KEY && data.recaptchaToken) {
+  if (process.env.RECAPTCHA_SECRET_KEY) {
+    if (!data.recaptchaToken) {
+      return NextResponse.json(
+        { success: false, message: 'Vérification de sécurité manquante. Recharge la page et réessaie.' },
+        { status: 403 }
+      )
+    }
     const secret    = process.env.RECAPTCHA_SECRET_KEY
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${data.recaptchaToken}`
     const rcRes     = await fetch(verifyUrl, { method: 'POST' })
@@ -174,12 +180,21 @@ export async function POST(request: Request) {
   }
 
   /* ── 5. UPLOAD PHOTOS ── */
-  const timestamp  = Date.now()
-  const baseName   = data.email.replace(/[@.]/g, '_') + '_' + timestamp
-  const [profilPath, bodyPath] = await Promise.all([
-    uploadPhoto(base64ToBuffer(data.photoProfil), `${baseName}_profil.jpg`),
-    uploadPhoto(base64ToBuffer(data.photoBody),   `${baseName}_body.jpg`),
-  ])
+  let profilPath: string, bodyPath: string
+  try {
+    const timestamp = Date.now()
+    const baseName  = data.email.replace(/[@.]/g, '_') + '_' + timestamp;
+    [profilPath, bodyPath] = await Promise.all([
+      uploadPhoto(base64ToBuffer(data.photoProfil), `${baseName}_profil.jpg`),
+      uploadPhoto(base64ToBuffer(data.photoBody),   `${baseName}_body.jpg`),
+    ])
+  } catch (err) {
+    console.error('Upload error:', err)
+    return NextResponse.json(
+      { success: false, message: "Erreur lors de l'envoi des photos. Réessaie dans quelques instants." },
+      { status: 500 }
+    )
+  }
 
   /* ── 6. INSERT Supabase ── */
   const supabaseUrl = process.env.SUPABASE_URL!
@@ -208,7 +223,10 @@ export async function POST(request: Request) {
       hanches:    data.hanches       ? parseInt(data.hanches)    : null,
       poids:      data.poids         ? parseFloat(data.poids)    : null,
       pointure:   data.pointure      ? parseInt(data.pointure)   : null,
+      taille_haut: data.tailleHaut   || null,
+      taille_bas:  data.tailleBas    || null,
       /* Apparence */
+      teint:            data.teint           || null,
       couleur_yeux:     data.yeux            || null,
       longueur_cheveux: data.longueurCheveux || null,
       couleur_cheveux:  data.cheveux         || null,
@@ -229,7 +247,11 @@ export async function POST(request: Request) {
 
   if (!dbRes.ok) {
     const errText = await dbRes.text()
-    throw new Error(`Supabase: ${dbRes.status} — ${errText}`)
+    console.error('DB error:', dbRes.status, errText)
+    return NextResponse.json(
+      { success: false, message: 'Erreur base de données. Réessaie dans quelques instants.' },
+      { status: 500 }
+    )
   }
 
   sendConfirmationEmails(data).catch(err => console.error('Email error:', err))

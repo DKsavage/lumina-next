@@ -54,6 +54,7 @@ export default function AdminLoginPage() {
     }
 
     localStorage.setItem('lumina_token', data.token)
+    if (data.refreshToken) localStorage.setItem('lumina_refresh', data.refreshToken)
     router.push('/admin/dashboard')
   }
 

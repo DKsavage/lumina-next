@@ -26,6 +26,6 @@ export async function POST(request: Request) {
     )
   }
 
-  const { access_token } = await authRes.json()
-  return NextResponse.json({ success: true, token: access_token })
+  const { access_token, refresh_token } = await authRes.json()
+  return NextResponse.json({ success: true, token: access_token, refreshToken: refresh_token })
 }

@@ -135,7 +135,9 @@ export function useCandidatures() {
           ...session,
           groups: session.groups.map(g => ({
             ...g,
-            assignedIds: [...g.assignedIds],
+            assignedIds: [...g.assignedIds]
+              .map(id => candidatures.find(c => c.id === id)?.email)
+              .filter((e): e is string => Boolean(e)),
           })),
         },
       }),

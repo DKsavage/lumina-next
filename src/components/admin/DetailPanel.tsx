@@ -1,8 +1,9 @@
 // DetailPanel — panneau latéral droit affichant le profil complet d'un candidat.
-// Nav clavier (←/→/Esc) gérée dans le parent. Ce composant est purement présentationnel.
+// Slide-in depuis la droite à l'ouverture, slide-out à la fermeture via AnimatePresence.
 'use client'
 
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 import type { Candidature } from '@/types/candidature'
 import { calcAge } from '@/types/candidature'
 
@@ -49,12 +50,23 @@ export function DetailPanel({
   onToggleNotified, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard,
 }: Props) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{    opacity: 0 }}
+      transition={{ type: 'spring', duration: 0.25, bounce: 0 }}
       className="fixed inset-0 z-[150] flex justify-end"
       style={{ background: 'rgba(12,11,9,.45)', backdropFilter: 'blur(3px)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="relative h-full overflow-y-auto bg-paper" style={{ width: '100%', maxWidth: '26rem', borderLeft: '1px solid var(--border)' }}>
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{    x: '100%' }}
+        transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
+        className="relative h-full overflow-y-auto bg-paper"
+        style={{ width: '100%', maxWidth: '26rem', borderLeft: '1px solid var(--border)' }}
+      >
 
         {/* Header */}
         <div className="sticky top-0 bg-paper z-10 flex items-start justify-between" style={{ padding: '1.8rem 1.8rem 1rem', borderBottom: '1px solid var(--border)' }}>
@@ -183,7 +195,7 @@ export function DetailPanel({
         <div className="sticky bottom-0 bg-paper" style={{ padding: '1rem 1.8rem', borderTop: '1px solid var(--border)' }}>
           <button
             onClick={() => onToggleSelect(detail.id)}
-            className="w-full font-medium uppercase transition-all duration-200"
+            className="w-full font-medium uppercase transition-colors duration-200 active:scale-[0.96] transition-transform"
             style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.52rem', letterSpacing: '.28em', background: selected ? 'transparent' : 'var(--red)', color: selected ? 'var(--red)' : 'var(--paper)', border: '1px solid var(--red)', padding: '.9rem', cursor: 'pointer', marginBottom: '.6rem' }}
           >
             {selected ? '✓ Sélectionné — Retirer' : 'Sélectionner ce modèle'}
@@ -203,7 +215,7 @@ export function DetailPanel({
             <div className="flex gap-2">
               <button
                 onClick={() => onConfirmDelete(detail.id)}
-                className="flex-1 font-medium uppercase transition-opacity duration-200 hover:opacity-80"
+                className="flex-1 font-medium uppercase transition-opacity duration-200 hover:opacity-80 active:scale-[0.96] transition-transform"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.2em', background: '#7a0000', color: '#fff', border: 'none', padding: '.7rem', cursor: 'pointer' }}
               >
                 Confirmer la suppression
@@ -226,7 +238,7 @@ export function DetailPanel({
             </button>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

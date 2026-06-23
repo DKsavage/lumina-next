@@ -7,6 +7,7 @@
 // Composants        → components/admin/
 
 import { useEffect, useState, useMemo } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { useCandidatures }  from '@/hooks/admin/useCandidatures'
 import { useSelection }     from '@/hooks/admin/useSelection'
 import { CandidatureCard }  from '@/components/admin/CandidatureCard'
@@ -69,6 +70,7 @@ export default function DashboardPage() {
   }
 
   function handleExportCSV() {
+    if (candidatures.length > 500 && !window.confirm(`Exporter ${candidatures.length} candidatures ? Le fichier peut être volumineux.`)) return
     const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Date inscription','Notifié']
     const rows = candidatures.map(c => [
       c.prenom, c.nom, c.email, c.telephone, c.genre ?? '',
@@ -207,28 +209,33 @@ export default function DashboardPage() {
       )}
 
       {/* PANEL DÉTAIL */}
-      {detail && (
-        <DetailPanel
-          detail={detail}
-          detailIdx={detailIdx}
-          filteredLength={filtered.length}
-          selected={selectedIds.has(detail.id)}
-          confirmDelete={confirmDelete}
-          onToggleSelect={toggleSelect}
-          onPrev={() => detailIdx > 0 && setDetail(filtered[detailIdx - 1])}
-          onNext={() => detailIdx < filtered.length - 1 && setDetail(filtered[detailIdx + 1])}
-          onClose={() => setDetail(null)}
-          onLightbox={setLightbox}
-          onToggleNotified={c => handleToggleSelectionne(c, setDetail, showToast)}
-          onRequestDelete={() => setConfirmDelete(true)}
-          onConfirmDelete={id => handleDelete(id, () => setDetail(null), showToast)}
-          onCancelDelete={() => setConfirmDelete(false)}
-          onCopyToClipboard={copyToClipboard}
-        />
-      )}
+      <AnimatePresence initial={false}>
+        {detail && (
+          <DetailPanel
+            key={detail.id}
+            detail={detail}
+            detailIdx={detailIdx}
+            filteredLength={filtered.length}
+            selected={selectedIds.has(detail.id)}
+            confirmDelete={confirmDelete}
+            onToggleSelect={toggleSelect}
+            onPrev={() => detailIdx > 0 && setDetail(filtered[detailIdx - 1])}
+            onNext={() => detailIdx < filtered.length - 1 && setDetail(filtered[detailIdx + 1])}
+            onClose={() => setDetail(null)}
+            onLightbox={setLightbox}
+            onToggleNotified={c => handleToggleSelectionne(c, setDetail, showToast)}
+            onRequestDelete={() => setConfirmDelete(true)}
+            onConfirmDelete={id => handleDelete(id, () => setDetail(null), showToast)}
+            onCancelDelete={() => setConfirmDelete(false)}
+            onCopyToClipboard={copyToClipboard}
+          />
+        )}
+      </AnimatePresence>
 
       {/* LIGHTBOX */}
-      {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
+      <AnimatePresence initial={false}>
+        {lightbox && <Lightbox key="lightbox" src={lightbox} onClose={() => setLightbox(null)} />}
+      </AnimatePresence>
 
       {/* TOAST */}
       <Toast message={toast} />

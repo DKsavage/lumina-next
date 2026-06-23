@@ -57,7 +57,7 @@ export function FloatingBar({
             <button
               onClick={onConfirmNotify}
               disabled={notifying}
-              className="font-medium uppercase transition-opacity duration-200"
+              className="font-medium uppercase transition-opacity duration-200 active:scale-[0.96] transition-transform"
               style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em', color: 'var(--paper)', background: 'var(--red)', padding: '.65rem 1.2rem', opacity: notifying ? .5 : 1, cursor: notifying ? 'not-allowed' : 'pointer' }}
             >
               {notifying ? 'Envoi…' : `Confirmer — ${selectedCount} modèle${selectedCount > 1 ? 's' : ''}`}
@@ -84,7 +84,7 @@ export function FloatingBar({
         )}
         <button
           onClick={onComposeSession}
-          className="font-medium uppercase"
+          className="font-medium uppercase active:scale-[0.96] transition-transform"
           style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em', background: 'var(--red)', color: 'var(--paper)', padding: '.65rem 1.2rem' }}
         >
           Composer session

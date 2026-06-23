@@ -2,7 +2,7 @@
 // Centralise les appels réseau pour que les composants restent purement présentationnels.
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Candidature, SessionForm } from '@/types/candidature'
 
@@ -37,6 +37,25 @@ export function useCandidatures() {
     }
     const id = setInterval(refresh, 50 * 60 * 1000)
     return () => clearInterval(id)
+  }, [router])
+
+  /* Déconnexion automatique après 30 min d'inactivité */
+  const lastActivityRef = useRef(Date.now())
+  useEffect(() => {
+    const reset = () => { lastActivityRef.current = Date.now() }
+    const events = ['mousemove', 'click', 'keydown', 'scroll', 'touchstart'] as const
+    events.forEach(e => window.addEventListener(e, reset, { passive: true }))
+
+    const check = setInterval(() => {
+      if (Date.now() - lastActivityRef.current > 30 * 60 * 1000) {
+        fetch('/api/logout', { method: 'POST' }).finally(() => router.replace('/admin/login'))
+      }
+    }, 60 * 1000)
+
+    return () => {
+      events.forEach(e => window.removeEventListener(e, reset))
+      clearInterval(check)
+    }
   }, [router])
 
   async function logout() {

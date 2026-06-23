@@ -194,6 +194,9 @@ export default function DashboardPage() {
       {composerOpen && (
         <SessionComposer
           selectedCount={selectedCount}
+          selectedCandidatures={filtered
+            .filter(c => selectedIds.has(c.id))
+            .map(c => ({ id: c.id, prenom: c.prenom, nom: c.nom, genre: c.genre ?? null }))}
           onClose={() => setComposerOpen(false)}
           sending={sending}
           onSubmit={async (session: SessionForm) => {

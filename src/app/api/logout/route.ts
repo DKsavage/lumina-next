@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST() {
   const response = NextResponse.json({ success: true })
-  response.cookies.set('lumina_token',   '', { maxAge: 0, path: '/admin' })
+  response.cookies.set('lumina_token',   '', { maxAge: 0, path: '/' })
   response.cookies.set('lumina_refresh', '', { maxAge: 0, path: '/api/refresh' })
   return response
 }

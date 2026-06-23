@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     secure:   true,
     sameSite: 'strict',
     maxAge:   3600,
-    path:     '/admin',
+    path:     '/',
   })
 
   response.cookies.set('lumina_refresh', refresh_token, {

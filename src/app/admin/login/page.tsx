@@ -53,8 +53,7 @@ export default function AdminLoginPage() {
       return
     }
 
-    localStorage.setItem('lumina_token', data.token)
-    if (data.refreshToken) localStorage.setItem('lumina_refresh', data.refreshToken)
+    // Le cookie httpOnly est posé par l'API — rien à stocker ici.
     router.push('/admin/dashboard')
   }
 

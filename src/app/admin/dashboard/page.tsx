@@ -13,8 +13,9 @@ import { useSelection }     from '@/hooks/admin/useSelection'
 import { CandidatureCard }  from '@/components/admin/CandidatureCard'
 import { DetailPanel }      from '@/components/admin/DetailPanel'
 import { FloatingBar }      from '@/components/admin/FloatingBar'
-import { SessionComposer }  from '@/components/admin/SessionComposer'
-import { Lightbox }         from '@/components/admin/Lightbox'
+import { SessionComposer }     from '@/components/admin/SessionComposer'
+import { SessionStatusPanel }  from '@/components/admin/SessionStatusPanel'
+import { Lightbox }            from '@/components/admin/Lightbox'
 import { Toast }            from '@/components/admin/Toast'
 import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
@@ -37,6 +38,8 @@ export default function DashboardPage() {
   const [detail,            setDetail]            = useState<Candidature | null>(null)
   const [confirmDelete,     setConfirmDelete]     = useState(false)
   const [lightbox,          setLightbox]          = useState<string | null>(null)
+  // sessionStatusId — ID de la session dont on veut afficher le suivi de confirmation
+  const [sessionStatusId,   setSessionStatusId]   = useState<string | null>(null)
 
   useEffect(() => { setConfirmDelete(false) }, [detail])
 
@@ -201,13 +204,23 @@ export default function DashboardPage() {
           sending={sending}
           onSubmit={async (session: SessionForm) => {
             setSending(true)
-            await handleSendSession(selectedIds, session, (sent, failed) => {
+            await handleSendSession(selectedIds, session, (sent, failed, sessionId) => {
               showToast(`Session envoyée à ${sent} modèle(s).${failed ? ` (${failed} échec)` : ''}`)
               clearSelection()
               setComposerOpen(false)
+              // Ouvrir automatiquement le panel de suivi après envoi réussi
+              if (sessionId) setSessionStatusId(sessionId)
             })
             setSending(false)
           }}
+        />
+      )}
+
+      {/* SUIVI CONFIRMATION SESSION */}
+      {sessionStatusId && (
+        <SessionStatusPanel
+          sessionId={sessionStatusId}
+          onClose={() => setSessionStatusId(null)}
         />
       )}
 

@@ -118,7 +118,7 @@ export function useCandidatures() {
   async function handleSendSession(
     selectedIds: Set<string>,
     session: SessionForm,
-    onDone: (sent: number, failed: number) => void,
+    onDone: (sent: number, failed: number, sessionId?: string) => void,
   ) {
     const models = candidatures
       .filter(c => selectedIds.has(c.id))
@@ -143,10 +143,12 @@ export function useCandidatures() {
       }),
     })
     if (!res.ok) { onDone(0, models.length); return }
-    const data   = await res.json()
-    const sent   = typeof data.sent   === 'number' ? data.sent   : 0
-    const failed = typeof data.failed === 'number' ? data.failed : 0
-    onDone(sent, failed)
+    const data      = await res.json()
+    const sent      = typeof data.sent      === 'number' ? data.sent      : 0
+    const failed    = typeof data.failed    === 'number' ? data.failed    : 0
+    // sessionId transmis au dashboard pour ouvrir automatiquement le panel de suivi
+    const sessionId = typeof data.sessionId === 'string'  ? data.sessionId : undefined
+    onDone(sent, failed, sessionId)
   }
 
   return {

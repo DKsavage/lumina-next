@@ -1,0 +1,115 @@
+// useCandidatures — toute la logique API du dashboard : fetch, CRUD, notifications, session.
+// Centralise les appels réseau pour que les composants restent purement présentationnels.
+'use client'
+
+import { useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import type { Candidature, SessionForm } from '@/types/candidature'
+
+export function useCandidatures() {
+  const router = useRouter()
+  const [candidatures, setCandidatures] = useState<Candidature[]>([])
+  const [loading,      setLoading]      = useState(true)
+
+  const fetchCandidatures = useCallback(async () => {
+    setLoading(true)
+    const res  = await fetch('/api/candidatures')
+    const data = await res.json()
+    if (!data.success) {
+      if (res.status === 401) router.replace('/admin/login')
+      setLoading(false)
+      return
+    }
+    setCandidatures(data.data)
+    setLoading(false)
+  }, [router])
+
+  useEffect(() => {
+    fetchCandidatures()
+  }, [fetchCandidatures])
+
+  /* Refresh token silencieux toutes les 50 min */
+  useEffect(() => {
+    const refresh = async () => {
+      const res  = await fetch('/api/refresh', { method: 'POST' })
+      const data = await res.json()
+      if (!data.success) router.replace('/admin/login')
+    }
+    const id = setInterval(refresh, 50 * 60 * 1000)
+    return () => clearInterval(id)
+  }, [router])
+
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' })
+    router.replace('/admin/login')
+  }
+
+  async function handleNotify(selectedIds: Set<string>, onDone: (sent: number) => void) {
+    const models = candidatures.filter(c => selectedIds.has(c.id))
+    const results = await Promise.allSettled(
+      models.map(c => fetch('/api/select', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: c.email, prenom: c.prenom, nom: c.nom }),
+      }))
+    )
+    const sent        = results.filter(r => r.status === 'fulfilled').length
+    const notifiedIds = new Set(models.map(c => c.id))
+    setCandidatures(prev => prev.map(c => notifiedIds.has(c.id) ? { ...c, selectionne: true } : c))
+    onDone(sent)
+  }
+
+  async function handleToggleSelectionne(
+    c: Candidature,
+    setDetail: (fn: (prev: Candidature | null) => Candidature | null) => void,
+    showToast: (msg: string) => void,
+  ) {
+    const newVal = !c.selectionne
+    const res    = await fetch(`/api/candidatures/${c.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectionne: newVal }),
+    })
+    if (!res.ok) { showToast('Erreur lors de la mise à jour.'); return }
+    setCandidatures(prev => prev.map(x => x.id === c.id ? { ...x, selectionne: newVal } : x))
+    setDetail(prev => prev?.id === c.id ? { ...prev, selectionne: newVal } : prev)
+    showToast(newVal ? 'Marqué comme notifié.' : 'Notification annulée.')
+  }
+
+  async function handleDelete(id: string, onDone: () => void, showToast: (msg: string) => void) {
+    const res = await fetch(`/api/candidatures/${id}`, { method: 'DELETE' })
+    if (!res.ok) { showToast('Erreur lors de la suppression.'); return }
+    setCandidatures(prev => prev.filter(c => c.id !== id))
+    onDone()
+    showToast('Candidature supprimée.')
+  }
+
+  async function handleSendSession(
+    selectedIds: Set<string>,
+    session: SessionForm,
+    onDone: (sent: number, failed: number) => void,
+  ) {
+    const models = candidatures
+      .filter(c => selectedIds.has(c.id))
+      .map(c => ({ email: c.email, prenom: c.prenom }))
+    const res  = await fetch('/api/send-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ models, ...session }),
+    })
+    const data = await res.json()
+    onDone(data.sent ?? 0, data.failed ?? 0)
+  }
+
+  return {
+    candidatures,
+    setCandidatures,
+    loading,
+    fetchCandidatures,
+    logout,
+    handleNotify,
+    handleToggleSelectionne,
+    handleDelete,
+    handleSendSession,
+  }
+}

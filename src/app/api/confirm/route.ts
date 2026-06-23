@@ -89,7 +89,9 @@ export async function GET(request: NextRequest) {
     ? { status: 'confirmed', confirmed_at: new Date().toISOString(), cancelled_at: null, cancel_reason: null }
     : { status: 'cancelled', cancelled_at: new Date().toISOString(), cancel_reason: reason }
 
-  await fetch(
+  // Si le PATCH échoue, on arrête tout : l'email et la redirect ne doivent pas partir
+  // tant que la DB n'est pas à jour (sinon le statut reste pending indéfiniment).
+  const patchRes = await fetch(
     `${url}/rest/v1/session_models?token=eq.${encodeURIComponent(token)}`,
     {
       method:  'PATCH',
@@ -97,6 +99,9 @@ export async function GET(request: NextRequest) {
       body:    JSON.stringify(updateBody),
     },
   )
+  if (!patchRes.ok) {
+    return NextResponse.json({ error: 'Erreur mise à jour DB.' }, { status: 502 })
+  }
 
   const session      = sm.session
   const group        = sm.group

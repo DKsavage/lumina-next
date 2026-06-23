@@ -8,6 +8,13 @@ import { SITE_URL } from '@/types/session'
 
 type ReminderType = 'j5' | 'j2' | 'j1' | 'morning'
 
+// Échappement HTML — même fonction que dans confirm/route.ts et send-session/route.ts.
+// Protège contre l'injection de balises dans les emails si un champ Supabase est corrompu.
+function esc(s: string | null | undefined): string {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 function sentAtField(type: ReminderType): string {
   return {
     j5:      'reminder_j5_sent_at',
@@ -32,19 +39,19 @@ function buildReminderHtml(type: ReminderType, params: {
   const cancelUrl  = `${SITE_URL}/confirm/${token}?status=cancelled`
   // Midi UTC pour éviter les décalages de fuseau (Montréal = UTC-4/5)
   const dateLabel  = new Date(date + 'T12:00:00').toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' })
-  const contact    = contactName ? `${contactName}${contactPhone ? ` · ${contactPhone}` : ''}` : null
+  const contact    = contactName ? `${esc(contactName)}${contactPhone ? ` · ${esc(contactPhone)}` : ''}` : null
 
   // J-1 et morning = récapitulatif pour les confirmés (pas de CTA confirmation)
   if (type === 'j1' || type === 'morning') {
     return {
-      subject: type === 'morning' ? `À tout à l'heure — ${project}` : `À demain — ${project} · Récapitulatif`,
-      html: `<p>Bonjour ${prenom},</p>
+      subject: type === 'morning' ? `À tout à l'heure — ${esc(project)}` : `À demain — ${esc(project)} · Récapitulatif`,
+      html: `<p>Bonjour ${esc(prenom)},</p>
 <p>${type === 'morning' ? "On vous attend aujourd'hui !" : 'Votre shoot est demain —'} voici tout ce qu'il faut savoir :</p>
 <ul>
-  <li><strong>Date :</strong> ${dateLabel}</li>
-  <li><strong>Lieu :</strong> ${address}</li>
-  ${callTime ? `<li><strong>Votre call time :</strong> ${callTime}</li>` : ''}
-  ${contact  ? `<li><strong>Contact sur place :</strong> ${contact}</li>` : ''}
+  <li><strong>Date :</strong> ${esc(dateLabel)}</li>
+  <li><strong>Lieu :</strong> ${esc(address)}</li>
+  ${callTime ? `<li><strong>Votre call time :</strong> ${esc(callTime)}</li>` : ''}
+  ${contact  ? `<li><strong>Contact sur place :</strong> ${esc(contact)}</li>` : ''}
 </ul>
 <p>À très bientôt !</p>`,
     }
@@ -52,9 +59,9 @@ function buildReminderHtml(type: ReminderType, params: {
 
   // J-5 et J-2 = relance aux non-répondants (pending)
   return {
-    subject: `Rappel : confirmez votre participation — ${project}`,
-    html: `<p>Bonjour ${prenom},</p>
-<p>Nous n'avons pas encore reçu votre confirmation pour le shoot <strong>${project}</strong> le <strong>${dateLabel}</strong>.</p>
+    subject: `Rappel : confirmez votre participation — ${esc(project)}`,
+    html: `<p>Bonjour ${esc(prenom)},</p>
+<p>Nous n'avons pas encore reçu votre confirmation pour le shoot <strong>${esc(project)}</strong> le <strong>${esc(dateLabel)}</strong>.</p>
 <p>Pouvez-vous nous confirmer votre présence ?</p>
 <p>
   <a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;margin-right:8px;font-weight:700;text-decoration:none;">✓ Je confirme</a>
@@ -146,8 +153,10 @@ export async function POST(request: NextRequest) {
       })
       if (!res.ok) throw new Error(`Resend ${res.status}`)
 
-      // Marquer comme envoyé — évite les doublons si le bouton est re-cliqué
-      await fetch(
+      // Marquer comme envoyé — évite les doublons si le bouton est re-cliqué.
+      // On throw si le PATCH échoue : sans ce marqueur, l'anti-doublon ne fonctionne plus
+      // et Promise.allSettled comptera ce rappel comme rejected (visible dans les stats).
+      const pRes = await fetch(
         `${url}/rest/v1/session_models?id=eq.${encodeURIComponent(m.id)}`,
         {
           method:  'PATCH',
@@ -155,6 +164,7 @@ export async function POST(request: NextRequest) {
           body:    JSON.stringify({ [sentField]: new Date().toISOString() }),
         }
       )
+      if (!pRes.ok) throw new Error(`PATCH sent_at failed: ${pRes.status}`)
     })
   )
 

@@ -1,4 +1,7 @@
-import { NextResponse } from 'next/server'
+// send-session POST — envoie les détails de session aux modèles sélectionnés.
+// Auth via cookie httpOnly. buildEmailHtml construit l'email bilingue FR/EN.
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/auth'
 
 interface Group {
   name?: string
@@ -147,24 +150,9 @@ function buildEmailHtml(params: Omit<SessionBody, 'models'> & { prenom: string }
 </html>`
 }
 
-async function verifyToken(request: Request): Promise<boolean> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return false
-
-  const accessToken = authHeader.split(' ')[1]
-  const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      'apikey':        process.env.SUPABASE_ANON_KEY!,
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  })
-
-  return userRes.ok
-}
-
-export async function POST(request: Request) {
-  const isValid = await verifyToken(request)
-  if (!isValid) {
+export async function POST(request: NextRequest) {
+  const token = await verifyToken(request)
+  if (!token) {
     return NextResponse.json({ success: false, message: 'Session expirée. Reconnecte-toi.' }, { status: 401 })
   }
 

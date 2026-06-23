@@ -1,24 +1,15 @@
-import { NextResponse } from 'next/server'
+// select POST — envoie l'email de sélection et marque selectionne=true en DB.
+// Auth via cookie httpOnly. Aucun token dans le body de la requête.
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/auth'
 
-async function verifyToken(request: Request): Promise<boolean> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return false
-
-  const accessToken = authHeader.split(' ')[1]
-  const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      'apikey':        process.env.SUPABASE_ANON_KEY!,
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  })
-
-  return userRes.ok
-}
-
-export async function POST(request: Request) {
-  const isValid = await verifyToken(request)
-  if (!isValid) {
-    return NextResponse.json({ success: false, message: 'Session expirée. Reconnecte-toi.' }, { status: 401 })
+export async function POST(request: NextRequest) {
+  const token = await verifyToken(request)
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: 'Session expirée. Reconnecte-toi.' },
+      { status: 401 }
+    )
   }
 
   const { email, prenom, nom } = await request.json()

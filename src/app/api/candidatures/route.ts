@@ -1,24 +1,15 @@
-import { NextResponse } from 'next/server'
+// candidatures GET — liste toutes les candidatures avec photos signées.
+// Auth via cookie httpOnly lu par verifyToken (src/lib/auth.ts).
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/auth'
 
-async function verifyToken(request: Request): Promise<boolean> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return false
-
-  const accessToken = authHeader.split(' ')[1]
-  const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      'apikey':        process.env.SUPABASE_ANON_KEY!,
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  })
-
-  return userRes.ok
-}
-
-export async function GET(request: Request) {
-  const isValid = await verifyToken(request)
-  if (!isValid) {
-    return NextResponse.json({ success: false, message: 'Session expirée. Reconnecte-toi.' }, { status: 401 })
+export async function GET(request: NextRequest) {
+  const token = await verifyToken(request)
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: 'Session expirée. Reconnecte-toi.' },
+      { status: 401 }
+    )
   }
 
   const url = process.env.SUPABASE_URL!
@@ -47,7 +38,7 @@ export async function GET(request: Request) {
   const signedMap: Record<string, string> = {}
 
   if (paths.length > 0) {
-    const signRes  = await fetch(`${url}/storage/v1/object/sign/photos-candidatures`, {
+    const signRes = await fetch(`${url}/storage/v1/object/sign/photos-candidatures`, {
       method: 'POST',
       headers: {
         'apikey':        key,

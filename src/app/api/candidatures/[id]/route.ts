@@ -1,27 +1,17 @@
-import { NextResponse } from 'next/server'
-
-async function verifyToken(request: Request): Promise<boolean> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return false
-  const accessToken = authHeader.split(' ')[1]
-  const userRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      'apikey':        process.env.SUPABASE_ANON_KEY!,
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  })
-  return userRes.ok
-}
+// candidatures/[id] — DELETE et PATCH sur une candidature individuelle.
+// Auth via cookie httpOnly. UUID validé avant tout appel Supabase.
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/auth'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /* ── DELETE — supprime la candidature + ses photos storage ── */
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isValid = await verifyToken(request)
-  if (!isValid) return NextResponse.json({ success: false }, { status: 401 })
+  const token = await verifyToken(request)
+  if (!token) return NextResponse.json({ success: false }, { status: 401 })
 
   const { id } = await params
   if (!UUID_RE.test(id)) return NextResponse.json({ success: false }, { status: 400 })
@@ -62,11 +52,11 @@ export async function DELETE(
 
 /* ── PATCH — mise à jour partielle (selectionne uniquement) ── */
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isValid = await verifyToken(request)
-  if (!isValid) return NextResponse.json({ success: false }, { status: 401 })
+  const token = await verifyToken(request)
+  if (!token) return NextResponse.json({ success: false }, { status: 401 })
 
   const { id } = await params
   if (!UUID_RE.test(id)) return NextResponse.json({ success: false }, { status: 400 })
@@ -79,7 +69,6 @@ export async function PATCH(
   if (typeof body.selectionne !== 'boolean') {
     return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })
   }
-  const safe = { selectionne: body.selectionne }
 
   const patchRes = await fetch(`${url}/rest/v1/candidatures?id=eq.${encodeURIComponent(id)}`, {
     method: 'PATCH',
@@ -89,7 +78,7 @@ export async function PATCH(
       'Content-Type':  'application/json',
       'Prefer':        'return=minimal',
     },
-    body: JSON.stringify(safe),
+    body: JSON.stringify({ selectionne: body.selectionne }),
   })
 
   if (!patchRes.ok) return NextResponse.json({ success: false }, { status: 500 })

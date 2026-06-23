@@ -65,6 +65,31 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
           </div>
         </div>
 
+        {/* Boutons de relance — J-5 / J-2 vers pending, J-1 vers confirmés */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {(['j5', 'j2', 'j1'] as const).map(type => {
+            const labels = { j5: 'Relance douce (J-5)', j2: 'Relance urgente (J-2)', j1: 'Rappel J-1 aux confirmés' }
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={async () => {
+                  const res = await fetch('/api/sessions/remind', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, type }),
+                  })
+                  const d = await res.json()
+                  alert(`${d.sent} rappel${d.sent > 1 ? 's' : ''} envoyé${d.sent > 1 ? 's' : ''}`)
+                }}
+                style={{ fontSize: '.7rem', letterSpacing: '.18em', fontWeight: 600, background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.35rem .8rem', cursor: 'pointer' }}
+              >
+                {labels[type]}
+              </button>
+            )
+          })}
+        </div>
+
         {/* Filtres par statut */}
         <div className="flex gap-1 mb-4">
           {(['all', 'confirmed', 'pending', 'cancelled'] as const).map(f => (

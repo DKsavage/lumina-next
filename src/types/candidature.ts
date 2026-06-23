@@ -61,6 +61,16 @@ export const defaultSession: SessionForm = {
 
 export type SortKey = 'date' | 'nom' | 'taille'
 
+// Type guard — valide la forme minimale avant d'injecter dans le state.
+// On vérifie id + email sur le premier élément : suffisant pour détecter
+// un changement de schéma ou une réponse d'erreur mal formatée.
+export function isCandidatureArray(data: unknown): data is Candidature[] {
+  if (!Array.isArray(data)) return false
+  if (data.length === 0) return true
+  const first = data[0] as Record<string, unknown>
+  return typeof first?.id === 'string' && typeof first?.email === 'string'
+}
+
 // Calcule l'âge depuis une date ISO — retourne null si absente.
 export function calcAge(dateStr: string | null | undefined): number | null {
   if (!dateStr) return null

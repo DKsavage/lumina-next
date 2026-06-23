@@ -5,6 +5,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Candidature, SessionForm } from '@/types/candidature'
+import { isCandidatureArray } from '@/types/candidature'
 
 export function useCandidatures() {
   const router = useRouter()
@@ -17,6 +18,11 @@ export function useCandidatures() {
     const data = await res.json()
     if (!data.success) {
       if (res.status === 401) router.replace('/admin/login')
+      setLoading(false)
+      return
+    }
+    if (!isCandidatureArray(data.data)) {
+      console.error('[useCandidatures] fetchCandidatures: réponse inattendue', data.data)
       setLoading(false)
       return
     }
@@ -72,8 +78,14 @@ export function useCandidatures() {
         body: JSON.stringify({ email: c.email, prenom: c.prenom, nom: c.nom }),
       }))
     )
-    const sent        = results.filter(r => r.status === 'fulfilled').length
-    const notifiedIds = new Set(models.map(c => c.id))
+    // On ne marque comme notifié que les modèles dont la requête a réussi (status 2xx).
+    const successIndices = new Set(
+      results
+        .map((r, i) => (r.status === 'fulfilled' && r.value.ok ? i : -1))
+        .filter(i => i >= 0)
+    )
+    const sent        = successIndices.size
+    const notifiedIds = new Set(models.filter((_, i) => successIndices.has(i)).map(c => c.id))
     setCandidatures(prev => prev.map(c => notifiedIds.has(c.id) ? { ...c, selectionne: true } : c))
     onDone(sent)
   }
@@ -116,8 +128,11 @@ export function useCandidatures() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ models, ...session }),
     })
-    const data = await res.json()
-    onDone(data.sent ?? 0, data.failed ?? 0)
+    if (!res.ok) { onDone(0, models.length); return }
+    const data  = await res.json()
+    const sent  = typeof data.sent   === 'number' ? data.sent   : 0
+    const failed = typeof data.failed === 'number' ? data.failed : 0
+    onDone(sent, failed)
   }
 
   return {

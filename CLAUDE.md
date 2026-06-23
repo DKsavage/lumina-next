@@ -3,7 +3,6 @@
 # CLAUDE.md — lumina-next (Lumina Photography)
 
 Lis ce fichier en entier avant de commencer. Il remplace la mémoire de session.
-**Mise à jour : toutes les 30 minutes ou après chaque bloc de code significatif.**
 
 ---
 
@@ -11,15 +10,33 @@ Lis ce fichier en entier avant de commencer. Il remplace la mémoire de session.
 
 ### Démarrage de session
 1. **Ce fichier en premier** — avant tout `Read`, avant toute exploration.
-2. **Graphify en premier** : si `graphify-out/GRAPH_REPORT.md` existe → le lire avant tout `Read`. Répondre depuis le graphe si possible. Ne relire un fichier source que si le graphe est insuffisant.
-3. **Pas de graphify-out** → lancer `/graphify .` immédiatement avant toute exploration.
-4. **Mettre à jour ce fichier** toutes les 30 min et après chaque session significative.
+2. **Mettre à jour ce fichier** toutes les 30 min et après chaque session significative.
 
 ### Graphify — règle active en permanence
-- Après chaque `Read` sur un fichier source, vérifier si le graphe doit être mis à jour.
-- Après toute découverte d'un nouveau composant, hook, type, route → `/graphify` ou annoter dans `graphify-out/`.
-- Le graphe est la carte du projet — le maintenir à jour évite de relire des fichiers déjà explorés.
-- Si une question peut être répondue depuis le graphe → répondre sans relire le fichier brut.
+
+Quand l'utilisateur tape `/graphify` → invoquer le skill `graphify` avant toute autre action.
+
+- Si `graphify-out/GRAPH_REPORT.md` existe → le lire en premier, répondre depuis le graphe si possible.
+- Ne relire un fichier source que si le graphe est insuffisant.
+- Après toute découverte d'un nouveau composant, hook, type, route → annoter dans `graphify-out/`.
+- **Pas de graphify-out** → lancer `/graphify .` avant toute exploration.
+
+### Économie de tokens — CLAUDE.md (< 150 lignes, < 8 Ko)
+
+À chaque session :
+1. **Supprimer les items terminés** : tout `[x]` dans une checklist → effacer (historique dans `git log`).
+2. **Supprimer les arborescences** : les arbres `├── fichier.tsx` → lisibles via `ls` ou le graphe.
+3. **Ne pas dupliquer le graphe** : ce qui est dans `graphify-out/` ne doit pas être ici.
+4. **Phases terminées** : condenser en 1 ligne, jamais de détail par item.
+5. **Limite stricte** : si ce fichier > 150 lignes → tailler avant de commencer.
+
+### Économie de tokens — Memory (< 3 Ko total, max 5 fichiers)
+
+1. **Pas de doublon CLAUDE.md** : si l'info est déjà ici → ne pas la sauvegarder en mémoire.
+2. **Pas de phases terminées** en mémoire — elles appartiennent au git.
+3. **Limite par fichier** : < 500 octets. Si plus long → condenser ou supprimer.
+4. **Limite MEMORY.md** : max 8 lignes (index seulement, jamais de contenu).
+5. **Audit automatique** : si total mémoire projet > 3 Ko → nettoyer avant de commencer.
 
 ### Règles Git
 1. **Conventional Commits** : `feat:`, `fix:`, `refactor:`, `perf:`, `chore:`, `docs:`, `test:`, `style:`
@@ -44,212 +61,52 @@ Migration **Lumina Photography** de HTML vanilla → Next.js 15.
 Agence de casting international, formulaire d'inscription mannequins.
 
 - **Repo** : `lumina-next`, branche `main` → auto-deploy Vercel
-- **Ancien site** : `studio-modeles/` (HTML vanilla, Vercel Functions)
-- **URL cible** : `https://luminamodels.ca` (domaine à configurer)
+- **URL prod** : `https://luminamodels.ca` (live juin 2026)
 
 ---
 
-## Stack technique
+## Stack
 
-| Couche | Outil |
-|---|---|
-| Framework | Next.js 15 (App Router) |
-| Langage | TypeScript strict |
-| Styles | Tailwind CSS v4 |
-| Composants UI | shadcn/ui |
-| Animations | Framer Motion |
-| Images | `next/image` avec `fill` + `priority` |
-| Backend | Route Handlers (`app/api/`) |
-| Base de données | Supabase PostgreSQL — table `candidatures` |
-| Stockage photos | Supabase Storage — bucket `photos-candidatures` |
-| Auth | Supabase Auth OTP 8 chiffres |
-| Emails | Resend — `casting@luminamodels.ca` |
-| Anti-bot | reCAPTCHA v3 (seuil 0.5) — clé `6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ` |
-| Hosting | Vercel |
+Next.js 15 App Router · TypeScript strict · Tailwind v4 · shadcn/ui · Framer Motion · Supabase (table `candidatures`, bucket `photos-candidatures`, Auth OTP 8 chiffres) · Resend `casting@luminamodels.ca` · reCAPTCHA v3 clé `6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ`
 
 ---
 
-## Direction artistique — Couture Blanche (Mockup D)
+## Direction artistique
 
-| Élément | Valeur |
-|---|---|
-| DA | Loro Piana · Hermès · The Row — luxe éditorial |
-| Fond | `#F7F3EE` papier chaud (grain SVG) |
-| Rouge | `#8B0020` profond |
-| Police display | Cormorant Garamond 300 italic |
-| Police UI | Montserrat 200/300/500 |
-| Layout hero | Split 48/52 — formulaire gauche, photo Ken Burns droite |
-| Formulaire | 4 étapes, inputs underline-only, 0 border-radius |
-| Animations | Ken Burns 14s, clip-path text reveal, count-up, scroll reveal |
-| Curseur | Croix rouge fine (custom CSS) |
+Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · Montserrat 200/300/500 (UI)
 
 ---
 
-## Fichiers principaux
 
-```
-src/
-├── app/
-│   ├── page.tsx                  → Hero split (photo + form)
-│   ├── layout.tsx                → Font load, metadata, viewport
-│   ├── globals.css               → TOUS les tokens CSS + règles luxe
-│   ├── admin/
-│   │   ├── login/page.tsx        → Login OTP admin
-│   │   └── dashboard/page.tsx    → Dashboard candidatures
-│   └── api/
-│       ├── submit/route.ts       → POST candidature (honeypot + rate limit + reCAPTCHA + Supabase)
-│       ├── candidatures/route.ts → GET liste (auth JWT)
-│       ├── login/route.ts        → POST envoi OTP
-│       ├── otp/route.ts          → POST vérification OTP → session
-│       ├── verify-otp/route.ts   → Helper vérif OTP Supabase
-│       ├── select/route.ts       → POST sélection mannequins
-│       └── send-session/route.ts → POST envoi convocations Resend
-└── components/
-    ├── hero/
-    │   ├── HeroSplit.tsx         → Split 48/52
-    │   ├── PhotoSlideshow.tsx    → Ken Burns 5 slides
-    │   └── ScrollIndicator.tsx
-    ├── form/
-    │   ├── CandidatureForm.tsx   → Multi-step + appel API async
-    │   ├── StepPhotos.tsx        → Étape 1 (photos + identité) + composants partagés
-    │   ├── StepProfil.tsx        → Étape 2 (ville, expérience)
-    │   ├── StepMesures.tsx       → Étape 3 (mensurations + apparence)
-    │   ├── StepDisponibilite.tsx → Étape 4 (naissance, langues, dispo)
-    │   └── Confirmation.tsx      → Écran de confirmation clip-path
-    └── sections/
-        ├── StatsBar.tsx          → Count-up animé
-        ├── PhotoStrip.tsx        → Bandes défilantes staggerées
-        ├── ProcessSection.tsx
-        ├── DarkSection.tsx
-        └── SiteFooter.tsx
-```
+## FormData — champs
+
+- **Étape 1** : `profilFile`, `bodyFile` (File) · `prenom`, `nom`, `email`, `telephone`, `taille`, `genre` (string)
+- **Étape 2** : `ville`, `experience` · optionnel : `pays`, `instagram`
+- **Étape 3** : `poitrine`, `tailleMes`→`tour_taille`, `hanches`, `pointure` (EU), `yeux` · optionnel : `poids`, `longueurCheveux`, `cheveux`
+- **Étape 4** : `dateNaissance` (ISO), `disponibilite` · optionnel : `langues`, `aspect`
 
 ---
 
-## FormData — champs requis / optionnels
-
-| Étape | Champ | Type | Statut |
-|---|---|---|---|
-| 1 | `profilFile` | File | Requis |
-| 1 | `bodyFile` | File | Requis |
-| 1 | `prenom`, `nom`, `email`, `telephone` | string | Requis |
-| 1 | `taille` | string (cm) | Requis |
-| 1 | `genre` | string | Requis |
-| 2 | `ville` | string | Requis |
-| 2 | `experience` | string | Requis |
-| 2 | `pays`, `instagram` | string | Optionnel |
-| 3 | `poitrine`, `tailleMes`, `hanches` | string (cm) | Requis |
-| 3 | `pointure` | string (EU 34-46) | Requis |
-| 3 | `yeux` | string (chips) | Requis |
-| 3 | `poids`, `longueurCheveux`, `cheveux` | string | Optionnel |
-| 4 | `dateNaissance` | string (ISO) | Requis |
-| 4 | `disponibilite` | string (chips) | Requis |
-| 4 | `langues`, `aspect` | string | Optionnel |
-
----
-
-## Mapping API → Supabase
-
-`tailleMes` (formulaire) → `tour_taille` (colonne DB).
-Photos base64 uploadées sur `photos-candidatures/` bucket.
-
-### Migration Supabase — colonnes ajoutées (juin 2026)
-```sql
-ALTER TABLE candidatures
-  ADD COLUMN IF NOT EXISTS ville             text,
-  ADD COLUMN IF NOT EXISTS pays              text,
-  ADD COLUMN IF NOT EXISTS poids             numeric,
-  ADD COLUMN IF NOT EXISTS longueur_cheveux  text,
-  ADD COLUMN IF NOT EXISTS couleur_yeux      text,
-  ADD COLUMN IF NOT EXISTS couleur_cheveux   text,
-  ADD COLUMN IF NOT EXISTS date_naissance    date,
-  ADD COLUMN IF NOT EXISTS langues           text,
-  ADD COLUMN IF NOT EXISTS aspect            text;
-```
-
----
 
 ## Variables d'environnement
 
-```bash
-SUPABASE_URL=https://...supabase.co
-SUPABASE_SERVICE_KEY=eyJ...   # service_role — serveur uniquement
-SUPABASE_ANON_KEY=eyJ...      # anon — auth admin
-RESEND_API_KEY=re_...
-RECAPTCHA_SECRET_KEY=6Ldd...  # v3
-```
+`SUPABASE_URL` · `SUPABASE_SERVICE_KEY` (serveur uniquement) · `SUPABASE_ANON_KEY` · `RESEND_API_KEY` · `RECAPTCHA_SECRET_KEY`
 
 ---
 
 ## Checklist migration Phase 7
 
-- [x] `npx create-next-app@latest` → TypeScript, Tailwind v4, App Router
-- [x] `npx shadcn@latest init -d`
-- [x] Tokens CSS DA Couture Blanche dans `globals.css`
-- [x] `PhotoSlideshow.tsx` — Ken Burns 5 slides
-- [x] `HeroSplit.tsx` — layout split + mobile
-- [x] Formulaire 4 étapes complet (Photos / Profil / Mesures / Disponibilité)
-- [x] Animations : shell entrance, stagger fields, input underline L→R, vertical step transitions
-- [x] Confirmation : clip-path name reveal, rule scaleX
-- [x] Sections : StatsBar, ProcessSection, PhotoStrip, DarkSection, SiteFooter
-- [x] Routes API complètes (submit, candidatures, login, otp, verify-otp, select, send-session)
-- [x] Dashboard admin (login + dashboard)
-- [x] Appel API réel dans CandidatureForm (base64 + loading + error state)
-- [x] Preview photo dans les zones upload
-- [x] International : ville/pays libre, pointure EU, stats "Nationalités", sans références Montréal
-- [x] Supabase migration colonnes nouvelles (juin 2026)
-- [x] `npx tsc --noEmit` → 0 erreur
-- [x] Variables d'env configurées sur Vercel (Production) — 6 variables chiffrées
-- [x] Domaine `luminamodels.ca` + `www.luminamodels.ca` → Vercel Production (juin 2026)
-- [x] Tests API prod confirmés : GET / → 200, honeypot → success silencieux, payload vide → erreur propre
+Phases 0–17 terminées (init, DA, hero, formulaire, animations, sections, API, dashboard, prod, domaine). Reste :
+
 - [ ] Test end-to-end : soumettre une vraie candidature avec photos
-- [ ] Compression image automatique côté client (Option C — voir section ci-dessous)
-
----
-
-## Prochaine feature — Compression image automatique (Option C)
-
-**Décision (juin 2026) :** implémenter la compression hybride côté client.
-
-### Comportement attendu
-1. Candidat sélectionne une photo → si > 1 Mo, compression auto via Web Worker
-2. Zone upload affiche une animation "Optimisation…" dans l'anneau (pulsation)
-3. Après compression → preview normale + ✓ comme d'habitude
-4. Si toujours > 1,5 Mo après compression (ex: vidéo par erreur) → erreur élégante dans la zone
-
-### Package à installer
-```bash
-npm install browser-image-compression
-```
-
-### Paramètres cibles
-```ts
-{ maxSizeMB: 1.2, maxWidthOrHeight: 2400, useWebWorker: true }
-```
-
-### Fichiers à modifier
-- `src/components/form/StepPhotos.tsx` — `handleFile()` + state `compressing`
-- `src/app/globals.css` — animation `optimizing` sur `.up-ring`
-
-### Pourquoi Web Worker
-`browser-image-compression` tourne dans un Web Worker par défaut → ne bloque pas le thread principal → l'animation reste fluide pendant la compression.
-
----
-
-## État du projet (juin 2026)
-
-- **Site live** : `luminamodels.ca` → Vercel Production, 0 erreur TypeScript
-- **Formulaire** : 4 étapes fonctionnelles, API connectée, Supabase + Resend opérationnels
-- **À faire** : compression image auto + test end-to-end complet
+- [ ] Compression image automatique côté client (`browser-image-compression`)
 
 ---
 
 ## Points techniques critiques
 
 1. **reCAPTCHA** : v3, seuil 0.5 — conditionnel en dev (skippé si clé absente)
-2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`) — compression client à venir
+2. **Photos** : max 1,5 Mo côté serveur (`getBase64Size()`)
 3. **Rate limit** : 60s par IP via `Map<string, number>` en mémoire (reset au cold start)
 4. **`FileReader.readAsDataURL()`** : seul moyen de sérialiser un `File` en JSON pour l'API
 5. **`URL.createObjectURL()`** + `revokeObjectURL()` pour la preview photo (mémoire locale)
-6. **Ken Burns** : CSS animation sur le container, pas sur `next/image` directement
-7. **`browser-image-compression`** : Web Worker → thread principal non bloqué pendant la compression

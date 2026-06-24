@@ -25,6 +25,8 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
   const [session, setSession] = useState<SessionForm>(defaultSession)
   const [tab, setTab]         = useState<'form' | 'assign'>('form')
   const moodboardRef          = useRef<HTMLInputElement>(null)
+  // F3 — ref locale pour bloquer le double-submit avant que le parent re-rende avec sending=true
+  const submittingRef         = useRef(false)
 
   function update<K extends keyof SessionForm>(key: K, val: SessionForm[K]) {
     setSession(prev => ({ ...prev, [key]: val }))
@@ -75,7 +77,14 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    await onSubmit(session)
+    // F3 — bloquer le second clic pendant le traitement (avant que sending prop ne soit vrai)
+    if (submittingRef.current) return
+    submittingRef.current = true
+    try {
+      await onSubmit(session)
+    } finally {
+      submittingRef.current = false
+    }
   }
 
   const dateFormatted = formatDate(session.date)

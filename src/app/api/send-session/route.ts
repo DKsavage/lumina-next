@@ -304,6 +304,7 @@ export async function POST(request: NextRequest) {
       notes_internal:       session.notes_internal || null,
       notes_models:         session.notes_models || null,
       moodboard_url:        session.moodboard_url || null,
+      whatsapp:             session.whatsapp || null,
       status:               'sent',
     }),
   })

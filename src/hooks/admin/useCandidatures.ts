@@ -14,20 +14,24 @@ export function useCandidatures() {
 
   const fetchCandidatures = useCallback(async () => {
     setLoading(true)
-    const res  = await fetch('/api/candidatures')
-    const data = await res.json()
-    if (!data.success) {
-      if (res.status === 401) router.replace('/admin/login')
+    try {
+      const res  = await fetch('/api/candidatures')
+      const data = await res.json()
+      if (!data.success) {
+        if (res.status === 401) router.replace('/admin/login')
+        return
+      }
+      if (!isCandidatureArray(data.data)) {
+        console.error('[useCandidatures] fetchCandidatures: réponse inattendue', data.data)
+        return
+      }
+      setCandidatures(data.data)
+    } catch (err) {
+      // F5 — réseau coupé ou timeout : libérer le spinner plutôt que rester en loading infini
+      console.error('[useCandidatures] fetchCandidatures: erreur réseau', err)
+    } finally {
       setLoading(false)
-      return
     }
-    if (!isCandidatureArray(data.data)) {
-      console.error('[useCandidatures] fetchCandidatures: réponse inattendue', data.data)
-      setLoading(false)
-      return
-    }
-    setCandidatures(data.data)
-    setLoading(false)
   }, [router])
 
   useEffect(() => {

@@ -4,6 +4,7 @@
 // Affiche la barre de progression confirmés/total, les filtres par statut, et la liste détaillée.
 // Appelé depuis le dashboard après envoi d'une session (sessionId injecté automatiquement).
 import { useState, useEffect } from 'react'
+// sending — type de relance en cours (null si aucun), protège contre le double-clic
 
 interface ModelStatus {
   id: string
@@ -26,8 +27,10 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
   const [stats,   setStats]   = useState({ confirmed: 0, cancelled: 0, pending: 0, total: 0 })
   const [loading, setLoading] = useState(true)
   const [filter,  setFilter]  = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
+  const [sending, setSending] = useState<string | null>(null)
 
   useEffect(() => {
+    setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
     fetch(`/api/sessions/${sessionId}`)
       .then(r => r.json())
       .then(d => { if (d.success) { setModels(d.data); setStats(d.stats) } })
@@ -73,19 +76,27 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
               <button
                 key={type}
                 type="button"
+                disabled={sending !== null}
                 onClick={async () => {
-                  const res = await fetch('/api/sessions/remind', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sessionId, type }),
-                  })
-                  if (!res.ok) { alert('Erreur lors de l\'envoi — réessayez.'); return }
-                  const d = await res.json()
-                  alert(`${d.sent} rappel${d.sent > 1 ? 's' : ''} envoyé${d.sent > 1 ? 's' : ''}`)
+                  // F2 — garde contre le double-clic : un seul envoi à la fois
+                  if (sending) return
+                  setSending(type)
+                  try {
+                    const res = await fetch('/api/sessions/remind', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ sessionId, type }),
+                    })
+                    if (!res.ok) { alert('Erreur lors de l\'envoi — réessayez.'); return }
+                    const d = await res.json()
+                    alert(`${d.sent} rappel${d.sent > 1 ? 's' : ''} envoyé${d.sent > 1 ? 's' : ''}`)
+                  } finally {
+                    setSending(null)
+                  }
                 }}
-                style={{ fontSize: '.7rem', letterSpacing: '.18em', fontWeight: 600, background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.35rem .8rem', cursor: 'pointer' }}
+                style={{ fontSize: '.7rem', letterSpacing: '.18em', fontWeight: 600, background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.35rem .8rem', cursor: sending !== null ? 'not-allowed' : 'pointer', opacity: sending !== null ? .5 : 1 }}
               >
-                {labels[type]}
+                {sending === type ? '…' : labels[type]}
               </button>
             )
           })}

@@ -79,8 +79,10 @@ export async function GET(request: NextRequest) {
 
   const sm = rows[0]
 
-  // Idempotence — si le statut est déjà le même, on redirige sans rien écrire
-  if (sm.status === status) {
+  // F6 — bloquer toute transition si le statut n'est plus pending (déjà confirmé ou annulé).
+  // Idempotence incluse : qu'il soit déjà dans le même état ou dans l'état opposé,
+  // on redirige vers la page de confirmation sans modifier la DB ni renvoyer d'email.
+  if (sm.status !== 'pending') {
     return NextResponse.redirect(`${SITE_URL}/confirm/${token}`, 302)
   }
 

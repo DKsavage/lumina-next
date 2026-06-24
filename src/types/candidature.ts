@@ -34,29 +34,53 @@ export interface Candidature {
   photo_body_signed?:   string | null
 }
 
+// Remplace l'ancien Group et SessionForm.
+// Le type complet SessionGroup (côté DB) est dans src/types/session.ts.
+// SessionForm est ce que le Composer collecte avant persistance en DB.
+
 export interface Group {
-  name:    string
-  time:    string
-  members: string
+  id?:          string  // présent seulement après création en DB
+  name:         string
+  call_time:    string
+  duration_min: number | null
+  look_brief:   string
+  bring_items:  string
+  // SÉRIALIZATION : Set n'est pas JSON-compatible.
+  // Avant tout fetch API, convertir en tableau : assignedIds: [...g.assignedIds]
+  assignedIds:  Set<string>  // IDs des candidatures assignées à ce groupe
 }
 
 export interface SessionForm {
-  project:   string
-  dateFr:    string
-  dateEn:    string
-  addressFr: string
-  groups:    Group[]
-  notesFr:   string
-  notesEn:   string
-  unpaid:    boolean
-  moodboard: boolean
-  whatsapp:  string
+  project:              string
+  type:                 'photo' | 'video' | 'hybrid'
+  date:                 string          // ISO "2026-06-12" depuis input type="date"
+  address:              string
+  access_instructions:  string
+  contact_name:         string
+  contact_phone:        string
+  groups:               Group[]
+  prep_notes:           string
+  team:                 { makeup: boolean; hair: boolean; stylist: boolean; photo: boolean }
+  compensation_type:    'tfp' | 'paid' | 'expenses'
+  compensation_amount:  string
+  compensation_method:  string
+  compensation_delay:   string
+  cancel_deadline_days: number
+  notes_internal:       string
+  notes_models:         string
+  moodboard_url:        string
+  whatsapp:             string
 }
 
 export const defaultSession: SessionForm = {
-  project: '', dateFr: '', dateEn: '', addressFr: '',
-  groups: [{ name: '', time: '', members: '' }],
-  notesFr: '', notesEn: '', unpaid: false, moodboard: false, whatsapp: '',
+  project: '', type: 'photo', date: '', address: '', access_instructions: '',
+  contact_name: '', contact_phone: '',
+  groups: [{ name: '', call_time: '', duration_min: null, look_brief: '', bring_items: '', assignedIds: new Set() }],
+  prep_notes: '',
+  team: { makeup: false, hair: false, stylist: false, photo: false },
+  compensation_type: 'tfp', compensation_amount: '', compensation_method: '', compensation_delay: '',
+  cancel_deadline_days: 3,
+  notes_internal: '', notes_models: '', moodboard_url: '', whatsapp: '',
 }
 
 export type SortKey = 'date' | 'nom' | 'taille'

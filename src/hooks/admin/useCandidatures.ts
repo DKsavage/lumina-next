@@ -14,20 +14,24 @@ export function useCandidatures() {
 
   const fetchCandidatures = useCallback(async () => {
     setLoading(true)
-    const res  = await fetch('/api/candidatures')
-    const data = await res.json()
-    if (!data.success) {
-      if (res.status === 401) router.replace('/admin/login')
+    try {
+      const res  = await fetch('/api/candidatures')
+      const data = await res.json()
+      if (!data.success) {
+        if (res.status === 401) router.replace('/admin/login')
+        return
+      }
+      if (!isCandidatureArray(data.data)) {
+        console.error('[useCandidatures] fetchCandidatures: réponse inattendue', data.data)
+        return
+      }
+      setCandidatures(data.data)
+    } catch (err) {
+      // F5 — réseau coupé ou timeout : libérer le spinner plutôt que rester en loading infini
+      console.error('[useCandidatures] fetchCandidatures: erreur réseau', err)
+    } finally {
       setLoading(false)
-      return
     }
-    if (!isCandidatureArray(data.data)) {
-      console.error('[useCandidatures] fetchCandidatures: réponse inattendue', data.data)
-      setLoading(false)
-      return
-    }
-    setCandidatures(data.data)
-    setLoading(false)
   }, [router])
 
   useEffect(() => {
@@ -118,21 +122,37 @@ export function useCandidatures() {
   async function handleSendSession(
     selectedIds: Set<string>,
     session: SessionForm,
-    onDone: (sent: number, failed: number) => void,
+    onDone: (sent: number, failed: number, sessionId?: string) => void,
   ) {
     const models = candidatures
       .filter(c => selectedIds.has(c.id))
-      .map(c => ({ email: c.email, prenom: c.prenom }))
-    const res  = await fetch('/api/send-session', {
+      // Inclure la langue pour adapter le call time en email bilingue si besoin
+      .map(c => ({ email: c.email, prenom: c.prenom, langue: c.langues?.includes('English') ? 'en' : 'fr' }))
+
+    // Set<string> n'est pas JSON-sérialisable — convertir chaque assignedIds en tableau avant fetch
+    const res = await fetch('/api/send-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ models, ...session }),
+      body: JSON.stringify({
+        models,
+        session: {
+          ...session,
+          groups: session.groups.map(g => ({
+            ...g,
+            assignedIds: [...g.assignedIds]
+              .map(id => candidatures.find(c => c.id === id)?.email)
+              .filter((e): e is string => Boolean(e)),
+          })),
+        },
+      }),
     })
     if (!res.ok) { onDone(0, models.length); return }
-    const data  = await res.json()
-    const sent  = typeof data.sent   === 'number' ? data.sent   : 0
-    const failed = typeof data.failed === 'number' ? data.failed : 0
-    onDone(sent, failed)
+    const data      = await res.json()
+    const sent      = typeof data.sent      === 'number' ? data.sent      : 0
+    const failed    = typeof data.failed    === 'number' ? data.failed    : 0
+    // sessionId transmis au dashboard pour ouvrir automatiquement le panel de suivi
+    const sessionId = typeof data.sessionId === 'string'  ? data.sessionId : undefined
+    onDone(sent, failed, sessionId)
   }
 
   return {

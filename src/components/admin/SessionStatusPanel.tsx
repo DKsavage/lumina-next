@@ -65,10 +65,10 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
           </div>
         </div>
 
-        {/* Boutons de relance — J-5 / J-2 vers pending, J-1 vers confirmés */}
+        {/* Boutons de relance — J-5/J-2 vers pending, J-1/morning vers confirmés */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {(['j5', 'j2', 'j1'] as const).map(type => {
-            const labels = { j5: 'Relance douce (J-5)', j2: 'Relance urgente (J-2)', j1: 'Rappel J-1 aux confirmés' }
+          {(['j5', 'j2', 'j1', 'morning'] as const).map(type => {
+            const labels = { j5: 'Relance J-5', j2: 'Relance J-2 (urgente)', j1: 'Rappel J-1', morning: 'Rappel matin J' }
             return (
               <button
                 key={type}
@@ -79,6 +79,7 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ sessionId, type }),
                   })
+                  if (!res.ok) { alert('Erreur lors de l\'envoi — réessayez.'); return }
                   const d = await res.json()
                   alert(`${d.sent} rappel${d.sent > 1 ? 's' : ''} envoyé${d.sent > 1 ? 's' : ''}`)
                 }}

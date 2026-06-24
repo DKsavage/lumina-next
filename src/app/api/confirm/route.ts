@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 
   // Idempotence — si le statut est déjà le même, on redirige sans rien écrire
   if (sm.status === status) {
-    return NextResponse.redirect(`${SITE_URL}/confirm/${token}`)
+    return NextResponse.redirect(`${SITE_URL}/confirm/${token}`, 302)
   }
 
   // Update — confirmed_at ou cancelled_at selon l'action
@@ -187,5 +187,5 @@ export async function GET(request: NextRequest) {
   }
 
   // Redirect vers la page de confirmation — elle relira la DB pour afficher le nouveau statut
-  return NextResponse.redirect(`${SITE_URL}/confirm/${token}`)
+  return NextResponse.redirect(`${SITE_URL}/confirm/${token}`, 302)
 }

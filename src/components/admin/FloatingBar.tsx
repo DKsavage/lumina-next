@@ -23,6 +23,8 @@ export function FloatingBar({
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between"
       style={{ background: 'var(--ink)', color: 'var(--paper)', padding: '1.2rem 2rem', boxShadow: '0 -4px 32px rgba(0,0,0,.18)' }}
     >

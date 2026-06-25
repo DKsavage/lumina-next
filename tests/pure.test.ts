@@ -50,7 +50,8 @@ function calcAge(dateStr: string | null | undefined): number | null {
 function addMinutes(time: string, mins: number): string {
   const [h, m] = time.replace('h', ':').split(':').map(Number)
   const total = (h * 60) + (m || 0) + mins
-  return `${Math.floor(total / 60)}h${String(total % 60).padStart(2, '0')}`
+  // % 24 pour gérer l'overflow minuit (ex: 23h45 + 30min → 00h15)
+  return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}h${String(total % 60).padStart(2, '0')}`
 }
 
 // ---------------------------------------------------------------------------
@@ -137,21 +138,16 @@ describe('addMinutes', () => {
 
   test('23h45 + 30 min → 00h15 (overflow minuit)', () => {
     // 23*60 + 45 + 30 = 1455 min total
-    // Math.floor(1455/60) = 24 → on veut 00 (pas de modulo sur les heures ici)
-    // La fonction ne fait pas de modulo 24 — elle retourne 24h15.
-    // Ce comportement est documenté dans le backlog Phase 8D comme un cas limite connu.
-    // On teste le comportement réel de la fonction, pas un comportement hypothétique.
-    const result = addMinutes('23h45', 30)
-    // 23*60 + 45 + 30 = 1455 → floor(1455/60) = 24, 1455%60 = 15
-    assert.equal(result, '24h15')
+    // Math.floor(1455/60) % 24 = 24 % 24 = 0 → '00h15'
+    assert.equal(addMinutes('23h45', 30), '00h15')
   })
 
   test('00h00 + 0 min → 00h00', () => {
-    assert.equal(addMinutes('00h00', 0), '0h00')
+    assert.equal(addMinutes('00h00', 0), '00h00')
   })
 
-  test('09h05 + 5 min → 09h10 (zéro-padding des minutes)', () => {
-    assert.equal(addMinutes('09h05', 5), '9h10')
+  test('09h05 + 5 min → 09h10 (zéro-padding des heures et minutes)', () => {
+    assert.equal(addMinutes('09h05', 5), '09h10')
   })
 
   test('08h00 + 120 min → 10h00', () => {

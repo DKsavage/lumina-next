@@ -21,7 +21,17 @@ export function CandidatureCard({ c, selected, onToggle, onViewDetail }: Props) 
 
   return (
     <div
+      role="checkbox"
+      aria-checked={selected}
+      tabIndex={0}
       onClick={() => onToggle(c.id)}
+      onKeyDown={e => {
+        // Permettre la sélection au clavier — Space évite le scroll de page
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onToggle(c.id)
+        }
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="relative cursor-pointer transition-all duration-300"

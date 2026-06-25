@@ -30,7 +30,8 @@ function formatDate(iso: string, locale: 'fr-CA' | 'en-CA') {
 function addMinutes(time: string, mins: number): string {
   const [h, m] = time.replace('h', ':').split(':').map(Number)
   const total = (h * 60) + (m || 0) + mins
-  return `${Math.floor(total / 60)}h${String(total % 60).padStart(2, '0')}`
+  // % 24 pour gérer l'overflow minuit (ex: 23h45 + 30min → 00h15)
+  return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}h${String(total % 60).padStart(2, '0')}`
 }
 
 function cancelDeadlineDateLocale(date: string, days: number, locale: 'fr-CA' | 'en-CA'): string {

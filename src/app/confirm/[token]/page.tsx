@@ -55,7 +55,8 @@ async function fetchSessionModel(token: string): Promise<SessionModelRow | null>
 function addMins(time: string, mins: number): string {
   const [h, m] = time.replace('h', ':').split(':').map(Number)
   const t = (h * 60) + (m || 0) + mins
-  return `${Math.floor(t / 60)}h${String(t % 60).padStart(2, '0')}`
+  // % 24 pour gérer l'overflow minuit (ex: 23h45 + 30min → 00h15)
+  return `${String(Math.floor(t / 60) % 24).padStart(2, '0')}h${String(t % 60).padStart(2, '0')}`
 }
 
 // Shell de mise en page — fond ivoire + carte blanche centrée, sans layout admin

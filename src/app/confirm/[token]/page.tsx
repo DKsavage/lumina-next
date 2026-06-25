@@ -2,6 +2,7 @@
 // Lecture seule : pas de mutation DB ici, tout passe par /api/confirm.
 // Next.js 15 : params et searchParams sont des Promises (await obligatoire).
 import type { Metadata } from 'next'
+import { ConfirmActions } from '@/components/confirm/ConfirmActions'
 
 export const metadata: Metadata = {
   title: 'Confirmation de participation — Lumina Photography',
@@ -157,37 +158,9 @@ export default async function ConfirmPage({ params }: Props) {
         )}
       </div>
 
-      {/* Boutons uniquement si statut pending — liens vers /api/confirm qui gère tout */}
+      {/* Boutons uniquement si statut pending — ConfirmActions gère l'état client (motif annulation) */}
       {sm.status === 'pending' && (
-        <>
-          <p style={{ fontSize: '.9rem', color: '#0c0b09', marginBottom: '1.2rem', lineHeight: 1.7 }}>
-            Bonjour <strong>{sm.model_prenom}</strong>, pouvez-vous confirmer votre présence ?
-          </p>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' as const }}>
-            <a
-              href={`/api/confirm?token=${encodeURIComponent(token)}&status=confirmed`}
-              style={{
-                flex: 1, minWidth: '140px', display: 'block', textAlign: 'center' as const,
-                background: '#8B0020', color: '#fff', padding: '1rem',
-                fontWeight: 700, fontSize: '.85rem', textDecoration: 'none',
-                letterSpacing: '.1em', fontFamily: 'Arial, sans-serif',
-              }}
-            >
-              ✓ Je confirme
-            </a>
-            <a
-              href={`/api/confirm?token=${encodeURIComponent(token)}&status=cancelled`}
-              style={{
-                flex: 1, minWidth: '140px', display: 'block', textAlign: 'center' as const,
-                background: '#fff', color: '#6b6b6b', padding: '1rem',
-                fontWeight: 600, fontSize: '.85rem', textDecoration: 'none',
-                border: '1px solid #e0e0e0', letterSpacing: '.1em', fontFamily: 'Arial, sans-serif',
-              }}
-            >
-              Je ne peux pas venir
-            </a>
-          </div>
-        </>
+        <ConfirmActions token={token} prenom={sm.model_prenom} />
       )}
 
       <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '1.5rem', fontSize: '.75rem', color: '#9b9b9b' }}>

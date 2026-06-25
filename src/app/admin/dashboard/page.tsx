@@ -6,7 +6,7 @@
 // Logique sélection → hooks/admin/useSelection.ts
 // Composants        → components/admin/
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useDeferredValue } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useCandidatures }  from '@/hooks/admin/useCandidatures'
 import { useSelection }     from '@/hooks/admin/useSelection'
@@ -24,6 +24,9 @@ export default function DashboardPage() {
   const { candidatures, setCandidatures, loading, fetchCandidatures, logout, handleNotify, handleToggleSelectionne, handleDelete, handleSendSession } = useCandidatures()
 
   const [search,            setSearch]            = useState('')
+  // useDeferredValue : le filtre s'exécute après que le champ de saisie se soit mis à jour,
+  // évitant de bloquer le thread principal à chaque frappe sur de grandes listes
+  const deferredSearch = useDeferredValue(search)
   const [filterGenre,       setFilterGenre]       = useState<string | null>(null)
   const [filterSelectionne, setFilterSelectionne] = useState(false)
   const [sortBy,            setSortBy]            = useState<SortKey>('date')
@@ -46,7 +49,7 @@ export default function DashboardPage() {
   /* useMemo évite de re-trier toute la liste à chaque frappe */
   const filtered = useMemo(() => candidatures
     .filter(c => {
-      const q = search.toLowerCase()
+      const q = deferredSearch.toLowerCase()
       if (q && !c.prenom.toLowerCase().includes(q) && !c.nom.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
       if (filterGenre && c.genre !== filterGenre) return false
       if (filterSelectionne && !c.selectionne) return false
@@ -60,7 +63,7 @@ export default function DashboardPage() {
       if (sortBy === 'taille') cmp = (a.taille ?? 0) - (b.taille ?? 0)
       if (sortBy === 'date')   cmp = new Date(a.date_inscription).getTime() - new Date(b.date_inscription).getTime()
       return sortAsc ? cmp : -cmp
-    }), [candidatures, search, filterGenre, filterSelectionne, tailleMin, tailleMax, sortBy, sortAsc])
+    }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax, sortBy, sortAsc])
 
   const { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection } = useSelection(filtered)
   const detailIdx = detail ? filtered.findIndex(c => c.id === detail.id) : -1

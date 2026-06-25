@@ -48,10 +48,13 @@ export async function GET(request: NextRequest) {
       body: JSON.stringify({ paths, expiresIn: 86400 }),
     })
 
-    const signData: Array<{ path: string; signedURL?: string }> = await signRes.json()
-    signData.forEach(item => {
-      if (item.signedURL) signedMap[item.path] = `${url}/storage/v1${item.signedURL}`
-    })
+    // Storage peut retourner 503/quota — on dégrade gracieusement plutôt que crasher sur forEach
+    if (signRes.ok) {
+      const signData: Array<{ path: string; signedURL?: string }> = await signRes.json()
+      signData.forEach(item => {
+        if (item.signedURL) signedMap[item.path] = `${url}/storage/v1${item.signedURL}`
+      })
+    }
   }
 
   /* ── 4. Attacher les URLs signées à chaque candidature ── */

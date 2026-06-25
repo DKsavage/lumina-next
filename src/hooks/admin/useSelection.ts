@@ -1,6 +1,6 @@
 // useSelection — gère les IDs sélectionnés dans la grille du dashboard.
 // Isolé du reste pour pouvoir évoluer (ex: persistance, multi-page) sans toucher le dashboard.
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { Candidature } from '@/types/candidature'
 
 export function useSelection(filtered: Candidature[]) {
@@ -9,15 +9,15 @@ export function useSelection(filtered: Candidature[]) {
   const selectedCount       = selectedIds.size
   const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedIds.has(c.id))
 
-  // Breakdown genre pour la barre flottante (ex: "2F · 1H")
-  const selectedBreakdown = (() => {
+  // useMemo : évite de recalculer à chaque render quand filtered et selectedIds n'ont pas changé
+  const selectedBreakdown = useMemo(() => {
     const counts: Record<string, number> = {}
     filtered.filter(c => selectedIds.has(c.id)).forEach(c => {
       const k = c.genre === 'Femme' ? 'F' : c.genre === 'Homme' ? 'H' : c.genre ? 'NB' : '?'
       counts[k] = (counts[k] ?? 0) + 1
     })
     return Object.entries(counts).map(([k, n]) => `${n}${k}`).join(' · ')
-  })()
+  }, [filtered, selectedIds])
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {

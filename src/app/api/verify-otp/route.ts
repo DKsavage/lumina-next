@@ -2,7 +2,20 @@
 // Le token ne transite jamais dans le body de réponse : invisible au JS client.
 import { NextRequest, NextResponse } from 'next/server'
 
+// Cooldown 30s — les codes OTP expirent rapidement, inutile d'autoriser plus d'une tentative toutes les 30s
+const rateLimitMap = new Map<string, number>()
+
 export async function POST(request: NextRequest) {
+  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
+  const last = rateLimitMap.get(ip) ?? 0
+  if (Date.now() - last < 30_000) {
+    return NextResponse.json(
+      { success: false, message: 'Trop de tentatives. Réessaie dans quelques secondes.' },
+      { status: 429 }
+    )
+  }
+  rateLimitMap.set(ip, Date.now())
+
   const { email, token } = await request.json()
 
   if (!email || !token) {

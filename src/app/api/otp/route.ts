@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server'
 
+// Map en mémoire : reset au cold start, suffisant pour limiter le flood sur un seul worker
+const rateLimitMap = new Map<string, number>()
+
 export async function POST(request: Request) {
+  // Cooldown 60s par IP — empêche le flood vers Supabase Auth avant que son propre rate limit s'applique
+  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
+  const last = rateLimitMap.get(ip) ?? 0
+  if (Date.now() - last < 60_000) {
+    return NextResponse.json(
+      { success: false, message: 'Trop de tentatives. Réessaie dans une minute.' },
+      { status: 429 }
+    )
+  }
+  rateLimitMap.set(ip, Date.now())
+
   const { email } = await request.json()
 
   if (!email) {

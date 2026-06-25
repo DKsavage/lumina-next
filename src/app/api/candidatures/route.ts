@@ -17,11 +17,13 @@ export async function GET(request: NextRequest) {
 
   /* ── 1. Lire les candidatures paginées, plus récentes en premier ── */
   const { searchParams } = new URL(request.url)
-  const limit  = Math.min(Number(searchParams.get('limit')  ?? '200'), 500)
-  const offset = Math.max(Number(searchParams.get('offset') ?? '0'),   0)
+  const limit          = Math.min(Number(searchParams.get('limit')  ?? '200'), 500)
+  const offset         = Math.max(Number(searchParams.get('offset') ?? '0'),   0)
+  const showArchived   = searchParams.get('archived') === 'true'
+  const archivedFilter = showArchived ? 'archived=eq.true' : 'archived=eq.false'
 
   const dbRes = await fetch(
-    `${url}/rest/v1/candidatures?select=*&order=date_inscription.desc&limit=${limit}&offset=${offset}`,
+    `${url}/rest/v1/candidatures?select=*&${archivedFilter}&order=date_inscription.desc&limit=${limit}&offset=${offset}`,
     {
       headers: {
         'apikey':        key,
@@ -80,5 +82,16 @@ export async function GET(request: NextRequest) {
       : null,
   }))
 
-  return NextResponse.json({ success: true, data: result, total, hasMore, offset })
+  // Nombre d'archivées — pour badge dans les filtres (requête légère, count only)
+  let archivedCount = 0
+  if (!showArchived) {
+    const countRes = await fetch(
+      `${url}/rest/v1/candidatures?archived=eq.true&select=id`,
+      { headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Prefer': 'count=exact', 'Range': '0-0' } }
+    )
+    const cr = countRes.headers.get('content-range') ?? ''
+    archivedCount = parseInt(cr.split('/')[1] ?? '0', 10) || 0
+  }
+
+  return NextResponse.json({ success: true, data: result, total, hasMore, offset, archivedCount })
 }

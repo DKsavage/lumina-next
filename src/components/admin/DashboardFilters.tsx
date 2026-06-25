@@ -25,6 +25,9 @@ interface Props {
   totalCount:          number
   hasActiveFilters:    boolean
   onResetFilters:      () => void
+  showArchived:        boolean
+  onToggleArchived:    () => void
+  archivedCount:       number
 }
 
 function sortBtnStyle(active: boolean): React.CSSProperties {
@@ -51,6 +54,7 @@ export function DashboardFilters({
   allFilteredSelected, onToggleSelectAll,
   filteredCount, totalCount,
   hasActiveFilters, onResetFilters,
+  showArchived, onToggleArchived, archivedCount,
 }: Props) {
   return (
     <div style={{ padding: '2rem 2rem 0' }}>
@@ -88,6 +92,14 @@ export function DashboardFilters({
           style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterSelectionne ? 'var(--red)' : 'var(--border)'}`, color: filterSelectionne ? 'var(--red)' : 'var(--muted)', background: filterSelectionne ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}
         >
           Notifiés
+        </button>
+        <button
+          type="button"
+          onClick={onToggleArchived}
+          className="font-medium uppercase transition-colors duration-200"
+          style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${showArchived ? 'var(--ink)' : 'var(--border)'}`, color: showArchived ? 'var(--ink)' : 'var(--muted)', background: showArchived ? 'rgba(0,0,0,.06)' : 'transparent', padding: '.35rem .8rem' }}
+        >
+          Archivées{archivedCount > 0 && !showArchived ? ` (${archivedCount})` : ''}
         </button>
         {hasActiveFilters && (
           <button

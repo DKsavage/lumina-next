@@ -30,6 +30,7 @@ export interface Candidature {
   disponibilite?:       string | null
   date_inscription:     string
   selectionne:          boolean
+  archived:             boolean
   photo_profil_signed?: string | null
   photo_body_signed?:   string | null
 }

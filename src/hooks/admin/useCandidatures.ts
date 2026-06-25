@@ -9,18 +9,20 @@ import { isCandidatureArray } from '@/types/candidature'
 
 export function useCandidatures() {
   const router = useRouter()
-  const [candidatures, setCandidatures] = useState<Candidature[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [loadingMore,  setLoadingMore]  = useState(false)
-  const [hasMore,      setHasMore]      = useState(false)
-  const [offset,       setOffset]       = useState(0)
+  const [candidatures,  setCandidatures]  = useState<Candidature[]>([])
+  const [loading,       setLoading]       = useState(true)
+  const [loadingMore,   setLoadingMore]   = useState(false)
+  const [hasMore,       setHasMore]       = useState(false)
+  const [offset,        setOffset]        = useState(0)
+  const [showArchived,  setShowArchived]  = useState(false)
+  const [archivedCount, setArchivedCount] = useState(0)
   const PAGE = 200
 
-  const fetchCandidatures = useCallback(async () => {
+  const fetchCandidatures = useCallback(async (archived = false) => {
     setLoading(true)
     setOffset(0)
     try {
-      const res  = await fetch(`/api/candidatures?limit=${PAGE}&offset=0`)
+      const res  = await fetch(`/api/candidatures?limit=${PAGE}&offset=0${archived ? '&archived=true' : ''}`)
       const data = await res.json()
       if (!data.success) {
         if (res.status === 401) router.replace('/admin/login')
@@ -32,6 +34,7 @@ export function useCandidatures() {
       }
       setCandidatures(data.data)
       setHasMore(data.hasMore ?? false)
+      if (!archived) setArchivedCount(data.archivedCount ?? 0)
     } catch (err) {
       // F5 — réseau coupé ou timeout : libérer le spinner plutôt que rester en loading infini
       console.error('[useCandidatures] fetchCandidatures: erreur réseau', err)
@@ -40,11 +43,17 @@ export function useCandidatures() {
     }
   }, [router])
 
+  const toggleShowArchived = useCallback(() => {
+    const next = !showArchived
+    setShowArchived(next)
+    fetchCandidatures(next)
+  }, [showArchived, fetchCandidatures])
+
   const loadMore = useCallback(async () => {
     const nextOffset = offset + PAGE
     setLoadingMore(true)
     try {
-      const res  = await fetch(`/api/candidatures?limit=${PAGE}&offset=${nextOffset}`)
+      const res  = await fetch(`/api/candidatures?limit=${PAGE}&offset=${nextOffset}${showArchived ? '&archived=true' : ''}`)
       const data = await res.json()
       if (!data.success || !isCandidatureArray(data.data)) return
       setCandidatures(prev => [...prev, ...data.data])
@@ -55,7 +64,7 @@ export function useCandidatures() {
     } finally {
       setLoadingMore(false)
     }
-  }, [offset])
+  }, [offset, showArchived])
 
   useEffect(() => {
     fetchCandidatures()
@@ -134,6 +143,19 @@ export function useCandidatures() {
     showToast(newVal ? 'Marqué comme notifié.' : 'Notification annulée.')
   }
 
+  async function handleArchive(id: string, archive: boolean, onDone: () => void, showToast: (msg: string) => void) {
+    const res = await fetch(`/api/candidatures/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archived: archive }),
+    })
+    if (!res.ok) { showToast('Erreur lors de l\'archivage.'); return }
+    // Retirer de la liste courante (l'archivée disparaît de la vue active et vice-versa)
+    setCandidatures(prev => prev.filter(c => c.id !== id))
+    onDone()
+    showToast(archive ? 'Candidature archivée.' : 'Candidature restaurée.')
+  }
+
   async function handleDelete(id: string, onDone: () => void, showToast: (msg: string) => void) {
     const res = await fetch(`/api/candidatures/${id}`, { method: 'DELETE' })
     if (!res.ok) { showToast('Erreur lors de la suppression.'); return }
@@ -184,11 +206,15 @@ export function useCandidatures() {
     loading,
     loadingMore,
     hasMore,
+    showArchived,
+    archivedCount,
     fetchCandidatures,
+    toggleShowArchived,
     loadMore,
     logout,
     handleNotify,
     handleToggleSelectionne,
+    handleArchive,
     handleDelete,
     handleSendSession,
   }

@@ -21,7 +21,7 @@ import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
 
 export default function DashboardPage() {
-  const { candidatures, setCandidatures, loading, loadingMore, hasMore, fetchCandidatures, loadMore, logout, handleNotify, handleToggleSelectionne, handleDelete, handleSendSession } = useCandidatures()
+  const { candidatures, setCandidatures, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleDelete, handleSendSession } = useCandidatures()
 
   const [search,            setSearch]            = useState('')
   // useDeferredValue : le filtre s'exécute après que le champ de saisie se soit mis à jour,
@@ -130,7 +130,7 @@ export default function DashboardPage() {
               <div className="text-muted font-medium uppercase" style={{ fontSize: '.4rem', letterSpacing: '.25em' }}>Notifiés</div>
             </div>
           </div>
-          <button onClick={fetchCandidatures} disabled={loading} className="text-muted transition-colors duration-200 hover:text-ink" style={{ background: 'none', fontSize: '1rem', lineHeight: 1, opacity: loading ? .4 : 1 }} aria-label="Rafraîchir" title="Rafraîchir">↺</button>
+          <button onClick={() => fetchCandidatures(showArchived)} disabled={loading} className="text-muted transition-colors duration-200 hover:text-ink" style={{ background: 'none', fontSize: '1rem', lineHeight: 1, opacity: loading ? .4 : 1 }} aria-label="Rafraîchir" title="Rafraîchir">↺</button>
           <button onClick={handleExportCSV} className="font-medium uppercase text-muted transition-colors duration-200 hover:text-ink" style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}>Export CSV</button>
           <a href="/admin/sessions" className="font-medium uppercase text-muted transition-colors duration-200 hover:text-ink" style={{ fontSize: '.44rem', letterSpacing: '.25em' }}>Sessions</a>
           <button onClick={logout} className="font-medium uppercase text-muted transition-colors duration-200 hover:text-red" style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}>Déconnexion</button>
@@ -150,6 +150,8 @@ export default function DashboardPage() {
         filteredCount={filtered.length} totalCount={candidatures.length}
         hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax)}
         onResetFilters={() => { setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('') }}
+        showArchived={showArchived}     onToggleArchived={toggleShowArchived}
+        archivedCount={archivedCount}
       />
 
       {/* GRILLE */}
@@ -258,6 +260,7 @@ export default function DashboardPage() {
             onClose={() => setDetail(null)}
             onLightbox={setLightbox}
             onToggleNotified={c => handleToggleSelectionne(c, setDetail, showToast)}
+            onArchive={id => handleArchive(id, !detail?.archived, () => setDetail(null), showToast)}
             onRequestDelete={() => setConfirmDelete(true)}
             onConfirmDelete={id => handleDelete(id, () => setDetail(null), showToast)}
             onCancelDelete={() => setConfirmDelete(false)}

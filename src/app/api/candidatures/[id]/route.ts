@@ -65,8 +65,11 @@ export async function PATCH(
   const key  = process.env.SUPABASE_SERVICE_KEY!
   const body = await request.json()
 
-  /* Allowlist — seul selectionne est modifiable via cette route */
-  if (typeof body.selectionne !== 'boolean') {
+  /* Allowlist — selectionne et archived sont les seuls champs modifiables */
+  const patch: Record<string, boolean> = {}
+  if (typeof body.selectionne === 'boolean') patch.selectionne = body.selectionne
+  if (typeof body.archived    === 'boolean') patch.archived    = body.archived
+  if (Object.keys(patch).length === 0) {
     return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })
   }
 
@@ -78,7 +81,7 @@ export async function PATCH(
       'Content-Type':  'application/json',
       'Prefer':        'return=minimal',
     },
-    body: JSON.stringify({ selectionne: body.selectionne }),
+    body: JSON.stringify(patch),
   })
 
   if (!patchRes.ok) return NextResponse.json({ success: false }, { status: 500 })

@@ -19,6 +19,7 @@ interface Props {
   onClose:          () => void
   onLightbox:       (src: string) => void
   onToggleNotified: (c: Candidature) => void
+  onArchive:        (id: string) => void
   onRequestDelete:  () => void
   onConfirmDelete:  (id: string) => void
   onCancelDelete:   () => void
@@ -47,7 +48,7 @@ function DetailRow({ label, value }: { label: string; value: string | number | n
 export function DetailPanel({
   detail, detailIdx, filteredLength, selected, confirmDelete,
   onToggleSelect, onPrev, onNext, onClose, onLightbox,
-  onToggleNotified, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard,
+  onToggleNotified, onArchive, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard,
 }: Props) {
   return (
     <motion.div
@@ -210,6 +211,14 @@ export function DetailPanel({
               Annuler la notification
             </button>
           )}
+
+          <button
+            onClick={() => onArchive(detail.id)}
+            className="w-full font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.28em', background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.7rem', cursor: 'pointer', marginBottom: '.6rem' }}
+          >
+            {detail.archived ? 'Restaurer la candidature' : 'Archiver la candidature'}
+          </button>
 
           {confirmDelete ? (
             <div className="flex gap-2">

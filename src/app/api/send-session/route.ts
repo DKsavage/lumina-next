@@ -341,6 +341,13 @@ export async function POST(request: NextRequest) {
     })
   )
 
+  // Rollback complet si un groupe n'a pas pu être inséré — la session ne doit pas exister sans ses groupes
+  if (groupRows.some(g => g === null)) {
+    await fetch(`${url}/rest/v1/session_groups?session_id=eq.${sessionRow.id}`, { method: 'DELETE', headers })
+    await fetch(`${url}/rest/v1/sessions?id=eq.${sessionRow.id}`, { method: 'DELETE', headers })
+    return NextResponse.json({ success: false, message: 'Erreur DB session_groups — session annulée.' }, { status: 500 })
+  }
+
   // 3. Pour chaque modèle : insérer session_models (token généré par défaut en DB) puis envoyer email
   const results = await Promise.allSettled(
     models.map(async (m) => {

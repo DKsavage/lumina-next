@@ -117,9 +117,7 @@ Phases 0–7 terminées. Phase 8 terminée et mergée (2026-06-23) — voir git 
 **Pattern Supabase** : raw fetch REST API — pas de SDK `@supabase/supabase-js`
 **Sécurité confirm** : liens email → PAGE (deux clics) et non directement `/api/confirm` (prévient scanners antivirus qui pré-fetche les URLs GET avec side effects)
 
-**Backlog Phase 8D :**
-- Gestion silencieuse des échecs d'insert groupe (pas de rollback)
-- `addMins` : formatage NaN si call time malformé (ex: "10h" sans minutes)
+**Backlog Phase 8D :** vide — tous les items résolus.
 
 ---
 

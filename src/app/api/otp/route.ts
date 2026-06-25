@@ -1,13 +1,23 @@
 import { NextResponse } from 'next/server'
 
-// Map en mémoire : reset au cold start, suffisant pour limiter le flood sur un seul worker
+const COOLDOWN = 60_000
+// Map en mémoire par instance — complétée par le rate limit Supabase côté Auth
 const rateLimitMap = new Map<string, number>()
 
 export async function POST(request: Request) {
-  // Cooldown 60s par IP — empêche le flood vers Supabase Auth avant que son propre rate limit s'applique
-  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
+  // x-vercel-forwarded-for est posé par l'infra Vercel (non spoofable par le client),
+  // contrairement à x-forwarded-for qui est client-supplied
+  const ip = request.headers.get('x-vercel-forwarded-for')
+    ?? request.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim()
+    ?? 'unknown'
+
+  // Éviction des entrées périmées avant insert pour borner la Map
+  for (const [k, v] of rateLimitMap) {
+    if (Date.now() - v > COOLDOWN) rateLimitMap.delete(k)
+  }
+
   const last = rateLimitMap.get(ip) ?? 0
-  if (Date.now() - last < 60_000) {
+  if (Date.now() - last < COOLDOWN) {
     return NextResponse.json(
       { success: false, message: 'Trop de tentatives. Réessaie dans une minute.' },
       { status: 429 }

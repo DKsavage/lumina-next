@@ -2,21 +2,33 @@
 // Le token ne transite jamais dans le body de réponse : invisible au JS client.
 import { NextRequest, NextResponse } from 'next/server'
 
-// Cooldown 30s — les codes OTP expirent rapidement, inutile d'autoriser plus d'une tentative toutes les 30s
+const COOLDOWN = 30_000
+// Clé ip:email — un attaquant ne peut pas amortir le brute force sur plusieurs comptes
+// en changeant simplement d'IP (x-vercel-forwarded-for n'est pas spoofable côté client)
 const rateLimitMap = new Map<string, number>()
 
 export async function POST(request: NextRequest) {
-  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
-  const last = rateLimitMap.get(ip) ?? 0
-  if (Date.now() - last < 30_000) {
+  const { email, token } = await request.json()
+
+  const ip = request.headers.get('x-vercel-forwarded-for')
+    ?? request.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim()
+    ?? 'unknown'
+  // Clé combinée : même IP + email différent = nouvelle tentative bloquée
+  const key = `${ip}:${(email ?? '').toLowerCase()}`
+
+  // Éviction des entrées périmées avant insert pour borner la Map
+  for (const [k, v] of rateLimitMap) {
+    if (Date.now() - v > COOLDOWN) rateLimitMap.delete(k)
+  }
+
+  const last = rateLimitMap.get(key) ?? 0
+  if (Date.now() - last < COOLDOWN) {
     return NextResponse.json(
       { success: false, message: 'Trop de tentatives. Réessaie dans quelques secondes.' },
       { status: 429 }
     )
   }
-  rateLimitMap.set(ip, Date.now())
-
-  const { email, token } = await request.json()
+  rateLimitMap.set(key, Date.now())
 
   if (!email || !token) {
     return NextResponse.json(

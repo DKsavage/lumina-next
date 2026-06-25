@@ -132,6 +132,7 @@ export default function DashboardPage() {
           </div>
           <button onClick={fetchCandidatures} disabled={loading} className="text-muted transition-colors duration-200 hover:text-ink" style={{ background: 'none', fontSize: '1rem', lineHeight: 1, opacity: loading ? .4 : 1 }} aria-label="Rafraîchir" title="Rafraîchir">↺</button>
           <button onClick={handleExportCSV} className="font-medium uppercase text-muted transition-colors duration-200 hover:text-ink" style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}>Export CSV</button>
+          <a href="/admin/sessions" className="font-medium uppercase text-muted transition-colors duration-200 hover:text-ink" style={{ fontSize: '.44rem', letterSpacing: '.25em' }}>Sessions</a>
           <button onClick={logout} className="font-medium uppercase text-muted transition-colors duration-200 hover:text-red" style={{ fontSize: '.44rem', letterSpacing: '.25em', background: 'none' }}>Déconnexion</button>
         </div>
       </nav>

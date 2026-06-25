@@ -4,6 +4,7 @@
 // Affiche la barre de progression confirmés/total, les filtres par statut, et la liste détaillée.
 // Appelé depuis le dashboard après envoi d'une session (sessionId injecté automatiquement).
 import { useState, useEffect } from 'react'
+import { SessionEditPanel } from '@/components/admin/SessionEditPanel'
 // sending — type de relance en cours (null si aucun), protège contre le double-clic
 
 interface ModelStatus {
@@ -23,11 +24,12 @@ interface Props {
 }
 
 export function SessionStatusPanel({ sessionId, onClose }: Props) {
-  const [models,  setModels]  = useState<ModelStatus[]>([])
-  const [stats,   setStats]   = useState({ confirmed: 0, cancelled: 0, pending: 0, total: 0 })
-  const [loading, setLoading] = useState(true)
-  const [filter,  setFilter]  = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
-  const [sending, setSending] = useState<string | null>(null)
+  const [models,   setModels]   = useState<ModelStatus[]>([])
+  const [stats,    setStats]    = useState({ confirmed: 0, cancelled: 0, pending: 0, total: 0 })
+  const [loading,  setLoading]  = useState(true)
+  const [filter,   setFilter]   = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
+  const [sending,  setSending]  = useState<string | null>(null)
+  const [editing,  setEditing]  = useState(false)
 
   useEffect(() => {
     setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
@@ -40,6 +42,7 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
   const visible = models.filter(m => filter === 'all' || m.status === filter)
 
   return (
+    <>
     <div
       className="fixed inset-0 z-[200] flex items-end md:items-center justify-center"
       style={{ background: 'rgba(12,11,9,.6)', backdropFilter: 'blur(4px)' }}
@@ -54,7 +57,15 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.4rem', color: 'var(--ink)' }}>
             Suivi des confirmations
           </div>
-          <button onClick={onClose} style={{ background: 'none', fontSize: '1.2rem', color: 'var(--muted)' }}>×</button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setEditing(true)}
+              style={{ background: 'none', fontSize: '.5rem', letterSpacing: '.2em', fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.3rem .8rem', cursor: 'pointer' }}
+            >
+              Éditer
+            </button>
+            <button onClick={onClose} style={{ background: 'none', fontSize: '1.2rem', color: 'var(--muted)' }}>×</button>
+          </div>
         </div>
 
         {/* Barre de progression — ratio confirmés/total */}
@@ -161,5 +172,22 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
         )}
       </div>
     </div>
+
+      {editing && (
+        <SessionEditPanel
+          sessionId={sessionId}
+          onClose={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false)
+            // Recharger les données du panel après modification
+            setLoading(true)
+            fetch(`/api/sessions/${sessionId}`)
+              .then(r => r.json())
+              .then(d => { if (d.success) { setModels(d.data); setStats(d.stats) } })
+              .finally(() => setLoading(false))
+          }}
+        />
+      )}
+    </>
   )
 }

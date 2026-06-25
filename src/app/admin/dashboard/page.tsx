@@ -21,7 +21,7 @@ import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
 
 export default function DashboardPage() {
-  const { candidatures, setCandidatures, loading, fetchCandidatures, logout, handleNotify, handleToggleSelectionne, handleDelete, handleSendSession } = useCandidatures()
+  const { candidatures, setCandidatures, loading, loadingMore, hasMore, fetchCandidatures, loadMore, logout, handleNotify, handleToggleSelectionne, handleDelete, handleSendSession } = useCandidatures()
 
   const [search,            setSearch]            = useState('')
   // useDeferredValue : le filtre s'exécute après que le champ de saisie se soit mis à jour,
@@ -168,11 +168,25 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-            {filtered.map(c => (
-              <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} onToggle={toggleSelect} onViewDetail={setDetail} />
-            ))}
-          </div>
+          <>
+            <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+              {filtered.map(c => (
+                <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} onToggle={toggleSelect} onViewDetail={setDetail} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="flex justify-center" style={{ marginTop: '2rem' }}>
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="font-medium uppercase text-muted transition-colors duration-200 hover:text-ink"
+                  style={{ fontSize: '.5rem', letterSpacing: '.3em', background: 'none', border: '1px solid var(--border)', padding: '.7rem 2rem', opacity: loadingMore ? .5 : 1, cursor: loadingMore ? 'not-allowed' : 'pointer' }}
+                >
+                  {loadingMore ? 'Chargement…' : 'Charger plus'}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

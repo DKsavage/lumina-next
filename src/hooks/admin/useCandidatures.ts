@@ -11,11 +11,16 @@ export function useCandidatures() {
   const router = useRouter()
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
   const [loading,      setLoading]      = useState(true)
+  const [loadingMore,  setLoadingMore]  = useState(false)
+  const [hasMore,      setHasMore]      = useState(false)
+  const [offset,       setOffset]       = useState(0)
+  const PAGE = 200
 
   const fetchCandidatures = useCallback(async () => {
     setLoading(true)
+    setOffset(0)
     try {
-      const res  = await fetch('/api/candidatures')
+      const res  = await fetch(`/api/candidatures?limit=${PAGE}&offset=0`)
       const data = await res.json()
       if (!data.success) {
         if (res.status === 401) router.replace('/admin/login')
@@ -26,6 +31,7 @@ export function useCandidatures() {
         return
       }
       setCandidatures(data.data)
+      setHasMore(data.hasMore ?? false)
     } catch (err) {
       // F5 — réseau coupé ou timeout : libérer le spinner plutôt que rester en loading infini
       console.error('[useCandidatures] fetchCandidatures: erreur réseau', err)
@@ -33,6 +39,23 @@ export function useCandidatures() {
       setLoading(false)
     }
   }, [router])
+
+  const loadMore = useCallback(async () => {
+    const nextOffset = offset + PAGE
+    setLoadingMore(true)
+    try {
+      const res  = await fetch(`/api/candidatures?limit=${PAGE}&offset=${nextOffset}`)
+      const data = await res.json()
+      if (!data.success || !isCandidatureArray(data.data)) return
+      setCandidatures(prev => [...prev, ...data.data])
+      setHasMore(data.hasMore ?? false)
+      setOffset(nextOffset)
+    } catch (err) {
+      console.error('[useCandidatures] loadMore: erreur réseau', err)
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [offset])
 
   useEffect(() => {
     fetchCandidatures()
@@ -159,7 +182,10 @@ export function useCandidatures() {
     candidatures,
     setCandidatures,
     loading,
+    loadingMore,
+    hasMore,
     fetchCandidatures,
+    loadMore,
     logout,
     handleNotify,
     handleToggleSelectionne,

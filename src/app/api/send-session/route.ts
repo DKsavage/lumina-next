@@ -265,8 +265,21 @@ export async function POST(request: NextRequest) {
   const body: SendBody = await request.json()
   const { models, session } = body
 
-  if (!models?.length || !session.project || !session.date || !session.address) {
-    return NextResponse.json({ success: false, message: 'Données manquantes.' }, { status: 400 })
+  // Validation — rejetée avant toute écriture en DB
+  const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const invalid =
+    !Array.isArray(models) || models.length === 0 ||
+    !session?.project?.trim() ||
+    !ISO_DATE.test(session?.date ?? '') ||
+    !session?.address?.trim() ||
+    !['photo', 'video', 'hybrid'].includes(session?.type) ||
+    !['tfp', 'paid', 'expenses'].includes(session?.compensation_type) ||
+    typeof session?.cancel_deadline_days !== 'number' || session.cancel_deadline_days < 0 ||
+    models.some(m => !EMAIL_RE.test(m?.email ?? '') || !m?.prenom?.trim())
+
+  if (invalid) {
+    return NextResponse.json({ success: false, message: 'Données invalides ou manquantes.' }, { status: 400 })
   }
 
   const url = process.env.SUPABASE_URL!

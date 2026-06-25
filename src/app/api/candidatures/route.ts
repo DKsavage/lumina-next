@@ -15,17 +15,29 @@ export async function GET(request: NextRequest) {
   const url = process.env.SUPABASE_URL!
   const key = process.env.SUPABASE_SERVICE_KEY!
 
-  /* ── 1. Lire toutes les candidatures, plus récentes en premier ── */
-  const dbRes = await fetch(`${url}/rest/v1/candidatures?select=*&order=date_inscription.desc`, {
-    headers: {
-      'apikey':        key,
-      'Authorization': `Bearer ${key}`,
-    },
-  })
+  /* ── 1. Lire les candidatures paginées, plus récentes en premier ── */
+  const { searchParams } = new URL(request.url)
+  const limit  = Math.min(Number(searchParams.get('limit')  ?? '200'), 500)
+  const offset = Math.max(Number(searchParams.get('offset') ?? '0'),   0)
+
+  const dbRes = await fetch(
+    `${url}/rest/v1/candidatures?select=*&order=date_inscription.desc&limit=${limit}&offset=${offset}`,
+    {
+      headers: {
+        'apikey':        key,
+        'Authorization': `Bearer ${key}`,
+        // count=exact → Supabase retourne Content-Range: 0-199/543 pour connaître le total
+        'Prefer':        'count=exact',
+      },
+    }
+  )
 
   if (!dbRes.ok) return NextResponse.json({ success: false }, { status: 500 })
 
   const candidatures = await dbRes.json()
+  const contentRange = dbRes.headers.get('content-range') ?? ''
+  const total        = parseInt(contentRange.split('/')[1] ?? '0', 10) || candidatures.length
+  const hasMore      = offset + limit < total
 
   /* ── 2. Collecter les chemins des photos (sans le préfixe bucket) ── */
   const paths: string[] = []
@@ -68,5 +80,5 @@ export async function GET(request: NextRequest) {
       : null,
   }))
 
-  return NextResponse.json({ success: true, data: result })
+  return NextResponse.json({ success: true, data: result, total, hasMore, offset })
 }

@@ -164,7 +164,23 @@ export async function POST(request: Request) {
     }
   }
 
-  /* ── 4. VALIDATION PHOTOS ── */
+  /* ── 4. VALIDATION CHAMPS OBLIGATOIRES ── */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+  if (
+    !data.prenom?.trim() || !data.nom?.trim() ||
+    !EMAIL_RE.test(data.email ?? '') ||
+    !data.telephone?.trim() ||
+    !data.taille || isNaN(parseInt(data.taille)) ||
+    !data.genre?.trim() ||
+    !data.ville?.trim() ||
+    !ISO_DATE.test(data.dateNaissance ?? '') ||
+    !data.disponibilite?.trim()
+  ) {
+    return NextResponse.json({ success: false, message: 'Champs obligatoires manquants ou invalides.' }, { status: 400 })
+  }
+
+  /* ── 5. VALIDATION PHOTOS ── */
   try {
     const profilSize = getBase64Size(data.photoProfil)
     const bodySize   = getBase64Size(data.photoBody)
@@ -179,7 +195,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: 'Format de photo invalide.' }, { status: 400 })
   }
 
-  /* ── 5. UPLOAD PHOTOS ── */
+  /* ── 6. UPLOAD PHOTOS ── */
   let profilPath: string, bodyPath: string
   try {
     const timestamp = Date.now()
@@ -196,7 +212,7 @@ export async function POST(request: Request) {
     )
   }
 
-  /* ── 6. INSERT Supabase ── */
+  /* ── 7. INSERT Supabase ── */
   const supabaseUrl = process.env.SUPABASE_URL!
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY!
 

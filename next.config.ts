@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'xkkvudlpuvvctkbklsox.supabase.co' },
+      { protocol: 'https', hostname: 'picsum.photos' },
     ],
     // AVIF > WebP : meilleure compression pour les photos haute résolution des candidatures
     formats: ['image/avif', 'image/webp'],

@@ -15,7 +15,7 @@ function esc(s: string | null | undefined): string {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function sentAtField(type: ReminderType): string {
+export function sentAtField(type: ReminderType): string {
   return {
     j5:       'reminder_j5_sent_at',
     j2:       'reminder_j2_sent_at',
@@ -26,7 +26,7 @@ function sentAtField(type: ReminderType): string {
   }[type]
 }
 
-function buildReminderHtml(type: ReminderType, params: {
+export function buildReminderHtml(type: ReminderType, params: {
   prenom:              string
   project:             string
   date:                string

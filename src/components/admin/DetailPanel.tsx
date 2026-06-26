@@ -52,6 +52,18 @@ export function DetailPanel({
   onToggleSelect, onPrev, onNext, onClose, onLightbox,
   onToggleNotified, onArchive, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard, onEdit,
 }: Props) {
+  const [notesValue,  setNotesValue]  = useState(detail.notes_admin ?? '')
+  const [notesDirty,  setNotesDirty]  = useState(false)
+  const [notesSaving, setNotesSaving] = useState(false)
+
+  async function saveNotes() {
+    if (!notesDirty) return
+    setNotesSaving(true)
+    await onEdit({ notes_admin: notesValue.trim() || null })
+    setNotesDirty(false)
+    setNotesSaving(false)
+  }
+
   const [editing, setEditing] = useState(false)
   const [editForm, setEditForm] = useState({
     prenom:        detail.prenom,
@@ -277,6 +289,23 @@ export function DetailPanel({
                 </a>
               </div>
             )}
+          </DetailSection>
+
+          <DetailSection label="Notes internes">
+            <textarea
+              value={notesValue}
+              onChange={e => { setNotesValue(e.target.value); setNotesDirty(true) }}
+              onBlur={saveNotes}
+              placeholder="Visible uniquement par l'équipe…"
+              rows={4}
+              style={{
+                fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.72rem',
+                color: 'var(--ink)', background: 'transparent', border: '1px solid var(--border)',
+                outline: 'none', padding: '.5rem .6rem', width: '100%', resize: 'vertical',
+                lineHeight: 1.6, opacity: notesSaving ? .5 : 1, transition: 'opacity .15s',
+              }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
+            />
           </DetailSection>
         </div>
         )}

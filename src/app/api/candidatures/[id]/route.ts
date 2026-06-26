@@ -67,7 +67,7 @@ export async function PATCH(
 
   /* Allowlist — champs modifiables depuis le dashboard admin */
   const ALLOWED_STRING = ['prenom','nom','email','telephone','ville','pays','instagram',
-    'experience','disponibilite','langues'] as const
+    'experience','disponibilite','langues','notes_admin'] as const
   const patch: Record<string, string | number | boolean | null> = {}
   for (const f of ALLOWED_STRING) {
     if (f in body) {

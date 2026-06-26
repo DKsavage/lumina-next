@@ -88,40 +88,30 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 ## Variables d'environnement
 
-`SUPABASE_URL` (`https://xkkvudlpuvvctkbklsox.supabase.co` — **SANS `/rest/v1/`**, sinon storage → 404) · `SUPABASE_SERVICE_KEY` (service_role, bypass RLS) · `SUPABASE_ANON_KEY` · `RESEND_API_KEY` · `RECAPTCHA_SECRET_KEY`
+`SUPABASE_URL` · `SUPABASE_SERVICE_KEY` · `SUPABASE_ANON_KEY` · `RESEND_API_KEY` · `RECAPTCHA_SECRET_KEY` · `CRON_SECRET` · `RESEND_WEBHOOK_SECRET`
 
 ---
 
 ## Phases
 
-Phases 0–9 terminées (voir git log).
+Phases 0–11 terminées (voir git log).
 
-**Phase 8** : Session Management — tables `sessions`/`session_groups`/`session_models`, routes `send-session/confirm/sessions/remind`, composants `SessionComposer`/`SessionStatusPanel`, raw fetch REST, `sessions.whatsapp` ajouté manuellement.
+**Phase 11** (2026-06-26) : Emails bilingues EN/FR (EN en premier, séparateur 2px, tous les templates), remerciement + paiement post-session, cron automatique (J-5/J-2/J-1/matin, `vercel.json`), tracking emails Resend (livré/cliqué/bounce, webhook Svix HMAC), tags/labels modèles, notes internes, répartition paiement par modèle, page facture imprimable `/facture/[token]` (template Word Lumina, numéro auto `LUM-YYYY-TOKEN`).
 
-**Phase 9** (2026-06-25) : Dashboard & Modèles — recherche étendue (ville/tel/ig), filtres dispo/expérience/instagram/taille, tri âge, CSV filtré, bouton ⎘ copier liste, toggle grille⊞/liste≡ (`CandidatureList.tsx`), édition candidature depuis DetailPanel (PATCH étendu), détection doublons (badge + rejet 409), page publique `/statut`. Fix : `picsum.photos` ajouté à `remotePatterns`.
-
-**Nouveaux composants/routes Phase 9 :**
-- `src/components/admin/CandidatureList.tsx` — vue liste dense
-- `src/app/api/statut/route.ts` + `src/app/statut/page.tsx` — statut public modèle (rate-limit 30s/IP)
-- `src/types/candidature.ts` : `SortKey` étendu à `'age'`
-- PATCH `/api/candidatures/[id]` : allowlist étendue (prenom/nom/email/tel/ville/pays/ig/experience/dispo/langues/taille)
-- `useCandidatures` : +`handleEdit`, +`duplicateEmails` Set
-
-**Phases 0–10 terminées** (suppression session, import modèles, fix accents CSV, capacité max, calendrier sessions, classification tier, notes_admin, tags).
-6. Emails bilingues FR+EN dans le même email (send-session, remind, confirm — tous les templates)
-7. Email remerciement post-session + email paiement (nouveaux types dans remind/SessionStatusPanel)
-8. Rappels automatiques par cron (Vercel cron → J-5/J-2/J-1/matin selon date session, sans action manuelle)
+**Nouvelles routes Phase 11 :**
+- `GET /api/cron/reminders` — cron 13h UTC, anti-doublon via `sent_at`
+- `POST /api/webhooks/resend` — events livré/cliqué/bounce
+- `GET /api/facture/[token]` — données facture publiques
+- `PATCH /api/sessions/models/[id]` — payment_amount par modèle
+- `src/app/facture/[token]/page.tsx` — page imprimable
 
 **Backlog actif :**
-- Emails bilingues FR+EN (instructions à venir)
-- Email remerciement post-session + email paiement
-- Rappels automatiques par cron (J-5/J-2/J-1/matin)
-
-**Plus tard (sessions séparées) :**
 - Portfolio photos par modèle (page publique, consentement, galerie)
-- Tracking ouverture emails (Resend webhooks + DB + UI)
-- Répartition paiement
-- Photos site public
+- Photos site public (refonte page d'accueil)
+
+**Variables à ajouter sur Vercel si pas encore fait :**
+- `CRON_SECRET` — protège `/api/cron/reminders`
+- `RESEND_WEBHOOK_SECRET` — vérifie la signature des webhooks Resend
 
 ---
 

@@ -22,7 +22,7 @@ import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
 
 export default function DashboardPage() {
-  const { candidatures, setCandidatures, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleDelete, handleSendSession } = useCandidatures()
+  const { candidatures, setCandidatures, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleEdit, handleDelete, handleSendSession } = useCandidatures()
 
   const [search,            setSearch]            = useState('')
   // useDeferredValue : le filtre s'exécute après que le champ de saisie se soit mis à jour,
@@ -314,6 +314,7 @@ export default function DashboardPage() {
             onConfirmDelete={id => handleDelete(id, () => setDetail(null), showToast)}
             onCancelDelete={() => setConfirmDelete(false)}
             onCopyToClipboard={copyToClipboard}
+            onEdit={async patch => handleEdit(detail.id, patch, setDetail, showToast)}
           />
         )}
       </AnimatePresence>

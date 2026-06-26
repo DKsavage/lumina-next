@@ -65,10 +65,19 @@ export async function PATCH(
   const key  = process.env.SUPABASE_SERVICE_KEY!
   const body = await request.json()
 
-  /* Allowlist — selectionne et archived sont les seuls champs modifiables */
-  const patch: Record<string, boolean> = {}
+  /* Allowlist — champs modifiables depuis le dashboard admin */
+  const ALLOWED_STRING = ['prenom','nom','email','telephone','ville','pays','instagram',
+    'experience','disponibilite','langues'] as const
+  const patch: Record<string, string | number | boolean | null> = {}
+  for (const f of ALLOWED_STRING) {
+    if (f in body) {
+      const v = body[f]
+      patch[f] = typeof v === 'string' ? (v.trim() || null) : null
+    }
+  }
   if (typeof body.selectionne === 'boolean') patch.selectionne = body.selectionne
   if (typeof body.archived    === 'boolean') patch.archived    = body.archived
+  if (typeof body.taille === 'number' && body.taille > 0 && body.taille < 300) patch.taille = body.taille
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })
   }

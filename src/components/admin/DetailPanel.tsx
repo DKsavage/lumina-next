@@ -3,6 +3,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Candidature } from '@/types/candidature'
 import { calcAge } from '@/types/candidature'
@@ -24,6 +25,7 @@ interface Props {
   onConfirmDelete:  (id: string) => void
   onCancelDelete:   () => void
   onCopyToClipboard:(text: string) => void
+  onEdit:           (patch: Partial<Candidature>) => Promise<boolean>
 }
 
 function DetailSection({ label, children }: { label: string; children: React.ReactNode }) {
@@ -48,8 +50,44 @@ function DetailRow({ label, value }: { label: string; value: string | number | n
 export function DetailPanel({
   detail, detailIdx, filteredLength, selected, confirmDelete,
   onToggleSelect, onPrev, onNext, onClose, onLightbox,
-  onToggleNotified, onArchive, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard,
+  onToggleNotified, onArchive, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard, onEdit,
 }: Props) {
+  const [editing, setEditing] = useState(false)
+  const [editForm, setEditForm] = useState({
+    prenom:        detail.prenom,
+    nom:           detail.nom,
+    email:         detail.email,
+    telephone:     detail.telephone,
+    taille:        detail.taille ? String(detail.taille) : '',
+    ville:         detail.ville         ?? '',
+    pays:          detail.pays          ?? '',
+    instagram:     detail.instagram     ?? '',
+    experience:    detail.experience    ?? '',
+    disponibilite: detail.disponibilite ?? '',
+    langues:       detail.langues       ?? '',
+  })
+  const [saving, setSaving] = useState(false)
+
+  async function saveEdit() {
+    setSaving(true)
+    const patch: Record<string, string | number | null> = {
+      prenom:        editForm.prenom        || null,
+      nom:           editForm.nom           || null,
+      email:         editForm.email         || null,
+      telephone:     editForm.telephone     || null,
+      ville:         editForm.ville         || null,
+      pays:          editForm.pays          || null,
+      instagram:     editForm.instagram     || null,
+      experience:    editForm.experience    || null,
+      disponibilite: editForm.disponibilite || null,
+      langues:       editForm.langues       || null,
+    }
+    if (editForm.taille) patch.taille = Number(editForm.taille)
+    const ok = await onEdit(patch as Partial<Candidature>)
+    if (ok) setEditing(false)
+    setSaving(false)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -123,7 +161,57 @@ export function DetailPanel({
           ))}
         </div>
 
-        {/* Infos */}
+        {/* Infos / Formulaire d'édition */}
+        {editing ? (
+          <div style={{ padding: '0 1.8rem 2rem', display: 'flex', flexDirection: 'column', gap: '.8rem' }}>
+            {([
+              ['Prénom',      'prenom'],
+              ['Nom',         'nom'],
+              ['Email',       'email'],
+              ['Téléphone',   'telephone'],
+              ['Taille (cm)', 'taille'],
+              ['Ville',       'ville'],
+              ['Pays',        'pays'],
+              ['Instagram',   'instagram'],
+              ['Langues',     'langues'],
+            ] as [string, string][]).map(([label, key]) => (
+              <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '.3rem' }}>
+                <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.18em' }}>{label}</span>
+                <input
+                  value={(editForm as Record<string, string>)[key] ?? ''}
+                  onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.78rem', color: 'var(--ink)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', outline: 'none', padding: '.3rem 0', width: '100%' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
+                  onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
+                />
+              </div>
+            ))}
+            {/* Expérience chips */}
+            <div>
+              <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.18em', display: 'block', marginBottom: '.4rem' }}>Expérience</span>
+              <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
+                {(['Débutant(e)', 'Quelques shootings', 'Expérimenté(e)'] as const).map(exp => (
+                  <button key={exp} type="button" onClick={() => setEditForm(f => ({ ...f, experience: exp }))}
+                    style={{ fontSize: '.44rem', letterSpacing: '.18em', padding: '.3rem .6rem', cursor: 'pointer', border: `1px solid ${editForm.experience === exp ? 'var(--red)' : 'var(--border)'}`, color: editForm.experience === exp ? 'var(--red)' : 'var(--muted)', background: editForm.experience === exp ? 'rgba(139,0,32,.04)' : 'transparent' }}>
+                    {exp}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Disponibilité chips */}
+            <div>
+              <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.18em', display: 'block', marginBottom: '.4rem' }}>Disponibilité</span>
+              <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
+                {(['Flexible', 'Jours de semaine', 'Weekends', 'Voyages OK'] as const).map(d => (
+                  <button key={d} type="button" onClick={() => setEditForm(f => ({ ...f, disponibilite: d }))}
+                    style={{ fontSize: '.44rem', letterSpacing: '.18em', padding: '.3rem .6rem', cursor: 'pointer', border: `1px solid ${editForm.disponibilite === d ? 'var(--red)' : 'var(--border)'}`, color: editForm.disponibilite === d ? 'var(--red)' : 'var(--muted)', background: editForm.disponibilite === d ? 'rgba(139,0,32,.04)' : 'transparent' }}>
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
         <div style={{ padding: '0 1.8rem 6rem' }}>
           <DetailSection label="Corps">
             <DetailRow label="Taille"        value={detail.taille      ? `${detail.taille} cm`      : null} />
@@ -191,9 +279,37 @@ export function DetailPanel({
             )}
           </DetailSection>
         </div>
+        )}
 
         {/* Footer — actions */}
         <div className="sticky bottom-0 bg-paper" style={{ padding: '1rem 1.8rem', borderTop: '1px solid var(--border)' }}>
+          {editing ? (
+            <div className="flex gap-2" style={{ marginBottom: '.6rem' }}>
+              <button
+                onClick={saveEdit}
+                disabled={saving}
+                className="flex-1 font-medium uppercase transition-opacity duration-200"
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.28em', background: 'var(--ink)', color: 'var(--paper)', border: 'none', padding: '.7rem', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? .5 : 1 }}
+              >
+                {saving ? 'Sauvegarde…' : 'Enregistrer'}
+              </button>
+              <button
+                onClick={() => setEditing(false)}
+                className="font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.2em', background: 'none', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.7rem 1rem', cursor: 'pointer' }}
+              >
+                Annuler
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setEditing(true)}
+              className="w-full font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.28em', background: 'transparent', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.7rem', cursor: 'pointer', marginBottom: '.6rem' }}
+            >
+              Modifier le profil
+            </button>
+          )}
           <button
             onClick={() => onToggleSelect(detail.id)}
             className="w-full font-medium uppercase transition-colors duration-200 active:scale-[0.96] transition-transform"

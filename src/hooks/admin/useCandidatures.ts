@@ -156,6 +156,24 @@ export function useCandidatures() {
     showToast(archive ? 'Candidature archivée.' : 'Candidature restaurée.')
   }
 
+  async function handleEdit(
+    id: string,
+    patch: Partial<Candidature>,
+    setDetail: (fn: (prev: Candidature | null) => Candidature | null) => void,
+    showToast: (msg: string) => void,
+  ): Promise<boolean> {
+    const res = await fetch(`/api/candidatures/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+    if (!res.ok) { showToast('Erreur lors de la sauvegarde.'); return false }
+    setCandidatures(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c))
+    setDetail(prev => prev?.id === id ? { ...prev, ...patch } : prev)
+    showToast('Profil mis à jour.')
+    return true
+  }
+
   async function handleDelete(id: string, onDone: () => void, showToast: (msg: string) => void) {
     const res = await fetch(`/api/candidatures/${id}`, { method: 'DELETE' })
     if (!res.ok) { showToast('Erreur lors de la suppression.'); return }
@@ -215,6 +233,7 @@ export function useCandidatures() {
     handleNotify,
     handleToggleSelectionne,
     handleArchive,
+    handleEdit,
     handleDelete,
     handleSendSession,
   }

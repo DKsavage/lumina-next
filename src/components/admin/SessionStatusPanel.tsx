@@ -132,8 +132,8 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
 
         {/* Boutons de relance — J-5/J-2 vers pending, J-1/morning vers confirmés */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {(['j5', 'j2', 'j1', 'morning'] as const).map(type => {
-            const labels = { j5: 'Relance J-5', j2: 'Relance J-2 (urgente)', j1: 'Rappel J-1', morning: 'Rappel matin J' }
+          {(['j5', 'j2', 'j1', 'morning', 'merci', 'paiement'] as const).map(type => {
+            const labels = { j5: 'Relance J-5', j2: 'Relance J-2 (urgente)', j1: 'Rappel J-1', morning: 'Rappel matin J', merci: 'Remerciement', paiement: 'Paiement envoyé' }
             return (
               <button
                 key={type}

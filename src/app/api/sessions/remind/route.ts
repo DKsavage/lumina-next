@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { SITE_URL } from '@/types/session'
 
-type ReminderType = 'j5' | 'j2' | 'j1' | 'morning'
+type ReminderType = 'j5' | 'j2' | 'j1' | 'morning' | 'merci' | 'paiement'
 
 // Échappement HTML — même fonction que dans confirm/route.ts et send-session/route.ts.
 // Protège contre l'injection de balises dans les emails si un champ Supabase est corrompu.
@@ -17,24 +17,30 @@ function esc(s: string | null | undefined): string {
 
 function sentAtField(type: ReminderType): string {
   return {
-    j5:      'reminder_j5_sent_at',
-    j2:      'reminder_j2_sent_at',
-    j1:      'reminder_j1_sent_at',
-    morning: 'reminder_morning_sent_at',
+    j5:       'reminder_j5_sent_at',
+    j2:       'reminder_j2_sent_at',
+    j1:       'reminder_j1_sent_at',
+    morning:  'reminder_morning_sent_at',
+    merci:    'reminder_merci_sent_at',
+    paiement: 'reminder_paiement_sent_at',
   }[type]
 }
 
 function buildReminderHtml(type: ReminderType, params: {
-  prenom:       string
-  project:      string
-  date:         string
-  address:      string
-  callTime:     string | null
-  contactName:  string | null
-  contactPhone: string | null
-  token:        string
+  prenom:              string
+  project:             string
+  date:                string
+  address:             string
+  callTime:            string | null
+  contactName:         string | null
+  contactPhone:        string | null
+  token:               string
+  compensationAmount?: string | null
+  compensationMethod?: string | null
+  compensationDelay?:  string | null
 }): { subject: string; html: string } {
-  const { prenom, project, date, address, callTime, contactName, contactPhone, token } = params
+  const { prenom, project, date, address, callTime, contactName, contactPhone, token,
+    compensationAmount, compensationMethod, compensationDelay } = params
   const confirmUrl  = `${SITE_URL}/confirm/${token}?status=confirmed`
   const cancelUrl   = `${SITE_URL}/confirm/${token}?status=cancelled`
   // Midi UTC pour éviter les décalages de fuseau (Montréal = UTC-4/5)
@@ -43,6 +49,35 @@ function buildReminderHtml(type: ReminderType, params: {
   const contact     = contactName ? `${esc(contactName)}${contactPhone ? ` · ${esc(contactPhone)}` : ''}` : null
 
   const sep = `<hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;">`
+
+  // Remerciement post-session
+  if (type === 'merci') {
+    return {
+      subject: `Thank you / Merci — ${esc(project)}`,
+      html: `<p>Hi ${esc(prenom)},</p>
+<p>Thank you so much for being part of <strong>${esc(project)}</strong>! It was a genuine pleasure working with you. We'll share the results as soon as they're ready.</p>
+<p>We hope to work with you again soon!</p>
+${sep}
+<p>Bonjour ${esc(prenom)},</p>
+<p>Merci beaucoup d'avoir participé à <strong>${esc(project)}</strong> ! Ce fut un vrai plaisir de travailler avec vous. Nous partagerons les résultats dès qu'ils seront prêts.</p>
+<p>Au plaisir de vous revoir très bientôt !</p>`,
+    }
+  }
+
+  // Confirmation de paiement envoyé
+  if (type === 'paiement') {
+    const payDetails = [compensationAmount, compensationMethod, compensationDelay].filter(Boolean).join(' · ')
+    return {
+      subject: `Payment sent / Paiement envoyé — ${esc(project)}`,
+      html: `<p>Hi ${esc(prenom)},</p>
+<p>Your payment for <strong>${esc(project)}</strong> has been sent.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
+<p>Thank you again for your participation!</p>
+${sep}
+<p>Bonjour ${esc(prenom)},</p>
+<p>Votre paiement pour <strong>${esc(project)}</strong> a été envoyé.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
+<p>Merci encore pour votre participation !</p>`,
+    }
+  }
 
   // J-1 et morning = récapitulatif pour les confirmés (pas de CTA confirmation)
   if (type === 'j1' || type === 'morning') {
@@ -98,7 +133,7 @@ export async function POST(request: NextRequest) {
   if (!auth) return NextResponse.json({ success: false }, { status: 401 })
 
   const { sessionId, type }: { sessionId: string; type: ReminderType } = await request.json()
-  if (!sessionId || !['j5', 'j2', 'j1', 'morning'].includes(type)) {
+  if (!sessionId || !['j5', 'j2', 'j1', 'morning', 'merci', 'paiement'].includes(type)) {
     return NextResponse.json({ success: false, message: 'Paramètres invalides.' }, { status: 400 })
   }
 
@@ -114,23 +149,24 @@ export async function POST(request: NextRequest) {
 
   // 1. Récupérer la session (projet, date, adresse, contact)
   const sRes = await fetch(
-    `${url}/rest/v1/sessions?id=eq.${encodeURIComponent(sessionId)}&select=project,date,address,contact_name,contact_phone&limit=1`,
+    `${url}/rest/v1/sessions?id=eq.${encodeURIComponent(sessionId)}&select=project,date,address,contact_name,contact_phone,compensation_json&limit=1`,
     { headers }
   )
   if (!sRes.ok) return NextResponse.json({ success: false }, { status: 500 })
   const [session] = await sRes.json() as Array<{
-    project:       string
-    date:          string
-    address:       string
-    contact_name:  string | null
-    contact_phone: string | null
+    project:           string
+    date:              string
+    address:           string
+    contact_name:      string | null
+    contact_phone:     string | null
+    compensation_json: { type: string; amount: string | null; payment_method: string | null; delay: string | null } | null
   }>
   if (!session) return NextResponse.json({ success: false }, { status: 404 })
 
   // 2. Récupérer les modèles cibles — filtre sur statut ET champ sent_at null (anti-doublon)
   // J-1 et morning → seulement les confirmés (récapitulatif)
   // J-5 et J-2     → seulement les pending (relance non-répondants)
-  const targetStatus = (type === 'j1' || type === 'morning') ? 'confirmed' : 'pending'
+  const targetStatus = (type === 'j1' || type === 'morning' || type === 'merci' || type === 'paiement') ? 'confirmed' : 'pending'
   const mRes = await fetch(
     `${url}/rest/v1/session_models?session_id=eq.${encodeURIComponent(sessionId)}&status=eq.${targetStatus}&${sentField}=is.null&select=id,model_prenom,model_email,token,group:session_groups(call_time)`,
     { headers }
@@ -150,15 +186,19 @@ export async function POST(request: NextRequest) {
   // 3. Envoyer les rappels en parallèle — chaque email est indépendant
   const results = await Promise.allSettled(
     models.map(async m => {
+      const comp = session.compensation_json
       const { subject, html } = buildReminderHtml(type, {
-        prenom:       m.model_prenom,
-        project:      session.project,
-        date:         session.date,
-        address:      session.address,
-        callTime:     m.group?.call_time ?? null,
-        contactName:  session.contact_name,
-        contactPhone: session.contact_phone,
-        token:        m.token,
+        prenom:              m.model_prenom,
+        project:             session.project,
+        date:                session.date,
+        address:             session.address,
+        callTime:            m.group?.call_time ?? null,
+        contactName:         session.contact_name,
+        contactPhone:        session.contact_phone,
+        token:               m.token,
+        compensationAmount:  comp?.amount ?? null,
+        compensationMethod:  comp?.payment_method ?? null,
+        compensationDelay:   comp?.delay ?? null,
       })
 
       const res = await fetch('https://api.resend.com/emails', {

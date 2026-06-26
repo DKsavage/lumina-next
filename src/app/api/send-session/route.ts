@@ -383,7 +383,7 @@ export async function POST(request: NextRequest) {
       })
 
       if (!smRes.ok) throw new Error('session_models insert failed')
-      const [smRow] = await smRes.json() as Array<{ token: string }>
+      const [smRow] = await smRes.json() as Array<{ id: string; token: string }>
       if (!smRow?.token) throw new Error('session_models: token manquant')
 
       // Retrouver le groupe d'origine (SerializedGroup) pour injecter look_brief / bring_items dans l'email
@@ -405,6 +405,15 @@ export async function POST(request: NextRequest) {
         }),
       })
       if (!res.ok) throw new Error(`Resend error ${res.status}`)
+      // Stocker le Resend email ID pour lier les webhooks (livraison, clic, bounce) à ce modèle
+      const { id: resendId } = await res.json() as { id: string }
+      if (resendId) {
+        await fetch(`${url}/rest/v1/session_models?id=eq.${encodeURIComponent(smRow.id)}`, {
+          method:  'PATCH',
+          headers: { ...headers, 'Prefer': 'return=minimal' },
+          body:    JSON.stringify({ resend_email_id: resendId }),
+        })
+      }
     })
   )
 

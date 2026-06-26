@@ -8,14 +8,17 @@ import { SessionEditPanel } from '@/components/admin/SessionEditPanel'
 // sending — type de relance en cours (null si aucun), protège contre le double-clic
 
 interface ModelStatus {
-  id: string
-  model_prenom: string
-  model_email:  string
-  status:       'pending' | 'confirmed' | 'cancelled'
-  confirmed_at: string | null
-  cancelled_at: string | null
-  cancel_reason: string | null
-  group: { name: string; call_time: string } | null
+  id:                 string
+  model_prenom:       string
+  model_email:        string
+  status:             'pending' | 'confirmed' | 'cancelled'
+  confirmed_at:       string | null
+  cancelled_at:       string | null
+  cancel_reason:      string | null
+  email_delivered_at: string | null
+  email_clicked_at:   string | null
+  email_bounced_at:   string | null
+  group:              { name: string; call_time: string } | null
 }
 
 interface Props {
@@ -212,6 +215,29 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                   <div style={{ fontSize: '.78rem', color: 'var(--ink)', fontWeight: m.status === 'confirmed' ? 600 : 400 }}>{m.model_prenom}</div>
                   {m.group && <div style={{ fontSize: '.62rem', color: 'var(--muted)' }}>{m.group.name} · {m.group.call_time}</div>}
                   {m.cancel_reason && <div style={{ fontSize: '.62rem', color: '#8B0020', marginTop: '.1rem' }}>Raison : {m.cancel_reason}</div>}
+                  {/* Indicateurs tracking email */}
+                  <div style={{ display: 'flex', gap: '.4rem', marginTop: '.25rem', flexWrap: 'wrap' }}>
+                    {m.email_bounced_at && (
+                      <span style={{ fontSize: '.38rem', letterSpacing: '.1em', fontWeight: 700, textTransform: 'uppercase', color: '#fff', background: '#8B0020', padding: '.1rem .35rem' }}>
+                        Adresse invalide
+                      </span>
+                    )}
+                    {!m.email_bounced_at && m.email_clicked_at && (
+                      <span style={{ fontSize: '.4rem', letterSpacing: '.08em', color: 'rgba(20,120,60,.9)', fontWeight: 600 }}>
+                        Lien cliqué · {new Date(m.email_clicked_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                    {!m.email_bounced_at && !m.email_clicked_at && m.email_delivered_at && (
+                      <span style={{ fontSize: '.4rem', letterSpacing: '.08em', color: 'var(--muted)' }}>
+                        Livré · {new Date(m.email_delivered_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                    {!m.email_bounced_at && !m.email_delivered_at && (
+                      <span style={{ fontSize: '.4rem', letterSpacing: '.08em', color: 'var(--muted)', opacity: .6 }}>
+                        En attente de livraison
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div style={{ fontSize: '.6rem', color: 'var(--muted)', flexShrink: 0, textAlign: 'right' }}>
                   {m.confirmed_at && new Date(m.confirmed_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}

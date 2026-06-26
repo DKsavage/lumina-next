@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // Fetch modèles + métadonnées session en parallèle
   const [modelsRes, sessionRes] = await Promise.all([
     fetch(
-      `${url}/rest/v1/session_models?session_id=eq.${encodeURIComponent(id)}&select=id,model_prenom,model_email,status,confirmed_at,cancelled_at,cancel_reason,group:session_groups(name,call_time)&order=created_at`,
+      `${url}/rest/v1/session_models?session_id=eq.${encodeURIComponent(id)}&select=id,model_prenom,model_email,status,confirmed_at,cancelled_at,cancel_reason,email_delivered_at,email_clicked_at,email_bounced_at,group:session_groups(name,call_time)&order=created_at`,
       { headers }
     ),
     fetch(
@@ -38,10 +38,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     model_prenom:  string
     model_email:   string
     status:        'pending' | 'confirmed' | 'cancelled'
-    confirmed_at:  string | null
-    cancelled_at:  string | null
-    cancel_reason: string | null
-    group:         { name: string; call_time: string } | null
+    confirmed_at:       string | null
+    cancelled_at:       string | null
+    cancel_reason:      string | null
+    email_delivered_at: string | null
+    email_clicked_at:   string | null
+    email_bounced_at:   string | null
+    group:              { name: string; call_time: string } | null
   }> = await modelsRes.json()
 
   const [sessionRow] = await sessionRes.json() as Array<{

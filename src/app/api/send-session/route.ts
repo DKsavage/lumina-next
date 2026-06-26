@@ -189,24 +189,24 @@ function buildEmail(params: {
 
     sectionEn = `
     <tr><td style="padding:0 40px 32px;">
-      <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Hi ${esc(prenom)},</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Dear ${esc(prenom)},</p>
       <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
-        You have been selected for the ${esc(typeLabelEn)} <strong>${esc(session.project)}</strong> on <strong>${esc(dateEn)}</strong>.
+        We are pleased to confirm your participation in the ${esc(typeLabelEn)} <strong>${esc(session.project)}</strong>, scheduled for <strong>${esc(dateEn)}</strong>.
       </p>
-      <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">📍 Location</p>
+      <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Location</p>
       <p style="margin:0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.address)}</p>
       ${accessEn}
-      <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">🕐 Schedule</p>
+      <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Schedule</p>
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">${groupRowsEn}</table>
       ${prepEn}${lookEn}${bringEn}${teamEn}${compensationEn}${contactEn}${notesEn}${moodEn}${wappEn}
-      <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Please confirm by <strong>${deadlineEn}</strong>:</p>
+      <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Kindly confirm your attendance no later than <strong>${deadlineEn}</strong>:</p>
       <table cellpadding="0" cellspacing="0" style="margin:20px 0;">
         <tr>
-          <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">✓ I confirm</a></td>
-          <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">I cannot attend</a></td>
+          <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">Confirm my attendance</a></td>
+          <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">Unable to attend</a></td>
         </tr>
       </table>
-      <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Looking forward to seeing you!</p>
+      <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">We look forward to seeing you.</p>
     </td></tr>`
   }
 
@@ -225,24 +225,24 @@ function buildEmail(params: {
   ${sectionEn}
   <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
   <tr><td style="padding:0 40px 32px;">
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonsoir ${esc(prenom)},</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour ${esc(prenom)},</p>
     <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
-      Vous avez été sélectionné(e) pour le <strong>${esc(typeLabel)}</strong> <strong>${esc(session.project)}</strong> le <strong>${esc(dateFr)}</strong>.
+      Nous avons le plaisir de confirmer votre participation au ${esc(typeLabel)} <strong>${esc(session.project)}</strong>, prévu le <strong>${esc(dateFr)}</strong>.
     </p>
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">📍 Lieu</p>
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Lieu</p>
     <p style="margin:0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.address)}</p>
     ${accessFr}
-    <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">🕐 Planning</p>
+    <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Planning</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">${groupRowsFr}</table>
     ${prepFr}${lookFr}${bringFr}${teamFr}${compensationFr}${contactFr}${notesFr}${moodFr}${wappFr}
-    <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Merci de confirmer votre présence avant le <strong>${deadline}</strong> en cliquant ci-dessous :</p>
+    <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Nous vous remercions de confirmer votre disponibilité au plus tard le <strong>${deadline}</strong> :</p>
     <table cellpadding="0" cellspacing="0" style="margin:20px 0;">
       <tr>
-        <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">✓ Je confirme</a></td>
-        <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">Je ne peux pas venir</a></td>
+        <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">Confirmer ma présence</a></td>
+        <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">Je ne serai pas disponible</a></td>
       </tr>
     </table>
-    <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Au plaisir de vous retrouver !</p>
+    <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Nous nous réjouissons de vous retrouver.</p>
   </td></tr>
   <tr><td style="padding:20px 40px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;line-height:1.7;">

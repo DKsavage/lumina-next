@@ -22,7 +22,7 @@ import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
 
 export default function DashboardPage() {
-  const { candidatures, setCandidatures, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleEdit, handleDelete, handleSendSession } = useCandidatures()
+  const { candidatures, setCandidatures, duplicateEmails, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleEdit, handleDelete, handleSendSession } = useCandidatures()
 
   const [search,            setSearch]            = useState('')
   // useDeferredValue : le filtre s'exécute après que le champ de saisie se soit mis à jour,
@@ -214,13 +214,14 @@ export default function DashboardPage() {
               <CandidatureList
                 candidatures={filtered}
                 selectedIds={selectedIds}
+                duplicateEmails={duplicateEmails}
                 onToggle={toggleSelect}
                 onViewDetail={setDetail}
               />
             ) : (
               <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
                 {filtered.map(c => (
-                  <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} onToggle={toggleSelect} onViewDetail={setDetail} />
+                  <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} isDuplicate={duplicateEmails.has(c.email)} onToggle={toggleSelect} onViewDetail={setDetail} />
                 ))}
               </div>
             )}

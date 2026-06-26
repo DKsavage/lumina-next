@@ -8,13 +8,14 @@ import Image from 'next/image'
 import type { Candidature } from '@/types/candidature'
 
 interface Props {
-  c:            Candidature
-  selected:     boolean
-  onToggle:     (id: string) => void
-  onViewDetail: (c: Candidature) => void
+  c:              Candidature
+  selected:       boolean
+  isDuplicate?:   boolean
+  onToggle:       (id: string) => void
+  onViewDetail:   (c: Candidature) => void
 }
 
-export function CandidatureCard({ c, selected, onToggle, onViewDetail }: Props) {
+export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, onViewDetail }: Props) {
   const [hovered, setHovered] = useState(false)
   const date      = new Date(c.date_inscription).toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' })
   const activeSrc = hovered && c.photo_body_signed ? c.photo_body_signed : c.photo_profil_signed
@@ -88,6 +89,15 @@ export function CandidatureCard({ c, selected, onToggle, onViewDetail }: Props) 
             style={{ fontSize: '.36rem', letterSpacing: '.15em', background: 'rgba(20,120,60,.82)', color: '#fff', padding: '.2rem .45rem' }}
           >
             Notifié
+          </div>
+        )}
+        {/* Badge "Doublon" */}
+        {isDuplicate && (
+          <div
+            className="absolute bottom-2 left-2 font-medium uppercase"
+            style={{ fontSize: '.36rem', letterSpacing: '.15em', background: 'rgba(200,100,0,.85)', color: '#fff', padding: '.2rem .45rem' }}
+          >
+            Doublon
           </div>
         )}
       </div>

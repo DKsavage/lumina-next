@@ -180,7 +180,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: 'Champs obligatoires manquants ou invalides.' }, { status: 400 })
   }
 
-  /* ── 5. VALIDATION PHOTOS ── */
+  /* ── 5. VÉRIFICATION DOUBLON EMAIL ── */
+  {
+    const dupRes = await fetch(
+      `${process.env.SUPABASE_URL!}/rest/v1/candidatures?email=eq.${encodeURIComponent(data.email)}&select=id&limit=1`,
+      { headers: { apikey: process.env.SUPABASE_SERVICE_KEY!, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY!}` }, cache: 'no-store' }
+    )
+    if (dupRes.ok) {
+      const existing = await dupRes.json() as { id: string }[]
+      if (existing.length > 0) {
+        return NextResponse.json(
+          { success: false, message: 'Une candidature avec cet email existe déjà. Contacte-nous à casting@luminamodels.ca pour toute correction.' },
+          { status: 409 }
+        )
+      }
+    }
+  }
+
+  /* ── 6. VALIDATION PHOTOS ── */
   try {
     const profilSize = getBase64Size(data.photoProfil)
     const bodySize   = getBase64Size(data.photoBody)

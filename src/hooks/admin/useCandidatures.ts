@@ -9,13 +9,14 @@ import { isCandidatureArray } from '@/types/candidature'
 
 export function useCandidatures() {
   const router = useRouter()
-  const [candidatures,  setCandidatures]  = useState<Candidature[]>([])
-  const [loading,       setLoading]       = useState(true)
-  const [loadingMore,   setLoadingMore]   = useState(false)
-  const [hasMore,       setHasMore]       = useState(false)
-  const [offset,        setOffset]        = useState(0)
-  const [showArchived,  setShowArchived]  = useState(false)
-  const [archivedCount, setArchivedCount] = useState(0)
+  const [candidatures,    setCandidatures]    = useState<Candidature[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [loadingMore,     setLoadingMore]     = useState(false)
+  const [hasMore,         setHasMore]         = useState(false)
+  const [offset,          setOffset]          = useState(0)
+  const [showArchived,    setShowArchived]    = useState(false)
+  const [archivedCount,   setArchivedCount]   = useState(0)
+  const [duplicateEmails, setDuplicateEmails] = useState<Set<string>>(new Set())
   const PAGE = 200
 
   const fetchCandidatures = useCallback(async (archived = false) => {
@@ -35,6 +36,10 @@ export function useCandidatures() {
       setCandidatures(data.data)
       setHasMore(data.hasMore ?? false)
       if (!archived) setArchivedCount(data.archivedCount ?? 0)
+      // Détecter les emails en double — badge orange dans la grille
+      const emailCount = new Map<string, number>()
+      for (const c of data.data as Candidature[]) emailCount.set(c.email, (emailCount.get(c.email) ?? 0) + 1)
+      setDuplicateEmails(new Set([...emailCount].filter(([, n]) => n > 1).map(([e]) => e)))
     } catch (err) {
       // F5 — réseau coupé ou timeout : libérer le spinner plutôt que rester en loading infini
       console.error('[useCandidatures] fetchCandidatures: erreur réseau', err)
@@ -221,6 +226,7 @@ export function useCandidatures() {
   return {
     candidatures,
     setCandidatures,
+    duplicateEmails,
     loading,
     loadingMore,
     hasMore,

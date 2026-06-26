@@ -4,6 +4,7 @@
 
 import type { ChangeEvent } from 'react'
 import type { SortKey } from '@/types/candidature'
+import { TIER_CONFIG, type Tier } from '@/components/admin/tierConfig'
 
 interface Props {
   search:              string
@@ -36,6 +37,8 @@ interface Props {
   onFilterDisponibilite:  (v: string | null) => void
   filterExperience:       string | null
   onFilterExperience:     (v: string | null) => void
+  filterTier:             string | null
+  onFilterTier:           (v: string | null) => void
   viewMode:               'grid' | 'list'
   onSetViewMode:          (m: 'grid' | 'list') => void
 }
@@ -69,6 +72,7 @@ export function DashboardFilters({
   filterVille, onFilterVille,
   filterDisponibilite, onFilterDisponibilite,
   filterExperience, onFilterExperience,
+  filterTier, onFilterTier,
   viewMode, onSetViewMode,
 }: Props) {
   return (
@@ -205,6 +209,15 @@ export function DashboardFilters({
             style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterExperience === exp ? 'var(--red)' : 'var(--border)'}`, color: filterExperience === exp ? 'var(--red)' : 'var(--muted)', background: filterExperience === exp ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.25rem .6rem' }}
           >{exp}</button>
         ))}
+        {/* Filtres tier */}
+        {(Object.entries(TIER_CONFIG) as [Tier, typeof TIER_CONFIG[Tier]][]).map(([key, cfg]) => (
+          <button key={key} type="button"
+            onClick={() => onFilterTier(filterTier === key ? null : key)}
+            className="font-medium uppercase transition-colors duration-200"
+            style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterTier === key ? cfg.border : 'var(--border)'}`, color: filterTier === key ? cfg.color : 'var(--muted)', background: filterTier === key ? cfg.bg : 'transparent', padding: '.25rem .6rem' }}
+          >{cfg.label}</button>
+        ))}
+
         <div className="flex items-center gap-1" style={{ marginLeft: 'auto' }}>
           <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em', marginRight: '.3rem' }}>Tri</span>
           {([['date','Date'],['nom','Nom'],['taille','Taille'],['age','Âge']] as [SortKey, string][]).map(([key, label]) => (

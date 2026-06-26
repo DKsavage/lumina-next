@@ -22,7 +22,7 @@ import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
 
 export default function DashboardPage() {
-  const { candidatures, setCandidatures, duplicateEmails, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleEdit, handleDelete, handleSendSession } = useCandidatures()
+  const { candidatures, setCandidatures, duplicateEmails, loading, loadingMore, hasMore, showArchived, archivedCount, fetchCandidatures, toggleShowArchived, loadMore, logout, handleNotify, handleToggleSelectionne, handleArchive, handleEdit, handleTierChange, handleDelete, handleSendSession } = useCandidatures()
 
   const [search,            setSearch]            = useState('')
   // useDeferredValue : le filtre s'exécute après que le champ de saisie se soit mis à jour,
@@ -38,6 +38,7 @@ export default function DashboardPage() {
   const [filterVille,         setFilterVille]         = useState('')
   const [filterDisponibilite, setFilterDisponibilite] = useState<string | null>(null)
   const [filterExperience,    setFilterExperience]    = useState<string | null>(null)
+  const [filterTier,          setFilterTier]          = useState<string | null>(null)
   const [composerOpen,      setComposerOpen]      = useState(false)
   const [sending,           setSending]           = useState(false)
   const [toast,             setToast]             = useState('')
@@ -67,6 +68,7 @@ export default function DashboardPage() {
       if (filterVille         && !norm(c.ville ?? '').includes(norm(filterVille))) return false
       if (filterDisponibilite && c.disponibilite  !== filterDisponibilite) return false
       if (filterExperience    && c.experience     !== filterExperience)    return false
+      if (filterTier          && c.tier           !== filterTier)          return false
       return true
     })
     .sort((a, b) => {
@@ -81,7 +83,7 @@ export default function DashboardPage() {
       }
       return sortAsc ? cmp : -cmp
     }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax,
-         filterInstagram, filterVille, filterDisponibilite, filterExperience, sortBy, sortAsc])
+         filterInstagram, filterVille, filterDisponibilite, filterExperience, filterTier, sortBy, sortAsc])
 
   const { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection, selectByIds } = useSelection(filtered)
   const detailIdx = detail ? filtered.findIndex(c => c.id === detail.id) : -1
@@ -183,10 +185,10 @@ export default function DashboardPage() {
         onSort={key => { if (sortBy === key) setSortAsc(v => !v); else { setSortBy(key); setSortAsc(key === 'nom') } }}
         allFilteredSelected={allFilteredSelected} onToggleSelectAll={toggleSelectAll}
         filteredCount={filtered.length} totalCount={candidatures.length}
-        hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience)}
+        hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience || filterTier)}
         onResetFilters={() => {
           setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('')
-          setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null)
+          setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null); setFilterTier(null)
         }}
         showArchived={showArchived}           onToggleArchived={toggleShowArchived}
         archivedCount={archivedCount}
@@ -194,6 +196,7 @@ export default function DashboardPage() {
         filterVille={filterVille}                 onFilterVille={setFilterVille}
         filterDisponibilite={filterDisponibilite} onFilterDisponibilite={setFilterDisponibilite}
         filterExperience={filterExperience}       onFilterExperience={setFilterExperience}
+        filterTier={filterTier}                   onFilterTier={setFilterTier}
         viewMode={viewMode}                       onSetViewMode={setViewMode}
       />
 
@@ -221,11 +224,12 @@ export default function DashboardPage() {
                 duplicateEmails={duplicateEmails}
                 onToggle={toggleSelect}
                 onViewDetail={setDetail}
+                onTierChange={handleTierChange}
               />
             ) : (
               <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
                 {filtered.map(c => (
-                  <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} isDuplicate={duplicateEmails.has(c.email)} onToggle={toggleSelect} onViewDetail={setDetail} />
+                  <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} isDuplicate={duplicateEmails.has(c.email)} onToggle={toggleSelect} onViewDetail={setDetail} onTierChange={handleTierChange} />
                 ))}
               </div>
             )}

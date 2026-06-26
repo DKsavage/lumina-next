@@ -179,6 +179,16 @@ export function useCandidatures() {
     return true
   }
 
+  async function handleTierChange(id: string, tier: 'ambassadeur' | 'permanent' | 'banque' | null) {
+    const res = await fetch(`/api/candidatures/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier }),
+    })
+    if (!res.ok) return
+    setCandidatures(prev => prev.map(c => c.id === id ? { ...c, tier } : c))
+  }
+
   async function handleDelete(id: string, onDone: () => void, showToast: (msg: string) => void) {
     const res = await fetch(`/api/candidatures/${id}`, { method: 'DELETE' })
     if (!res.ok) { showToast('Erreur lors de la suppression.'); return }
@@ -240,6 +250,7 @@ export function useCandidatures() {
     handleToggleSelectionne,
     handleArchive,
     handleEdit,
+    handleTierChange,
     handleDelete,
     handleSendSession,
   }

@@ -3,20 +3,33 @@
 // Ne contient aucune logique API ni état global.
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { Candidature } from '@/types/candidature'
+import { TIER_CONFIG, type Tier } from '@/components/admin/tierConfig'
 
 interface Props {
-  c:              Candidature
-  selected:       boolean
-  isDuplicate?:   boolean
-  onToggle:       (id: string) => void
-  onViewDetail:   (c: Candidature) => void
+  c:               Candidature
+  selected:        boolean
+  isDuplicate?:    boolean
+  onToggle:        (id: string) => void
+  onViewDetail:    (c: Candidature) => void
+  onTierChange:    (id: string, tier: Tier | null) => void
 }
 
-export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, onViewDetail }: Props) {
-  const [hovered, setHovered] = useState(false)
+export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, onViewDetail, onTierChange }: Props) {
+  const [hovered,   setHovered]   = useState(false)
+  const [tierOpen,  setTierOpen]  = useState(false)
+  const tierRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!tierOpen) return
+    function close(e: MouseEvent) {
+      if (tierRef.current && !tierRef.current.contains(e.target as Node)) setTierOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [tierOpen])
   const date      = new Date(c.date_inscription).toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' })
   const activeSrc = hovered && c.photo_body_signed ? c.photo_body_signed : c.photo_profil_signed
 
@@ -117,7 +130,54 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
           {c.taille && <span className="text-muted font-light tabular-nums" style={{ fontSize: '.62rem' }}>{c.taille} cm</span>}
         </div>
         <div className="flex items-center justify-between">
-          <div className="text-muted font-light" style={{ fontSize: '.55rem', letterSpacing: '.02em' }}>{date}</div>
+          {/* Badge tier — dropdown inline au clic */}
+          <div ref={tierRef} style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); setTierOpen(v => !v) }}
+              style={{
+                background: c.tier ? TIER_CONFIG[c.tier].bg : 'transparent',
+                color:      c.tier ? TIER_CONFIG[c.tier].color : 'var(--muted)',
+                border:     `1px solid ${c.tier ? TIER_CONFIG[c.tier].border : 'var(--border)'}`,
+                fontSize: '.38rem', letterSpacing: '.14em', fontWeight: 600,
+                padding: '.18rem .45rem', cursor: 'pointer',
+              }}
+            >
+              {c.tier ? TIER_CONFIG[c.tier].label : '+ Tier'}
+            </button>
+            {tierOpen && (
+              <div style={{
+                position: 'absolute', bottom: '100%', left: 0, zIndex: 50,
+                background: 'var(--paper)', border: '1px solid var(--border)',
+                boxShadow: '0 4px 16px rgba(0,0,0,.1)', minWidth: '110px', marginBottom: '4px',
+              }}>
+                {(Object.entries(TIER_CONFIG) as [Tier, typeof TIER_CONFIG[Tier]][]).map(([key, cfg]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={e => { e.stopPropagation(); onTierChange(c.id, key); setTierOpen(false) }}
+                    style={{
+                      display: 'block', width: '100%', textAlign: 'left',
+                      padding: '.4rem .7rem', fontSize: '.42rem', letterSpacing: '.12em',
+                      fontWeight: 600, color: cfg.color, background: c.tier === key ? cfg.bg : 'transparent',
+                      border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer',
+                    }}
+                  >
+                    {cfg.label} {c.tier === key ? '✓' : ''}
+                  </button>
+                ))}
+                {c.tier && (
+                  <button
+                    type="button"
+                    onClick={e => { e.stopPropagation(); onTierChange(c.id, null); setTierOpen(false) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.4rem .7rem', fontSize: '.4rem', letterSpacing: '.1em', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    Retirer
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onViewDetail(c) }}

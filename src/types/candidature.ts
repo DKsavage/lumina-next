@@ -31,6 +31,7 @@ export interface Candidature {
   date_inscription:     string
   selectionne:          boolean
   archived:             boolean
+  tier?:                'ambassadeur' | 'permanent' | 'banque' | null
   photo_profil_signed?: string | null
   photo_body_signed?:   string | null
 }

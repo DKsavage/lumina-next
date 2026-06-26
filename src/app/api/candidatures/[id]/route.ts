@@ -78,6 +78,7 @@ export async function PATCH(
   if (typeof body.selectionne === 'boolean') patch.selectionne = body.selectionne
   if (typeof body.archived    === 'boolean') patch.archived    = body.archived
   if (typeof body.taille === 'number' && body.taille > 0 && body.taille < 300) patch.taille = body.taille
+  if ('tier' in body) patch.tier = ['ambassadeur','permanent','banque'].includes(body.tier) ? body.tier : null
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })
   }

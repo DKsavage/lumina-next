@@ -11,6 +11,7 @@ interface SessionRow {
   date:       string
   status:     string
   created_at: string
+  max_models: number | null
   stats:      { confirmed: number; cancelled: number; pending: number; total: number }
 }
 
@@ -115,6 +116,23 @@ export default function SessionsPage() {
                       <div style={{ fontSize: '.55rem', color: 'var(--muted)', marginTop: '.25rem' }}>{s.stats.cancelled} annulé{s.stats.cancelled > 1 ? 's' : ''} · {s.stats.pending} en attente</div>
                     )}
                   </div>
+
+                  {/* Badge capacité — rouge si atteinte */}
+                  {s.max_models !== null && (() => {
+                    const atCapacity = s.stats.total >= s.max_models
+                    return (
+                      <div style={{
+                        fontSize: '.55rem', fontWeight: 600, letterSpacing: '.12em',
+                        padding: '.25rem .6rem',
+                        background: atCapacity ? 'rgba(139,0,32,.08)' : 'transparent',
+                        color:      atCapacity ? '#8B0020' : 'var(--muted)',
+                        border:     `1px solid ${atCapacity ? 'rgba(139,0,32,.3)' : 'var(--border)'}`,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {s.stats.total}/{s.max_models}
+                      </div>
+                    )
+                  })()}
 
                   {/* Badge passé / à venir */}
                   <div style={{

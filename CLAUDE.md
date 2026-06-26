@@ -107,13 +107,23 @@ Phases 0–9 terminées (voir git log).
 - PATCH `/api/candidatures/[id]` : allowlist étendue (prenom/nom/email/tel/ville/pays/ig/experience/dispo/langues/taille)
 - `useCandidatures` : +`handleEdit`, +`duplicateEmails` Set
 
-**Backlog prochaine session (par priorité) :**
-1. Supprimer une session (DELETE cascade `session_models`+`session_groups`+`sessions`, bouton dans `/admin/sessions` + confirmation 2 étapes)
-2. Remplacer images slideshow hero (`picsum.photos` → vraies photos dans `/public`)
-3. Import modèles depuis session précédente (bouton dans SessionComposer → pick session → pré-sélection)
-4. Capacité max par session (champ optionnel + indicateur rouge)
-5. Vue calendrier sessions (toggle liste/calendrier dans `/admin/sessions`)
-6. Multi-langue FR/EN (plan séparé — gros chantier)
+**Phases 0–9 + début phase 10 terminées** (suppression session, import modèles, fix accents CSV).
+
+**Backlog actif (ordre d'exécution) :**
+1. Capacité max par session (champ `max_models` + indicateur rouge dans SessionComposer, SessionStatusPanel, liste sessions)
+2. Vue calendrier sessions (toggle liste/calendrier dans `/admin/sessions`)
+3. Classification modèles : tier `ambassadeur` / `permanent` / `banque` — champ DB + badge + filtre dashboard
+4. Notes internes par modèle (champ `notes_admin` dans candidatures, visible dans DetailPanel)
+5. Tags/labels modèles (multi-select, filtrable)
+6. Emails bilingues FR+EN dans le même email (send-session, remind, confirm — tous les templates)
+7. Email remerciement post-session + email paiement (nouveaux types dans remind/SessionStatusPanel)
+8. Rappels automatiques par cron (Vercel cron → J-5/J-2/J-1/matin selon date session, sans action manuelle)
+
+**Plus tard (sessions séparées) :**
+- Portfolio photos par modèle (page publique, consentement, galerie)
+- Tracking ouverture emails (Resend webhooks + DB + UI)
+- Répartition paiement
+- Photos site public
 
 ---
 

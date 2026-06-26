@@ -27,6 +27,7 @@ interface Props {
 export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
   const [models,        setModels]        = useState<ModelStatus[]>([])
   const [stats,         setStats]         = useState({ confirmed: 0, cancelled: 0, pending: 0, total: 0 })
+  const [maxModels,     setMaxModels]     = useState<number | null>(null)
   const [loading,       setLoading]       = useState(true)
   const [filter,        setFilter]        = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
   const [sending,       setSending]       = useState<string | null>(null)
@@ -38,7 +39,7 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
     setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
     fetch(`/api/sessions/${sessionId}`)
       .then(r => r.json())
-      .then(d => { if (d.success) { setModels(d.data); setStats(d.stats) } })
+      .then(d => { if (d.success) { setModels(d.data); setStats(d.stats); setMaxModels(d.session?.max_models ?? null) } })
       .finally(() => setLoading(false))
   }, [sessionId])
 
@@ -115,6 +116,18 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
           <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${stats.total ? (stats.confirmed / stats.total) * 100 : 0}%`, background: 'rgba(20,120,60,.7)', transition: 'width .4s ease' }} />
           </div>
+          {/* Capacité max — indicateur rouge si atteinte ou dépassée */}
+          {maxModels !== null && (() => {
+            const atCapacity = stats.total >= maxModels
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginTop: '.6rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: atCapacity ? '#8B0020' : 'rgba(20,120,60,.7)', flexShrink: 0 }} />
+                <span style={{ fontSize: '.62rem', color: atCapacity ? '#8B0020' : 'var(--muted)', fontWeight: atCapacity ? 600 : 400 }}>
+                  {stats.total}/{maxModels} places · {atCapacity ? 'Capacité atteinte' : `${maxModels - stats.total} place${maxModels - stats.total > 1 ? 's' : ''} restante${maxModels - stats.total > 1 ? 's' : ''}`}
+                </span>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Boutons de relance — J-5/J-2 vers pending, J-1/morning vers confirmés */}

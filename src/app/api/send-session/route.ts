@@ -315,6 +315,7 @@ export async function POST(request: NextRequest) {
         delay:          session.compensation_delay || null,
       },
       cancel_deadline_days: session.cancel_deadline_days,
+      max_models:           session.max_models ?? null,
       notes_internal:       session.notes_internal || null,
       notes_models:         session.notes_models || null,
       moodboard_url:        session.moodboard_url || null,

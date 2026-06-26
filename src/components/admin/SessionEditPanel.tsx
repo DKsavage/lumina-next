@@ -14,6 +14,7 @@ interface SessionData {
   contact_name:  string | null
   contact_phone: string | null
   notes_models:  string | null
+  max_models:    number | null
   session_groups: Group[]
 }
 
@@ -68,6 +69,7 @@ export function SessionEditPanel({ sessionId, onClose, onSaved }: Props) {
           contact_name:  session.contact_name  || null,
           contact_phone: session.contact_phone || null,
           notes_models:  session.notes_models  || null,
+          max_models:    session.max_models,
           groups:        groups.map(g => ({ id: g.id, call_time: g.call_time })),
           notify,
         }),
@@ -123,6 +125,15 @@ export function SessionEditPanel({ sessionId, onClose, onSaved }: Props) {
             <label style={LABEL}>Contact sur place</label>
             <input type="text" value={session.contact_name ?? ''} onChange={e => field('contact_name', e.target.value)} style={{ ...INPUT, marginBottom: '.5rem' }} placeholder="Nom" />
             <input type="tel" value={session.contact_phone ?? ''} onChange={e => field('contact_phone', e.target.value)} style={INPUT} placeholder="Téléphone" />
+
+            <label style={LABEL}>Capacité max (optionnel)</label>
+            <input
+              type="number" min={1}
+              value={session.max_models ?? ''}
+              onChange={e => setSession(prev => prev ? { ...prev, max_models: e.target.value ? Number(e.target.value) : null } : prev)}
+              placeholder="Illimité"
+              style={{ ...INPUT, width: '100px' }}
+            />
 
             <label style={LABEL}>Notes pour les modèles</label>
             <textarea

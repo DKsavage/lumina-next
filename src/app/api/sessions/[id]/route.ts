@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       { headers }
     ),
     fetch(
-      `${url}/rest/v1/sessions?id=eq.${encodeURIComponent(id)}&select=id,project,date,address,contact_name,contact_phone,notes_models,session_groups(id,name,call_time,sort_order)&limit=1`,
+      `${url}/rest/v1/sessions?id=eq.${encodeURIComponent(id)}&select=id,project,date,address,contact_name,contact_phone,notes_models,max_models,session_groups(id,name,call_time,sort_order)&limit=1`,
       { headers }
     ),
   ])
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const [sessionRow] = await sessionRes.json() as Array<{
     id: string; project: string; date: string; address: string
     contact_name: string | null; contact_phone: string | null; notes_models: string | null
+    max_models: number | null
     session_groups: Array<{ id: string; name: string; call_time: string; sort_order: number }>
   }>
 
@@ -65,6 +66,7 @@ interface PatchBody {
   contact_name?:  string | null
   contact_phone?: string | null
   notes_models?:  string | null
+  max_models?:    number | null
   groups?:        Array<{ id: string; call_time: string }>
   notify:         boolean   // envoyer email aux modèles confirmés
 }
@@ -95,6 +97,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (body.contact_name  !== undefined) sessionPatch.contact_name  = body.contact_name
   if (body.contact_phone !== undefined) sessionPatch.contact_phone = body.contact_phone
   if (body.notes_models  !== undefined) sessionPatch.notes_models  = body.notes_models
+  if (body.max_models    !== undefined) sessionPatch.max_models    = body.max_models
 
   if (Object.keys(sessionPatch).length > 0) {
     const sRes = await fetch(`${url}/rest/v1/sessions?id=eq.${encodeURIComponent(id)}`, {

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const key = process.env.SUPABASE_SERVICE_KEY!
 
   const res = await fetch(
-    `${url}/rest/v1/sessions?select=id,project,type,date,status,created_at,session_models(status)&order=date.desc`,
+    `${url}/rest/v1/sessions?select=id,project,type,date,status,created_at,max_models,session_models(status)&order=date.desc`,
     {
       headers: {
         'apikey':        key,
@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
     date:           string
     status:         string
     created_at:     string
+    max_models:     number | null
     session_models: Array<{ status: string }>
   }> = await res.json()
 

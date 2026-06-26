@@ -340,6 +340,16 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
                 onChange={e => update('cancel_deadline_days', Number(e.target.value))}
                 style={{ ...inp, width: '80px' }}
               />
+
+              {/* Capacité max */}
+              {label('Capacité max de modèles (optionnel)')}
+              <input
+                type="number" min={1}
+                value={session.max_models ?? ''}
+                onChange={e => update('max_models', e.target.value ? Number(e.target.value) : null)}
+                placeholder="Illimité"
+                style={{ ...inp, width: '100px' }}
+              />
             </>
           )}
 

@@ -67,6 +67,7 @@ export interface SessionForm {
   compensation_method:  string
   compensation_delay:   string
   cancel_deadline_days: number
+  max_models:           number | null
   notes_internal:       string
   notes_models:         string
   moodboard_url:        string
@@ -81,6 +82,7 @@ export const defaultSession: SessionForm = {
   team: { makeup: false, hair: false, stylist: false, photo: false },
   compensation_type: 'tfp', compensation_amount: '', compensation_method: '', compensation_delay: '',
   cancel_deadline_days: 3,
+  max_models: null,
   notes_internal: '', notes_models: '', moodboard_url: '', whatsapp: '',
 }
 

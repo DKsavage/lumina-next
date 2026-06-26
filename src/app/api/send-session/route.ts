@@ -118,10 +118,9 @@ function buildEmail(params: {
 
   const typeLabel = { photo: 'photoshoot', video: 'tournage vidéo', hybrid: 'session photo & vidéo' }[session.type]
 
-  // Section EN — construite seulement si la langue du modèle requiert l'anglais
-  const showEn = lang === 'en' || lang === 'both'
+  // Section EN — toujours construite, EN en premier dans l'email bilingue
   let sectionEn = ''
-  if (showEn) {
+  {
     const typeLabelEn = { photo: 'photoshoot', video: 'video shoot', hybrid: 'photo & video session' }[session.type]
     const dateEn       = formatDate(session.date, 'en-CA')
     const deadlineEn   = cancelDeadlineDateLocale(session.date, session.cancel_deadline_days, 'en-CA')
@@ -189,7 +188,6 @@ function buildEmail(params: {
       : ''
 
     sectionEn = `
-    <tr><td style="padding:24px 40px 0;"><hr style="border:none;border-top:1px solid #e2e2e2;margin:0 0 24px;"></td></tr>
     <tr><td style="padding:0 40px 32px;">
       <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Hi ${esc(prenom)},</p>
       <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
@@ -224,6 +222,8 @@ function buildEmail(params: {
     <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
     <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
   </td></tr>
+  ${sectionEn}
+  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
   <tr><td style="padding:0 40px 32px;">
     <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonsoir ${esc(prenom)},</p>
     <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
@@ -244,7 +244,6 @@ function buildEmail(params: {
     </table>
     <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Au plaisir de vous retrouver !</p>
   </td></tr>
-  ${sectionEn}
   <tr><td style="padding:20px 40px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;line-height:1.7;">
       <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Lumina</span>

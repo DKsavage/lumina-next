@@ -35,17 +35,32 @@ function buildReminderHtml(type: ReminderType, params: {
   token:        string
 }): { subject: string; html: string } {
   const { prenom, project, date, address, callTime, contactName, contactPhone, token } = params
-  const confirmUrl = `${SITE_URL}/confirm/${token}?status=confirmed`
-  const cancelUrl  = `${SITE_URL}/confirm/${token}?status=cancelled`
+  const confirmUrl  = `${SITE_URL}/confirm/${token}?status=confirmed`
+  const cancelUrl   = `${SITE_URL}/confirm/${token}?status=cancelled`
   // Midi UTC pour éviter les décalages de fuseau (Montréal = UTC-4/5)
-  const dateLabel  = new Date(date + 'T12:00:00').toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' })
-  const contact    = contactName ? `${esc(contactName)}${contactPhone ? ` · ${esc(contactPhone)}` : ''}` : null
+  const dateLabel   = new Date(date + 'T12:00:00').toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' })
+  const dateLabelEn = new Date(date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'long', day: 'numeric', month: 'long' })
+  const contact     = contactName ? `${esc(contactName)}${contactPhone ? ` · ${esc(contactPhone)}` : ''}` : null
+
+  const sep = `<hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;">`
 
   // J-1 et morning = récapitulatif pour les confirmés (pas de CTA confirmation)
   if (type === 'j1' || type === 'morning') {
+    const subjectEn = type === 'morning' ? `See you today — ${esc(project)}` : `See you tomorrow — ${esc(project)}`
+    const subjectFr = type === 'morning' ? `À tout à l'heure — ${esc(project)}` : `À demain — ${esc(project)} · Récapitulatif`
     return {
-      subject: type === 'morning' ? `À tout à l'heure — ${esc(project)}` : `À demain — ${esc(project)} · Récapitulatif`,
-      html: `<p>Bonjour ${esc(prenom)},</p>
+      subject: `${subjectEn} / ${subjectFr}`,
+      html: `<p>Hi ${esc(prenom)},</p>
+<p>${type === 'morning' ? "We're expecting you today!" : "Your shoot is tomorrow —"} here's everything you need to know:</p>
+<ul>
+  <li><strong>Date:</strong> ${esc(dateLabelEn)}</li>
+  <li><strong>Location:</strong> ${esc(address)}</li>
+  ${callTime ? `<li><strong>Your call time:</strong> ${esc(callTime)}</li>` : ''}
+  ${contact  ? `<li><strong>On-site contact:</strong> ${esc(contact)}</li>` : ''}
+</ul>
+<p>See you soon!</p>
+${sep}
+<p>Bonjour ${esc(prenom)},</p>
 <p>${type === 'morning' ? "On vous attend aujourd'hui !" : 'Votre shoot est demain —'} voici tout ce qu'il faut savoir :</p>
 <ul>
   <li><strong>Date :</strong> ${esc(dateLabel)}</li>
@@ -59,8 +74,16 @@ function buildReminderHtml(type: ReminderType, params: {
 
   // J-5 et J-2 = relance aux non-répondants (pending)
   return {
-    subject: `Rappel : confirmez votre participation — ${esc(project)}`,
-    html: `<p>Bonjour ${esc(prenom)},</p>
+    subject: `Reminder: confirm your attendance / Rappel : confirmez votre participation — ${esc(project)}`,
+    html: `<p>Hi ${esc(prenom)},</p>
+<p>We haven't received your confirmation for the shoot <strong>${esc(project)}</strong> on <strong>${esc(dateLabelEn)}</strong>.</p>
+<p>Could you confirm your attendance?</p>
+<p>
+  <a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;margin-right:8px;font-weight:700;text-decoration:none;">✓ I confirm</a>
+  <a href="${cancelUrl}" style="display:inline-block;background:#fff;color:#6b6b6b;padding:10px 20px;border:1px solid #e0e0e0;text-decoration:none;">I cannot attend</a>
+</p>
+${sep}
+<p>Bonjour ${esc(prenom)},</p>
 <p>Nous n'avons pas encore reçu votre confirmation pour le shoot <strong>${esc(project)}</strong> le <strong>${esc(dateLabel)}</strong>.</p>
 <p>Pouvez-vous nous confirmer votre présence ?</p>
 <p>

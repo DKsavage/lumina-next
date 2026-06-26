@@ -110,22 +110,38 @@ export async function GET(request: NextRequest) {
   const dateFr       = new Date(session.date + 'T12:00:00').toLocaleDateString('fr-CA', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
+  const dateEn       = new Date(session.date + 'T12:00:00').toLocaleDateString('en-CA', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  })
 
   // Email modèle — confirmation ou annulation douce
   const modelSubject = status === 'confirmed'
-    ? `Participation confirmée — ${session.project}`
-    : `Annulation enregistrée — ${session.project}`
+    ? `Confirmed / Participation confirmée — ${session.project}`
+    : `Cancellation recorded / Annulation enregistrée — ${session.project}`
 
   const modelHtml = status === 'confirmed'
-    ? `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
+    ? `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3;padding:32px 16px;">
 <tr><td align="center">
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <tr><td style="height:4px;background:#8B0020;"></td></tr>
-  <tr><td style="padding:28px 40px 32px;">
+  <tr><td style="padding:28px 40px 20px;">
     <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
     <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
-    <p style="margin:24px 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour <strong>${esc(sm.model_prenom)}</strong>,</p>
+  </td></tr>
+  <tr><td style="padding:0 40px 32px;">
+    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Hi <strong>${esc(sm.model_prenom)}</strong>,</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Your participation in <strong>${esc(session.project)}</strong> is confirmed ✓</p>
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Date</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(dateEn)}</p>
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">📍 Location</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(session.address)}</p>
+    ${group?.call_time ? `<p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">🕐 Your call time</p><p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#8B0020;">${esc(group.call_time)}</p>` : ''}
+    <p style="margin:24px 0 0;font-size:13px;color:#6b6b6b;line-height:1.7;">Looking forward to seeing you!</p>
+  </td></tr>
+  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
+  <tr><td style="padding:0 40px 32px;">
+    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour <strong>${esc(sm.model_prenom)}</strong>,</p>
     <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Votre participation au projet <strong>${esc(session.project)}</strong> est confirmée ✓</p>
     <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Date</p>
     <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(dateFr)}</p>
@@ -143,17 +159,25 @@ export async function GET(request: NextRequest) {
   </td></tr>
 </table>
 </td></tr></table></body></html>`
-    : `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
+    : `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3;padding:32px 16px;">
 <tr><td align="center">
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <tr><td style="height:4px;background:#8B0020;"></td></tr>
-  <tr><td style="padding:28px 40px 32px;">
+  <tr><td style="padding:28px 40px 20px;">
     <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
     <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
-    <p style="margin:24px 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour <strong>${esc(sm.model_prenom)}</strong>,</p>
+  </td></tr>
+  <tr><td style="padding:0 40px 32px;">
+    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Hi <strong>${esc(sm.model_prenom)}</strong>,</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Your cancellation for <strong>${esc(session.project)}</strong> has been recorded.</p>
+    <p style="margin:0;font-size:14px;color:#6b6b6b;line-height:1.7;">Thank you for letting us know — we understand that unexpected things happen. We hope to work with you on a future project.</p>
+  </td></tr>
+  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
+  <tr><td style="padding:0 40px 32px;">
+    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour <strong>${esc(sm.model_prenom)}</strong>,</p>
     <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Votre annulation pour le projet <strong>${esc(session.project)}</strong> a bien été enregistrée.</p>
-    <p style="margin:0 0 0;font-size:14px;color:#6b6b6b;line-height:1.7;">Merci de nous avoir prévenus — nous comprenons que les imprévus arrivent. Nous espérons vous voir lors d'un prochain projet.</p>
+    <p style="margin:0;font-size:14px;color:#6b6b6b;line-height:1.7;">Merci de nous avoir prévenus — nous comprenons que les imprévus arrivent. Nous espérons vous voir lors d'un prochain projet.</p>
   </td></tr>
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">

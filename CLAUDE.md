@@ -94,30 +94,20 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 ## Phases
 
-Phases 0–7 terminées. Phase 8 terminée et mergée (2026-06-23) — voir git log.
+Phases 0–9 terminées (voir git log).
 
----
+**Phase 8** : Session Management — tables `sessions`/`session_groups`/`session_models`, routes `send-session/confirm/sessions/remind`, composants `SessionComposer`/`SessionStatusPanel`, raw fetch REST, `sessions.whatsapp` ajouté manuellement.
 
-## Phase 8 — Session Management (live sur main)
+**Phase 9** (2026-06-25) : Dashboard & Modèles — recherche étendue (ville/tel/ig), filtres dispo/expérience/instagram/taille, tri âge, CSV filtré, bouton ⎘ copier liste, toggle grille⊞/liste≡ (`CandidatureList.tsx`), édition candidature depuis DetailPanel (PATCH étendu), détection doublons (badge + rejet 409), page publique `/statut`. Fix : `picsum.photos` ajouté à `remotePatterns`.
 
-**Tables Supabase** : `sessions`, `session_groups`, `session_models` (RLS activé, service_role uniquement)
-**Colonne ajoutée après migration** : `sessions.whatsapp text` (ALTER TABLE appliqué manuellement)
+**Nouveaux composants/routes Phase 9 :**
+- `src/components/admin/CandidatureList.tsx` — vue liste dense
+- `src/app/api/statut/route.ts` + `src/app/statut/page.tsx` — statut public modèle (rate-limit 30s/IP)
+- `src/types/candidature.ts` : `SortKey` étendu à `'age'`
+- PATCH `/api/candidatures/[id]` : allowlist étendue (prenom/nom/email/tel/ville/pays/ig/experience/dispo/langues/taille)
+- `useCandidatures` : +`handleEdit`, +`duplicateEmails` Set
 
-**Nouvelles routes API (toutes dans `src/app/api/`) :**
-- `send-session/` — POST auth, persiste session en DB + génère tokens UUID + emails bilingues
-- `confirm/` — GET public, token UUID → PATCH statut + email modèle + notif admin si annulation. Guard : `status !== 'pending'` → redirect sans écriture
-- `sessions/[id]/` — GET auth, retourne modèles + stats confirmé/annulé/en attente
-- `sessions/remind/` — POST auth, relances j5/j2/j1/morning, anti-doublon via `reminder_*_sent_at IS NULL`
-
-**Nouveaux composants :**
-- `SessionComposer.tsx` — formulaire 2 onglets (détails + assignation modèles aux groupes)
-- `SessionStatusPanel.tsx` — barre progression + filtres + boutons relance (disabled pendant envoi)
-- `src/app/confirm/[token]/page.tsx` — Server Component public, boutons `<a>` → `/api/confirm`
-
-**Pattern Supabase** : raw fetch REST API — pas de SDK `@supabase/supabase-js`
-**Sécurité confirm** : liens email → PAGE (deux clics) et non directement `/api/confirm` (prévient scanners antivirus qui pré-fetche les URLs GET avec side effects)
-
-**Backlog Phase 8D :** vide — tous les items résolus.
+**À faire prochaine session :** Remplacer images slideshow hero (picsum.photos → vraies photos dans `/public`)
 
 ---
 

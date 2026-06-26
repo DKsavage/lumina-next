@@ -12,12 +12,13 @@ interface Props {
   onConfirmNotify:  () => void
   onCancelNotify:   () => void
   onComposeSession: () => void
+  onCopyList:       () => void
 }
 
 export function FloatingBar({
   selectedCount, selectedBreakdown,
   notifying, confirmNotify,
-  onClearSelection, onRequestNotify, onConfirmNotify, onCancelNotify, onComposeSession,
+  onClearSelection, onRequestNotify, onConfirmNotify, onCancelNotify, onComposeSession, onCopyList,
 }: Props) {
   if (selectedCount === 0) return null
 
@@ -54,6 +55,13 @@ export function FloatingBar({
 
       {/* Droite — actions */}
       <div className="flex items-center gap-3">
+        <button
+          onClick={onCopyList}
+          className="font-medium uppercase transition-opacity duration-200 hover:opacity-70"
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.44rem', letterSpacing: '.25em', color: 'rgba(247,243,238,.7)', background: 'none', border: 'none', padding: '.65rem .8rem', cursor: 'pointer' }}
+        >
+          ⎘ Copier liste
+        </button>
         {confirmNotify ? (
           <div className="flex items-center gap-2">
             <button

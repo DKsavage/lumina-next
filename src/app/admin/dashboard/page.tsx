@@ -91,6 +91,19 @@ export default function DashboardPage() {
     catch { showToast('Impossible de copier') }
   }
 
+  function handleCopyList() {
+    const lines = filtered
+      .filter(c => selectedIds.has(c.id))
+      .map(c => [
+        `${c.prenom} ${c.nom}`,
+        c.taille ? `${c.taille} cm` : null,
+        c.ville ?? null,
+      ].filter(Boolean).join(' — '))
+    navigator.clipboard.writeText(lines.join('\n'))
+      .then(() => showToast(`Liste copiée (${lines.length} modèle${lines.length > 1 ? 's' : ''})`))
+      .catch(() => showToast('Impossible de copier'))
+  }
+
   function handleExportCSV() {
     if (filtered.length > 500 && !window.confirm(`Exporter ${filtered.length} candidatures ? Le fichier peut être volumineux.`)) return
     const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Instagram','Date inscription','Notifié']
@@ -236,6 +249,7 @@ export default function DashboardPage() {
         }}
         onCancelNotify={() => setConfirmNotify(false)}
         onComposeSession={() => setComposerOpen(true)}
+        onCopyList={handleCopyList}
       />
 
       {/* COMPOSER SESSION */}

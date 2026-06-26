@@ -116,7 +116,9 @@ export default function DashboardPage() {
       new Date(c.date_inscription).toLocaleDateString('fr-CA'),
       c.selectionne ? 'Oui' : 'Non',
     ])
-    const csv  = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    // Remplacer \n dans les valeurs — évite que les champs multi-lignes cassent les lignes CSV
+    const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`
+    const csv  = [headers, ...rows].map(r => r.map(escape).join(',')).join('\r\n')
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = Object.assign(document.createElement('a'), { href: url, download: `lumina-${new Date().toISOString().slice(0,10)}.csv` })

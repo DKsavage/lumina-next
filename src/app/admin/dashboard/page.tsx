@@ -11,6 +11,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useCandidatures }  from '@/hooks/admin/useCandidatures'
 import { useSelection }     from '@/hooks/admin/useSelection'
 import { CandidatureCard }  from '@/components/admin/CandidatureCard'
+import { CandidatureList }  from '@/components/admin/CandidatureList'
 import { DetailPanel }      from '@/components/admin/DetailPanel'
 import { FloatingBar }      from '@/components/admin/FloatingBar'
 import { SessionComposer }     from '@/components/admin/SessionComposer'
@@ -209,11 +210,20 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-              {filtered.map(c => (
-                <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} onToggle={toggleSelect} onViewDetail={setDetail} />
-              ))}
-            </div>
+            {viewMode === 'list' ? (
+              <CandidatureList
+                candidatures={filtered}
+                selectedIds={selectedIds}
+                onToggle={toggleSelect}
+                onViewDetail={setDetail}
+              />
+            ) : (
+              <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                {filtered.map(c => (
+                  <CandidatureCard key={c.id} c={c} selected={selectedIds.has(c.id)} onToggle={toggleSelect} onViewDetail={setDetail} />
+                ))}
+              </div>
+            )}
             {hasMore && (
               <div className="flex justify-center" style={{ marginTop: '2rem' }}>
                 <button

@@ -69,5 +69,9 @@ export function useSelection(filtered: Candidature[]) {
     try { localStorage.removeItem(LS_KEY) } catch { /* silencieux */ }
   }, [])
 
-  return { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection }
+  const selectByIds = useCallback((ids: string[]) => {
+    setSelectedIds(prev => { const next = new Set(prev); ids.forEach(id => next.add(id)); return next })
+  }, [])
+
+  return { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection, selectByIds }
 }

@@ -6,9 +6,10 @@ import { type SessionForm, type Group, defaultSession } from '@/types/candidatur
 interface Props {
   selectedCount: number
   selectedCandidatures: { id: string; prenom: string; nom: string; genre: string | null }[]
-  onClose:  () => void
-  onSubmit: (session: SessionForm) => Promise<void>
-  sending:  boolean
+  onClose:              () => void
+  onSubmit:             (session: SessionForm) => Promise<void>
+  sending:              boolean
+  onImportFromSession?: (emails: string[]) => void
 }
 
 const inp: React.CSSProperties = {
@@ -21,12 +22,18 @@ const label = (text: string) => (
   <div className="font-medium uppercase text-muted mb-2" style={{ fontSize: '.42rem', letterSpacing: '.28em' }}>{text}</div>
 )
 
-export function SessionComposer({ selectedCount, selectedCandidatures, onClose, onSubmit, sending }: Props) {
-  const [session, setSession] = useState<SessionForm>(defaultSession)
-  const [tab, setTab]         = useState<'form' | 'assign'>('form')
-  const moodboardRef          = useRef<HTMLInputElement>(null)
+interface PastSession { id: string; project: string; date: string }
+
+export function SessionComposer({ selectedCount, selectedCandidatures, onClose, onSubmit, sending, onImportFromSession }: Props) {
+  const [session, setSession]           = useState<SessionForm>(defaultSession)
+  const [tab, setTab]                   = useState<'form' | 'assign'>('form')
+  const moodboardRef                    = useRef<HTMLInputElement>(null)
   // F3 — ref locale pour bloquer le double-submit avant que le parent re-rende avec sending=true
-  const submittingRef         = useRef(false)
+  const submittingRef                   = useRef(false)
+  const [importOpen,    setImportOpen]  = useState(false)
+  const [pastSessions,  setPastSessions]= useState<PastSession[]>([])
+  const [importLoading, setImportLoading] = useState(false)
+  const [importing,     setImporting]   = useState(false)
 
   function update<K extends keyof SessionForm>(key: K, val: SessionForm[K]) {
     setSession(prev => ({ ...prev, [key]: val }))
@@ -109,8 +116,74 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
               {selectedCount} modèle{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
             </div>
           </div>
+          {onImportFromSession && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (importOpen) { setImportOpen(false); return }
+                setImportOpen(true)
+                if (pastSessions.length > 0) return
+                setImportLoading(true)
+                try {
+                  const d = await fetch('/api/sessions').then(r => r.json())
+                  if (d.success) setPastSessions(d.data.map((s: { id: string; project: string; date: string }) => ({ id: s.id, project: s.project, date: s.date })))
+                } finally {
+                  setImportLoading(false)
+                }
+              }}
+              style={{ background: 'none', fontSize: '.5rem', letterSpacing: '.18em', fontWeight: 600, textTransform: 'uppercase', color: importOpen ? 'var(--red)' : 'var(--muted)', border: '1px solid var(--border)', padding: '.3rem .8rem', cursor: 'pointer' }}
+            >
+              {importOpen ? 'Fermer' : '↑ Importer session'}
+            </button>
+          )}
           <button onClick={onClose} style={{ background: 'none', fontSize: '1.2rem', color: 'var(--muted)' }} aria-label="Fermer">×</button>
         </div>
+
+        {/* Import depuis session précédente */}
+        {importOpen && (
+          <div style={{ border: '1px solid var(--border)', padding: '1rem', marginBottom: '1.2rem', background: 'rgba(139,0,32,.02)' }}>
+            <div className="font-medium uppercase text-muted mb-3" style={{ fontSize: '.42rem', letterSpacing: '.28em' }}>
+              Sélectionner une session à importer
+            </div>
+            {importLoading ? (
+              <div style={{ fontSize: '.72rem', color: 'var(--muted)', fontStyle: 'italic' }}>Chargement…</div>
+            ) : pastSessions.length === 0 ? (
+              <div style={{ fontSize: '.72rem', color: 'var(--muted)' }}>Aucune session précédente.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '.4rem', maxHeight: '180px', overflowY: 'auto' }}>
+                {pastSessions.map(s => {
+                  const dateLabel = new Date(s.date + 'T12:00:00').toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', year: 'numeric' })
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      disabled={importing}
+                      onClick={async () => {
+                        setImporting(true)
+                        try {
+                          const d = await fetch(`/api/sessions/${s.id}`).then(r => r.json())
+                          if (d.success) {
+                            const emails: string[] = d.data.map((m: { model_email: string }) => m.model_email)
+                            onImportFromSession!(emails)
+                            setImportOpen(false)
+                          }
+                        } finally {
+                          setImporting(false)
+                        }
+                      }}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.6rem .8rem', border: '1px solid var(--border)', background: 'transparent', cursor: importing ? 'not-allowed' : 'pointer', textAlign: 'left', opacity: importing ? .6 : 1 }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(139,0,32,.05)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    >
+                      <span style={{ fontSize: '.78rem', color: 'var(--ink)', fontWeight: 500 }}>{s.project}</span>
+                      <span style={{ fontSize: '.62rem', color: 'var(--muted)' }}>{dateLabel}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0' }}>

@@ -82,7 +82,7 @@ export default function DashboardPage() {
     }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax,
          filterInstagram, filterVille, filterDisponibilite, filterExperience, sortBy, sortAsc])
 
-  const { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection } = useSelection(filtered)
+  const { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection, selectByIds } = useSelection(filtered)
   const detailIdx = detail ? filtered.findIndex(c => c.id === detail.id) : -1
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), 3500) }
@@ -275,6 +275,11 @@ export default function DashboardPage() {
             .map(c => ({ id: c.id, prenom: c.prenom, nom: c.nom, genre: c.genre ?? null }))}
           onClose={() => setComposerOpen(false)}
           sending={sending}
+          onImportFromSession={(emails) => {
+            const emailSet = new Set(emails)
+            const ids = candidatures.filter(c => emailSet.has(c.email)).map(c => c.id)
+            selectByIds(ids)
+          }}
           onSubmit={async (session: SessionForm) => {
             setSending(true)
             await handleSendSession(selectedIds, session, (sent, failed, sessionId) => {

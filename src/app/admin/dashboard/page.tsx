@@ -55,15 +55,16 @@ export default function DashboardPage() {
   /* useMemo évite de re-trier toute la liste à chaque frappe */
   const filtered = useMemo(() => candidatures
     .filter(c => {
-      const q = deferredSearch.toLowerCase()
+      const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+      const q = norm(deferredSearch)
       if (q && ![c.prenom, c.nom, c.email, c.ville ?? '', c.telephone, c.instagram ?? '']
-        .some(v => v.toLowerCase().includes(q))) return false
+        .some(v => norm(v).includes(q))) return false
       if (filterGenre         && c.genre          !== filterGenre)         return false
       if (filterSelectionne   && !c.selectionne)                           return false
       if (tailleMin           && (c.taille ?? 0) < Number(tailleMin))      return false
       if (tailleMax           && (c.taille ?? 999) > Number(tailleMax))    return false
       if (filterInstagram     && !c.instagram)                             return false
-      if (filterVille         && !c.ville?.toLowerCase().includes(filterVille.toLowerCase())) return false
+      if (filterVille         && !norm(c.ville ?? '').includes(norm(filterVille))) return false
       if (filterDisponibilite && c.disponibilite  !== filterDisponibilite) return false
       if (filterExperience    && c.experience     !== filterExperience)    return false
       return true
@@ -120,7 +121,7 @@ export default function DashboardPage() {
     // Remplacer \n dans les valeurs pour éviter que les champs multi-lignes cassent les lignes
     const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`
     const csv  = 'sep=,\r\n' + [headers, ...rows].map(r => r.map(escape).join(',')).join('\r\n')
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([new TextEncoder().encode('﻿' + csv)], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = Object.assign(document.createElement('a'), { href: url, download: `lumina-${new Date().toISOString().slice(0,10)}.csv` })
     a.click(); URL.revokeObjectURL(url)

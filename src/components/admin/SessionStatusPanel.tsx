@@ -9,6 +9,7 @@ import { SessionEditPanel } from '@/components/admin/SessionEditPanel'
 
 interface ModelStatus {
   id:                 string
+  role:               string
   model_prenom:       string
   model_nom:          string | null
   model_email:        string
@@ -40,6 +41,9 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
   const [editing,       setEditing]       = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting,      setDeleting]      = useState(false)
+  const [addOpen,       setAddOpen]       = useState(false)
+  const [addForm,       setAddForm]       = useState({ prenom: '', nom: '', email: '', role: 'Maquillage' })
+  const [addSaving,     setAddSaving]     = useState(false)
 
   useEffect(() => {
     setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
@@ -215,7 +219,14 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                   {m.status === 'confirmed' ? '✓' : m.status === 'cancelled' ? '✗' : '⏳'}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '.78rem', color: 'var(--ink)', fontWeight: m.status === 'confirmed' ? 600 : 400 }}>{m.model_prenom}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem' }}>
+                    <span style={{ fontSize: '.78rem', color: 'var(--ink)', fontWeight: m.status === 'confirmed' ? 600 : 400 }}>{m.model_prenom}</span>
+                    {m.role !== 'Mannequinat' && (
+                      <span style={{ fontSize: '.38rem', letterSpacing: '.12em', fontWeight: 700, textTransform: 'uppercase', color: '#8B0020', border: '1px solid rgba(139,0,32,.3)', padding: '.1rem .35rem' }}>
+                        {m.role}
+                      </span>
+                    )}
+                  </div>
                   {m.group && <div style={{ fontSize: '.62rem', color: 'var(--muted)' }}>{m.group.name} · {m.group.call_time}</div>}
                   {m.cancel_reason && <div style={{ fontSize: '.62rem', color: '#8B0020', marginTop: '.1rem' }}>Raison : {m.cancel_reason}</div>}
                   {/* Indicateurs tracking email */}
@@ -281,6 +292,81 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
             ))}
           </div>
         )}
+
+        {/* Ajouter participant externe */}
+        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '.75rem' }}>
+          <button
+            type="button"
+            onClick={() => setAddOpen(v => !v)}
+            style={{ background: 'none', fontSize: '.42rem', letterSpacing: '.22em', fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            {addOpen ? '− Fermer' : '+ Ajouter un participant externe'}
+          </button>
+          {addOpen && (
+            <div style={{ marginTop: '.75rem', display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.6rem' }}>
+                <input
+                  value={addForm.prenom}
+                  onChange={e => setAddForm(f => ({ ...f, prenom: e.target.value }))}
+                  placeholder="Prénom *"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.72rem', fontWeight: 300, background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.4rem .6rem', color: 'var(--ink)' }}
+                />
+                <input
+                  value={addForm.nom}
+                  onChange={e => setAddForm(f => ({ ...f, nom: e.target.value }))}
+                  placeholder="Nom"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.72rem', fontWeight: 300, background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.4rem .6rem', color: 'var(--ink)' }}
+                />
+              </div>
+              <input
+                value={addForm.email}
+                onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="Email *"
+                type="email"
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.72rem', fontWeight: 300, background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.4rem .6rem', color: 'var(--ink)' }}
+              />
+              <select
+                value={addForm.role}
+                onChange={e => setAddForm(f => ({ ...f, role: e.target.value }))}
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.72rem', fontWeight: 300, background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.4rem .6rem', color: 'var(--ink)', appearance: 'none' }}
+              >
+                <option value="Maquillage">Maquillage</option>
+                <option value="Coiffure">Coiffure</option>
+                <option value="Stylisme">Stylisme</option>
+                <option value="Photographie">Photographie</option>
+                <option value="Vidéographie">Vidéographie</option>
+                <option value="Direction artistique">Direction artistique</option>
+                <option value="Retouche">Retouche</option>
+                <option value="Autre">Autre</option>
+              </select>
+              <button
+                type="button"
+                disabled={addSaving || !addForm.prenom || !addForm.email}
+                onClick={async () => {
+                  setAddSaving(true)
+                  try {
+                    const res = await fetch('/api/sessions/participants', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ session_id: sessionId, ...addForm }),
+                    })
+                    if (!res.ok) { alert('Erreur lors de l\'ajout.'); return }
+                    setAddForm({ prenom: '', nom: '', email: '', role: 'Maquillage' })
+                    setAddOpen(false)
+                    // Recharger la liste
+                    const d = await fetch(`/api/sessions/${sessionId}`).then(r => r.json())
+                    if (d.success) { setModels(d.data); setStats(d.stats) }
+                  } finally {
+                    setAddSaving(false)
+                  }
+                }}
+                style={{ background: 'var(--ink)', color: 'var(--paper)', border: 'none', padding: '.5rem', fontSize: '.42rem', letterSpacing: '.22em', fontWeight: 600, textTransform: 'uppercase', cursor: addSaving || !addForm.prenom || !addForm.email ? 'not-allowed' : 'pointer', opacity: addSaving || !addForm.prenom || !addForm.email ? .5 : 1 }}
+              >
+                {addSaving ? '…' : 'Ajouter'}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Total paiements */}
         {models.some(m => m.payment_amount !== null) && (() => {

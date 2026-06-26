@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 
 interface InvoiceData {
   token:          string
+  role:           string
   model_prenom:   string
   model_nom:      string | null
   model_email:    string
@@ -150,7 +151,7 @@ export default function FacturePage() {
             <tbody>
               <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
                 <td style={{ padding: '14px', fontSize: '13px', color: '#0a0a0a', lineHeight: 1.5 }}>
-                  <div style={{ fontWeight: 600 }}>Mannequinat</div>
+                  <div style={{ fontWeight: 600 }}>{data.role}</div>
                   {data.session && (
                     <div style={{ fontSize: '12px', color: '#6b6b6b', marginTop: '3px' }}>
                       Projet : {data.session.project}{sessionDate ? ` · ${sessionDate}` : ''}

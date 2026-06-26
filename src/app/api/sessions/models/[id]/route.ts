@@ -17,6 +17,9 @@ export async function PATCH(
     patch.payment_amount = body.payment_amount
   }
   if (body.payment_amount === null) patch.payment_amount = null
+  if (typeof body.role === 'string' && body.role.trim()) {
+    patch.role = body.role.trim()
+  }
 
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })

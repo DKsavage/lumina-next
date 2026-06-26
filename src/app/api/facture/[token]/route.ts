@@ -14,13 +14,14 @@ export async function GET(
   const headers = { 'apikey': key, 'Authorization': `Bearer ${key}` }
 
   const res = await fetch(
-    `${url}/rest/v1/session_models?token=eq.${encodeURIComponent(token)}&select=token,model_prenom,model_nom,model_email,payment_amount,session:sessions(project,date,compensation_json)&limit=1`,
+    `${url}/rest/v1/session_models?token=eq.${encodeURIComponent(token)}&select=token,role,model_prenom,model_nom,model_email,payment_amount,session:sessions(project,date,compensation_json)&limit=1`,
     { headers, cache: 'no-store' }
   )
   if (!res.ok) return NextResponse.json({ success: false }, { status: 500 })
 
   const [row] = await res.json() as Array<{
     token:          string
+    role:           string
     model_prenom:   string
     model_nom:      string | null
     model_email:    string

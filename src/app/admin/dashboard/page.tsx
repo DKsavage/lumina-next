@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [filterDisponibilite, setFilterDisponibilite] = useState<string | null>(null)
   const [filterExperience,    setFilterExperience]    = useState<string | null>(null)
   const [filterTier,          setFilterTier]          = useState<string | null>(null)
+  const [filterTag,           setFilterTag]           = useState<string | null>(null)
   const [composerOpen,      setComposerOpen]      = useState(false)
   const [sending,           setSending]           = useState(false)
   const [toast,             setToast]             = useState('')
@@ -69,6 +70,7 @@ export default function DashboardPage() {
       if (filterDisponibilite && c.disponibilite  !== filterDisponibilite) return false
       if (filterExperience    && c.experience     !== filterExperience)    return false
       if (filterTier          && c.tier           !== filterTier)          return false
+      if (filterTag           && !(c.tags ?? []).includes(filterTag))      return false
       return true
     })
     .sort((a, b) => {
@@ -83,7 +85,11 @@ export default function DashboardPage() {
       }
       return sortAsc ? cmp : -cmp
     }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax,
-         filterInstagram, filterVille, filterDisponibilite, filterExperience, filterTier, sortBy, sortAsc])
+         filterInstagram, filterVille, filterDisponibilite, filterExperience, filterTier, filterTag, sortBy, sortAsc])
+
+  const allTags = useMemo(() =>
+    [...new Set(candidatures.flatMap(c => c.tags ?? []))].sort()
+  , [candidatures])
 
   const { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection, selectByIds } = useSelection(filtered)
   const detailIdx = detail ? filtered.findIndex(c => c.id === detail.id) : -1
@@ -185,10 +191,10 @@ export default function DashboardPage() {
         onSort={key => { if (sortBy === key) setSortAsc(v => !v); else { setSortBy(key); setSortAsc(key === 'nom') } }}
         allFilteredSelected={allFilteredSelected} onToggleSelectAll={toggleSelectAll}
         filteredCount={filtered.length} totalCount={candidatures.length}
-        hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience || filterTier)}
+        hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience || filterTier || filterTag)}
         onResetFilters={() => {
           setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('')
-          setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null); setFilterTier(null)
+          setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null); setFilterTier(null); setFilterTag(null)
         }}
         showArchived={showArchived}           onToggleArchived={toggleShowArchived}
         archivedCount={archivedCount}
@@ -197,6 +203,8 @@ export default function DashboardPage() {
         filterDisponibilite={filterDisponibilite} onFilterDisponibilite={setFilterDisponibilite}
         filterExperience={filterExperience}       onFilterExperience={setFilterExperience}
         filterTier={filterTier}                   onFilterTier={setFilterTier}
+        filterTag={filterTag}                     onFilterTag={setFilterTag}
+        allTags={allTags}
         viewMode={viewMode}                       onSetViewMode={setViewMode}
       />
 

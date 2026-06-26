@@ -32,6 +32,7 @@ export interface Candidature {
   selectionne:          boolean
   archived:             boolean
   tier?:                'ambassadeur' | 'permanent' | 'banque' | null
+  tags?:                string[] | null
   notes_admin?:         string | null
   photo_profil_signed?: string | null
   photo_body_signed?:   string | null

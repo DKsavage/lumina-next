@@ -68,7 +68,7 @@ export async function PATCH(
   /* Allowlist — champs modifiables depuis le dashboard admin */
   const ALLOWED_STRING = ['prenom','nom','email','telephone','ville','pays','instagram',
     'experience','disponibilite','langues','notes_admin'] as const
-  const patch: Record<string, string | number | boolean | null> = {}
+  const patch: Record<string, string | number | boolean | string[] | null> = {}
   for (const f of ALLOWED_STRING) {
     if (f in body) {
       const v = body[f]
@@ -79,6 +79,9 @@ export async function PATCH(
   if (typeof body.archived    === 'boolean') patch.archived    = body.archived
   if (typeof body.taille === 'number' && body.taille > 0 && body.taille < 300) patch.taille = body.taille
   if ('tier' in body) patch.tier = ['ambassadeur','permanent','banque'].includes(body.tier) ? body.tier : null
+  if (Array.isArray(body.tags)) {
+    patch.tags = (body.tags as unknown[]).filter((t): t is string => typeof t === 'string' && t.trim().length > 0).map(t => t.trim())
+  }
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ success: false, message: 'Champ invalide.' }, { status: 400 })
   }

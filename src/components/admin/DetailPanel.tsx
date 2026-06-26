@@ -52,6 +52,24 @@ export function DetailPanel({
   onToggleSelect, onPrev, onNext, onClose, onLightbox,
   onToggleNotified, onArchive, onRequestDelete, onConfirmDelete, onCancelDelete, onCopyToClipboard, onEdit,
 }: Props) {
+  const [tagsValue,   setTagsValue]   = useState<string[]>(detail.tags ?? [])
+  const [tagInput,    setTagInput]    = useState('')
+
+  async function addTag(raw: string) {
+    const tag = raw.trim()
+    if (!tag || tagsValue.includes(tag)) { setTagInput(''); return }
+    const next = [...tagsValue, tag]
+    setTagsValue(next)
+    setTagInput('')
+    await onEdit({ tags: next })
+  }
+
+  async function removeTag(tag: string) {
+    const next = tagsValue.filter(t => t !== tag)
+    setTagsValue(next)
+    await onEdit({ tags: next })
+  }
+
   const [notesValue,  setNotesValue]  = useState(detail.notes_admin ?? '')
   const [notesDirty,  setNotesDirty]  = useState(false)
   const [notesSaving, setNotesSaving] = useState(false)
@@ -289,6 +307,26 @@ export function DetailPanel({
                 </a>
               </div>
             )}
+          </DetailSection>
+
+          <DetailSection label="Tags">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.35rem', marginBottom: '.5rem' }}>
+              {tagsValue.map(tag => (
+                <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: '.3rem', fontSize: '.52rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: '.1em', border: '1px solid var(--red)', color: 'var(--red)', padding: '.2rem .55rem', background: 'rgba(139,0,32,.04)' }}>
+                  {tag}
+                  <button type="button" onClick={() => removeTag(tag)} style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: '.7rem', lineHeight: 1, padding: 0, opacity: .7 }} aria-label={`Retirer ${tag}`}>×</button>
+                </span>
+              ))}
+            </div>
+            <input
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(tagInput) } }}
+              onBlur={() => { if (tagInput.trim()) addTag(tagInput) }}
+              placeholder="Ajouter un tag…"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.68rem', color: 'var(--ink)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', outline: 'none', padding: '.25rem 0', width: '100%' }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
+            />
           </DetailSection>
 
           <DetailSection label="Notes internes">

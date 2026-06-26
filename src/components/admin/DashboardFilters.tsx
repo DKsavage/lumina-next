@@ -39,6 +39,9 @@ interface Props {
   onFilterExperience:     (v: string | null) => void
   filterTier:             string | null
   onFilterTier:           (v: string | null) => void
+  filterTag:              string | null
+  onFilterTag:            (v: string | null) => void
+  allTags:                string[]
   viewMode:               'grid' | 'list'
   onSetViewMode:          (m: 'grid' | 'list') => void
 }
@@ -73,6 +76,7 @@ export function DashboardFilters({
   filterDisponibilite, onFilterDisponibilite,
   filterExperience, onFilterExperience,
   filterTier, onFilterTier,
+  filterTag, onFilterTag, allTags,
   viewMode, onSetViewMode,
 }: Props) {
   return (
@@ -216,6 +220,18 @@ export function DashboardFilters({
             className="font-medium uppercase transition-colors duration-200"
             style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterTier === key ? cfg.border : 'var(--border)'}`, color: filterTier === key ? cfg.color : 'var(--muted)', background: filterTier === key ? cfg.bg : 'transparent', padding: '.25rem .6rem' }}
           >{cfg.label}</button>
+        ))}
+
+        {allTags.length > 0 && allTags.map(tag => (
+          <button key={tag} type="button"
+            onClick={() => onFilterTag(filterTag === tag ? null : tag)}
+            className="font-medium transition-colors duration-200"
+            style={{ fontSize: '.42rem', letterSpacing: '.12em', cursor: 'pointer', whiteSpace: 'nowrap',
+              border: `1px solid ${filterTag === tag ? 'var(--red)' : 'var(--border)'}`,
+              color: filterTag === tag ? 'var(--red)' : 'var(--muted)',
+              background: filterTag === tag ? 'rgba(139,0,32,.04)' : 'transparent',
+              padding: '.25rem .6rem' }}
+          >#{tag}</button>
         ))}
 
         <div className="flex items-center gap-1" style={{ marginLeft: 'auto' }}>

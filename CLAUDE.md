@@ -107,13 +107,15 @@ Phases 0–9 terminées (voir git log).
 - PATCH `/api/candidatures/[id]` : allowlist étendue (prenom/nom/email/tel/ville/pays/ig/experience/dispo/langues/taille)
 - `useCandidatures` : +`handleEdit`, +`duplicateEmails` Set
 
-**Phases 0–10 terminées** (suppression session, import modèles, fix accents CSV, capacité max, calendrier sessions, classification tier, notes_admin).
-
-**Backlog actif (ordre d'exécution) :**
-1. Tags/labels modèles (multi-select, filtrable)
+**Phases 0–10 terminées** (suppression session, import modèles, fix accents CSV, capacité max, calendrier sessions, classification tier, notes_admin, tags).
 6. Emails bilingues FR+EN dans le même email (send-session, remind, confirm — tous les templates)
 7. Email remerciement post-session + email paiement (nouveaux types dans remind/SessionStatusPanel)
 8. Rappels automatiques par cron (Vercel cron → J-5/J-2/J-1/matin selon date session, sans action manuelle)
+
+**Backlog actif :**
+- Emails bilingues FR+EN (instructions à venir)
+- Email remerciement post-session + email paiement
+- Rappels automatiques par cron (J-5/J-2/J-1/matin)
 
 **Plus tard (sessions séparées) :**
 - Portfolio photos par modèle (page publique, consentement, galerie)

@@ -66,15 +66,20 @@ ${sep}
 
   // Confirmation de paiement envoyé
   if (type === 'paiement') {
-    const payDetails = [compensationAmount, compensationMethod, compensationDelay].filter(Boolean).join(' · ')
+    const payDetails  = [compensationAmount, compensationMethod, compensationDelay].filter(Boolean).join(' · ')
+    const factureLink = `${SITE_URL}/facture/${token}`
     return {
       subject: `Payment sent / Paiement envoyé — ${esc(project)}`,
       html: `<p>Hi ${esc(prenom)},</p>
 <p>Your payment for <strong>${esc(project)}</strong> has been sent.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
+<p>Please use the following link to generate your invoice and return it to us at casting@luminamodels.ca:</p>
+<p><a href="${factureLink}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;font-weight:700;text-decoration:none;">Generate my invoice</a></p>
 <p>Thank you again for your participation!</p>
 ${sep}
 <p>Bonjour ${esc(prenom)},</p>
 <p>Votre paiement pour <strong>${esc(project)}</strong> a été envoyé.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
+<p>Veuillez utiliser le lien suivant pour générer votre facture et nous la retourner à casting@luminamodels.ca :</p>
+<p><a href="${factureLink}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;font-weight:700;text-decoration:none;">Générer ma facture</a></p>
 <p>Merci encore pour votre participation !</p>`,
     }
   }

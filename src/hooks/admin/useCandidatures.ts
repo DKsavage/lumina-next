@@ -205,7 +205,7 @@ export function useCandidatures() {
     const models = candidatures
       .filter(c => selectedIds.has(c.id))
       // Inclure la langue pour adapter le call time en email bilingue si besoin
-      .map(c => ({ email: c.email, prenom: c.prenom, langue: c.langues?.includes('English') ? 'en' : 'fr' }))
+      .map(c => ({ email: c.email, prenom: c.prenom, nom: c.nom, langue: c.langues?.includes('English') ? 'en' : 'fr' }))
 
     // Set<string> n'est pas JSON-sérialisable — convertir chaque assignedIds en tableau avant fetch
     const res = await fetch('/api/send-session', {

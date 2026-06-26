@@ -10,7 +10,9 @@ import { SessionEditPanel } from '@/components/admin/SessionEditPanel'
 interface ModelStatus {
   id:                 string
   model_prenom:       string
+  model_nom:          string | null
   model_email:        string
+  token:              string
   status:             'pending' | 'confirmed' | 'cancelled'
   confirmed_at:       string | null
   cancelled_at:       string | null
@@ -18,6 +20,7 @@ interface ModelStatus {
   email_delivered_at: string | null
   email_clicked_at:   string | null
   email_bounced_at:   string | null
+  payment_amount:     number | null
   group:              { name: string; call_time: string } | null
 }
 
@@ -239,14 +242,58 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                     )}
                   </div>
                 </div>
-                <div style={{ fontSize: '.6rem', color: 'var(--muted)', flexShrink: 0, textAlign: 'right' }}>
-                  {m.confirmed_at && new Date(m.confirmed_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  {m.cancelled_at && new Date(m.cancelled_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '.3rem', flexShrink: 0 }}>
+                  <div style={{ fontSize: '.6rem', color: 'var(--muted)', textAlign: 'right' }}>
+                    {m.confirmed_at && new Date(m.confirmed_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    {m.cancelled_at && new Date(m.cancelled_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  {/* Montant + lien facture */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem' }}>
+                    <input
+                      type="number"
+                      defaultValue={m.payment_amount ?? ''}
+                      placeholder="0.00"
+                      min={0}
+                      step={0.01}
+                      onBlur={async e => {
+                        const val = e.target.value === '' ? null : parseFloat(e.target.value)
+                        await fetch(`/api/sessions/models/${m.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ payment_amount: val }),
+                        })
+                      }}
+                      style={{ width: '5rem', fontFamily: "'Montserrat', sans-serif", fontSize: '.62rem', fontWeight: 300, textAlign: 'right', background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.2rem .4rem', color: 'var(--ink)' }}
+                    />
+                    <span style={{ fontSize: '.55rem', color: 'var(--muted)' }}>$</span>
+                    <a
+                      href={`/facture/${m.token}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Voir la facture"
+                      style={{ fontSize: '.65rem', color: 'var(--muted)', textDecoration: 'none', lineHeight: 1 }}
+                    >
+                      ↗
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        {/* Total paiements */}
+        {models.some(m => m.payment_amount !== null) && (() => {
+          const total = models.reduce((sum, m) => sum + (m.payment_amount ?? 0), 0)
+          return (
+            <div style={{ marginTop: '1rem', paddingTop: '.75rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '.55rem', letterSpacing: '.18em', fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)' }}>Total paiements</span>
+              <span style={{ fontSize: '.88rem', fontWeight: 600, color: 'var(--ink)', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
+                {total.toFixed(2)} $
+              </span>
+            </div>
+          )
+        })()}
       </div>
     </div>
 

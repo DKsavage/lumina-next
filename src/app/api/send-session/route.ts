@@ -12,7 +12,7 @@ type SerializedGroup = Omit<Group, 'assignedIds'> & { assignedIds: string[] }
 type SerializedSessionForm = Omit<SessionForm, 'groups'> & { groups: SerializedGroup[] }
 
 interface SendBody {
-  models: { email: string; prenom: string; langue?: string }[]
+  models: { email: string; prenom: string; nom?: string; langue?: string }[]
   session: SerializedSessionForm
 }
 
@@ -377,6 +377,7 @@ export async function POST(request: NextRequest) {
           session_id:   sessionRow.id,
           model_email:  m.email,
           model_prenom: m.prenom,
+          model_nom:    m.nom ?? null,
           model_langue: m.langue ?? 'fr',
           group_id:     groupMatch?.id ?? null,
         }),

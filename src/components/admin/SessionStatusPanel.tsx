@@ -19,17 +19,20 @@ interface ModelStatus {
 }
 
 interface Props {
-  sessionId: string
-  onClose:   () => void
+  sessionId:  string
+  onClose:    () => void
+  onDeleted?: () => void
 }
 
-export function SessionStatusPanel({ sessionId, onClose }: Props) {
-  const [models,   setModels]   = useState<ModelStatus[]>([])
-  const [stats,    setStats]    = useState({ confirmed: 0, cancelled: 0, pending: 0, total: 0 })
-  const [loading,  setLoading]  = useState(true)
-  const [filter,   setFilter]   = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
-  const [sending,  setSending]  = useState<string | null>(null)
-  const [editing,  setEditing]  = useState(false)
+export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
+  const [models,        setModels]        = useState<ModelStatus[]>([])
+  const [stats,         setStats]         = useState({ confirmed: 0, cancelled: 0, pending: 0, total: 0 })
+  const [loading,       setLoading]       = useState(true)
+  const [filter,        setFilter]        = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
+  const [sending,       setSending]       = useState<string | null>(null)
+  const [editing,       setEditing]       = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting,      setDeleting]      = useState(false)
 
   useEffect(() => {
     setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
@@ -64,6 +67,41 @@ export function SessionStatusPanel({ sessionId, onClose }: Props) {
             >
               Éditer
             </button>
+            {!confirmDelete ? (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                style={{ background: 'none', fontSize: '.5rem', letterSpacing: '.2em', fontWeight: 600, textTransform: 'uppercase', color: '#8B0020', border: '1px solid rgba(139,0,32,.3)', padding: '.3rem .8rem', cursor: 'pointer' }}
+              >
+                Supprimer
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span style={{ fontSize: '.5rem', color: '#8B0020', fontWeight: 600, letterSpacing: '.1em' }}>Confirmer ?</span>
+                <button
+                  disabled={deleting}
+                  onClick={async () => {
+                    setDeleting(true)
+                    try {
+                      const res = await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' })
+                      if (!res.ok) { alert('Erreur lors de la suppression.'); return }
+                      onDeleted?.()
+                      onClose()
+                    } finally {
+                      setDeleting(false)
+                    }
+                  }}
+                  style={{ background: '#8B0020', color: '#fff', fontSize: '.5rem', letterSpacing: '.2em', fontWeight: 600, textTransform: 'uppercase', border: 'none', padding: '.3rem .8rem', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? .6 : 1 }}
+                >
+                  {deleting ? '…' : 'Oui, supprimer'}
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  style={{ background: 'none', fontSize: '.5rem', letterSpacing: '.2em', fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.3rem .8rem', cursor: 'pointer' }}
+                >
+                  Annuler
+                </button>
+              </div>
+            )}
             <button onClick={onClose} style={{ background: 'none', fontSize: '1.2rem', color: 'var(--muted)' }}>×</button>
           </div>
         </div>

@@ -137,7 +137,16 @@ export default function SessionsPage() {
       </div>
 
       {statusId && (
-        <SessionStatusPanel sessionId={statusId} onClose={() => setStatusId(null)} />
+        <SessionStatusPanel
+          sessionId={statusId}
+          onClose={() => setStatusId(null)}
+          onDeleted={() => {
+            setStatusId(null)
+            fetch('/api/sessions')
+              .then(r => r.json())
+              .then(d => { if (d.success) setSessions(d.data) })
+          }}
+        />
       )}
     </div>
   )

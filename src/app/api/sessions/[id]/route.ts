@@ -170,3 +170,27 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   return NextResponse.json({ success: true })
 }
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await verifyToken(request)
+  if (!auth) return NextResponse.json({ success: false }, { status: 401 })
+
+  const { id } = await params
+  const url = process.env.SUPABASE_URL!
+  const key = process.env.SUPABASE_SERVICE_KEY!
+  const headers = { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }
+
+  // Cascade manuelle : modèles → groupes → session
+  const [r1, r2] = await Promise.all([
+    fetch(`${url}/rest/v1/session_models?session_id=eq.${encodeURIComponent(id)}`, { method: 'DELETE', headers }),
+    fetch(`${url}/rest/v1/session_groups?session_id=eq.${encodeURIComponent(id)}`, { method: 'DELETE', headers }),
+  ])
+  if (!r1.ok || !r2.ok) return NextResponse.json({ success: false, message: 'Erreur suppression modèles/groupes.' }, { status: 502 })
+
+  const r3 = await fetch(`${url}/rest/v1/sessions?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE', headers })
+  if (!r3.ok) return NextResponse.json({ success: false, message: 'Erreur suppression session.' }, { status: 502 })
+
+  return NextResponse.json({ success: true })
+}

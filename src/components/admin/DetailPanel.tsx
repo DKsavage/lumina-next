@@ -3,10 +3,27 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { Candidature } from '@/types/candidature'
 import { calcAge } from '@/types/candidature'
+
+interface ModelSession {
+  id:                 string
+  role:               string | null
+  status:             'pending' | 'confirmed' | 'cancelled'
+  payment_amount:     number | null
+  email_delivered_at: string | null
+  email_clicked_at:   string | null
+  email_bounced_at:   string | null
+  session:            { project: string; date: string; type: string } | null
+}
+
+const STATUS_META: Record<ModelSession['status'], { label: string; color: string }> = {
+  confirmed: { label: 'Confirmé',   color: 'rgba(20,120,60,.9)' },
+  cancelled: { label: 'Annulé',     color: 'var(--red)' },
+  pending:   { label: 'En attente', color: 'var(--muted)' },
+}
 
 interface Props {
   detail:           Candidature
@@ -69,6 +86,18 @@ export function DetailPanel({
     setTagsValue(next)
     await onEdit({ tags: next })
   }
+
+  // Historique des participations — rechargé à chaque modèle (nav prev/next inclus).
+  const [history, setHistory] = useState<ModelSession[] | null>(null)
+  useEffect(() => {
+    setHistory(null)
+    let cancelled = false
+    fetch(`/api/sessions/by-model?email=${encodeURIComponent(detail.email)}`)
+      .then(r => r.ok ? r.json() : { success: false })
+      .then(d => { if (!cancelled) setHistory(d.success ? d.data : []) })
+      .catch(() => { if (!cancelled) setHistory([]) })
+    return () => { cancelled = true }
+  }, [detail.email])
 
   const [notesValue,  setNotesValue]  = useState(detail.notes_admin ?? '')
   const [notesDirty,  setNotesDirty]  = useState(false)
@@ -305,6 +334,43 @@ export function DetailPanel({
                 <a href={`https://instagram.com/${detail.instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" className="font-light text-right transition-colors duration-200 hover:text-red" style={{ fontSize: '.72rem', color: 'var(--ink)', textDecoration: 'none' }}>
                   @{detail.instagram.replace(/^@/, '')}
                 </a>
+              </div>
+            )}
+          </DetailSection>
+
+          <DetailSection label="Historique">
+            {history === null ? (
+              <span className="text-muted font-light" style={{ fontSize: '.62rem' }}>Chargement…</span>
+            ) : history.length === 0 ? (
+              <span className="text-muted font-light" style={{ fontSize: '.62rem' }}>Aucune session.</span>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '.55rem' }}>
+                {history.map(h => {
+                  const meta = STATUS_META[h.status]
+                  return (
+                    <div key={h.id} style={{ display: 'flex', flexDirection: 'column', gap: '.2rem', paddingBottom: '.5rem', borderBottom: '1px solid var(--border)' }}>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="font-light text-ink truncate" style={{ fontSize: '.72rem' }}>{h.session?.project ?? '—'}</span>
+                        <span className="text-muted flex-shrink-0" style={{ fontSize: '.6rem', fontVariantNumeric: 'tabular-nums' }}>
+                          {h.session?.date ? new Date(h.session.date + 'T12:00:00').toLocaleDateString('fr-CA') : ''}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium uppercase" style={{ fontSize: '.4rem', letterSpacing: '.18em', color: meta.color }}>
+                          {meta.label}{h.role ? ` · ${h.role}` : ''}
+                        </span>
+                        <span className="flex items-center gap-2 flex-shrink-0">
+                          {h.payment_amount != null && (
+                            <span className="font-light text-ink" style={{ fontSize: '.62rem' }}>{h.payment_amount} $</span>
+                          )}
+                          {h.email_clicked_at ? <span title="Email cliqué" style={{ fontSize: '.55rem' }}>👁</span>
+                            : h.email_bounced_at ? <span title="Email rejeté" style={{ fontSize: '.55rem', color: 'var(--red)' }}>⚠</span>
+                            : h.email_delivered_at ? <span title="Email livré" style={{ fontSize: '.55rem' }}>✉</span> : null}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </DetailSection>

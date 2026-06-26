@@ -107,7 +107,13 @@ Phases 0–9 terminées (voir git log).
 - PATCH `/api/candidatures/[id]` : allowlist étendue (prenom/nom/email/tel/ville/pays/ig/experience/dispo/langues/taille)
 - `useCandidatures` : +`handleEdit`, +`duplicateEmails` Set
 
-**À faire prochaine session :** Remplacer images slideshow hero (picsum.photos → vraies photos dans `/public`)
+**Backlog prochaine session (par priorité) :**
+1. Supprimer une session (DELETE cascade `session_models`+`session_groups`+`sessions`, bouton dans `/admin/sessions` + confirmation 2 étapes)
+2. Remplacer images slideshow hero (`picsum.photos` → vraies photos dans `/public`)
+3. Import modèles depuis session précédente (bouton dans SessionComposer → pick session → pré-sélection)
+4. Capacité max par session (champ optionnel + indicateur rouge)
+5. Vue calendrier sessions (toggle liste/calendrier dans `/admin/sessions`)
+6. Multi-langue FR/EN (plan séparé — gros chantier)
 
 ---
 

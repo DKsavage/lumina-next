@@ -21,13 +21,19 @@ export async function POST(request: NextRequest) {
 
   const url = process.env.SUPABASE_URL!
   const key = process.env.SUPABASE_SERVICE_KEY!
+  const headers = { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }
 
-  const res = await fetch(`${url}/rest/v1/session_models?select=id,token`, {
+  // Vérifie que la session existe avant d'insérer
+  const sessionCheck = await fetch(
+    `${url}/rest/v1/sessions?id=eq.${encodeURIComponent(body.session_id)}&select=id&limit=1`,
+    { headers }
+  )
+  const [session] = await sessionCheck.json() as Array<{ id: string }>
+  if (!session) return NextResponse.json({ success: false, message: 'Session introuvable.' }, { status: 404 })
+
+  const res = await fetch(`${url}/rest/v1/session_models?select=id`, {
     method:  'POST',
-    headers: {
-      'apikey': key, 'Authorization': `Bearer ${key}`,
-      'Content-Type': 'application/json', 'Prefer': 'return=representation',
-    },
+    headers: { ...headers, 'Prefer': 'return=representation' },
     body: JSON.stringify({
       session_id:   body.session_id,
       model_prenom: body.prenom,
@@ -39,7 +45,7 @@ export async function POST(request: NextRequest) {
   })
 
   if (!res.ok) return NextResponse.json({ success: false }, { status: 500 })
-  const [row] = await res.json() as Array<{ id: string; token: string }>
+  const [row] = await res.json() as Array<{ id: string }>
 
-  return NextResponse.json({ success: true, data: row })
+  return NextResponse.json({ success: true, data: { id: row.id } })
 }

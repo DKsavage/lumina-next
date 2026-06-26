@@ -84,7 +84,7 @@ export const defaultSession: SessionForm = {
   notes_internal: '', notes_models: '', moodboard_url: '', whatsapp: '',
 }
 
-export type SortKey = 'date' | 'nom' | 'taille'
+export type SortKey = 'date' | 'nom' | 'taille' | 'age'
 
 // Type guard — valide la forme minimale avant d'injecter dans le state.
 // On vérifie id + email sur le premier élément : suffisant pour détecter

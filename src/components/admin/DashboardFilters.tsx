@@ -28,6 +28,16 @@ interface Props {
   showArchived:        boolean
   onToggleArchived:    () => void
   archivedCount:       number
+  filterInstagram:        boolean
+  onFilterInstagram:      (v: boolean) => void
+  filterVille:            string
+  onFilterVille:          (v: string) => void
+  filterDisponibilite:    string | null
+  onFilterDisponibilite:  (v: string | null) => void
+  filterExperience:       string | null
+  onFilterExperience:     (v: string | null) => void
+  viewMode:               'grid' | 'list'
+  onSetViewMode:          (m: 'grid' | 'list') => void
 }
 
 function sortBtnStyle(active: boolean): React.CSSProperties {
@@ -55,6 +65,11 @@ export function DashboardFilters({
   filteredCount, totalCount,
   hasActiveFilters, onResetFilters,
   showArchived, onToggleArchived, archivedCount,
+  filterInstagram, onFilterInstagram,
+  filterVille, onFilterVille,
+  filterDisponibilite, onFilterDisponibilite,
+  filterExperience, onFilterExperience,
+  viewMode, onSetViewMode,
 }: Props) {
   return (
     <div style={{ padding: '2rem 2rem 0' }}>
@@ -101,6 +116,14 @@ export function DashboardFilters({
         >
           Archivées{archivedCount > 0 && !showArchived ? ` (${archivedCount})` : ''}
         </button>
+        <button
+          type="button"
+          onClick={() => onFilterInstagram(!filterInstagram)}
+          className="font-medium uppercase transition-colors duration-200"
+          style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterInstagram ? 'var(--red)' : 'var(--border)'}`, color: filterInstagram ? 'var(--red)' : 'var(--muted)', background: filterInstagram ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}
+        >
+          Instagram ✦
+        </button>
         {hasActiveFilters && (
           <button
             type="button"
@@ -123,10 +146,19 @@ export function DashboardFilters({
           <span className="text-muted font-light" style={{ fontSize: '.55rem' }}>
             {filteredCount} / {totalCount}
           </span>
+          <div style={{ display: 'flex', border: '1px solid var(--border)', marginLeft: '.25rem' }}>
+            {(['grid', 'list'] as const).map(m => (
+              <button key={m} type="button" onClick={() => onSetViewMode(m)}
+                className="font-medium"
+                style={{ fontSize: '.7rem', padding: '.28rem .55rem', background: viewMode === m ? 'var(--ink)' : 'transparent', color: viewMode === m ? 'var(--paper)' : 'var(--muted)', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
+                {m === 'grid' ? '⊞' : '≡'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Ligne 2 — taille + tri */}
+      {/* Ligne 2 — taille + ville + dispo + expérience + tri */}
       <div className="flex items-center gap-[.5rem] flex-wrap" style={{ marginBottom: '.5rem' }}>
         <div className="flex items-center gap-1" style={{ border: '1px solid var(--border)', padding: '.25rem .6rem' }}>
           <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em' }}>Taille</span>
@@ -147,9 +179,35 @@ export function DashboardFilters({
           />
           <span className="text-muted" style={{ fontSize: '.4rem' }}>cm</span>
         </div>
+        {/* Ville */}
+        <input
+          type="text"
+          value={filterVille}
+          onChange={e => onFilterVille(e.target.value)}
+          placeholder="Ville…"
+          style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.25rem .6rem', width: '6rem' }}
+          onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
+          onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
+        />
+        {/* Disponibilité */}
+        {(['Flexible', 'Jours de semaine', 'Weekends', 'Voyages OK'] as const).map(d => (
+          <button key={d} type="button"
+            onClick={() => onFilterDisponibilite(filterDisponibilite === d ? null : d)}
+            className="font-medium uppercase transition-colors duration-200"
+            style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterDisponibilite === d ? 'var(--red)' : 'var(--border)'}`, color: filterDisponibilite === d ? 'var(--red)' : 'var(--muted)', background: filterDisponibilite === d ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.25rem .6rem' }}
+          >{d}</button>
+        ))}
+        {/* Expérience */}
+        {(['Débutant(e)', 'Quelques shootings', 'Expérimenté(e)'] as const).map(exp => (
+          <button key={exp} type="button"
+            onClick={() => onFilterExperience(filterExperience === exp ? null : exp)}
+            className="font-medium uppercase transition-colors duration-200"
+            style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterExperience === exp ? 'var(--red)' : 'var(--border)'}`, color: filterExperience === exp ? 'var(--red)' : 'var(--muted)', background: filterExperience === exp ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.25rem .6rem' }}
+          >{exp}</button>
+        ))}
         <div className="flex items-center gap-1" style={{ marginLeft: 'auto' }}>
           <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em', marginRight: '.3rem' }}>Tri</span>
-          {([['date','Date'],['nom','Nom'],['taille','Taille']] as [SortKey, string][]).map(([key, label]) => (
+          {([['date','Date'],['nom','Nom'],['taille','Taille'],['age','Âge']] as [SortKey, string][]).map(([key, label]) => (
             <button
               key={key}
               type="button"

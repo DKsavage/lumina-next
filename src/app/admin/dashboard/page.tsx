@@ -33,6 +33,10 @@ export default function DashboardPage() {
   const [sortAsc,           setSortAsc]           = useState(false)
   const [tailleMin,         setTailleMin]         = useState('')
   const [tailleMax,         setTailleMax]         = useState('')
+  const [filterInstagram,     setFilterInstagram]     = useState(false)
+  const [filterVille,         setFilterVille]         = useState('')
+  const [filterDisponibilite, setFilterDisponibilite] = useState<string | null>(null)
+  const [filterExperience,    setFilterExperience]    = useState<string | null>(null)
   const [composerOpen,      setComposerOpen]      = useState(false)
   const [sending,           setSending]           = useState(false)
   const [toast,             setToast]             = useState('')
@@ -43,6 +47,7 @@ export default function DashboardPage() {
   const [lightbox,          setLightbox]          = useState<string | null>(null)
   // sessionStatusId — ID de la session dont on veut afficher le suivi de confirmation
   const [sessionStatusId,   setSessionStatusId]   = useState<string | null>(null)
+  const [viewMode,          setViewMode]          = useState<'grid' | 'list'>('grid')
 
   useEffect(() => { setConfirmDelete(false) }, [detail])
 
@@ -50,11 +55,16 @@ export default function DashboardPage() {
   const filtered = useMemo(() => candidatures
     .filter(c => {
       const q = deferredSearch.toLowerCase()
-      if (q && !c.prenom.toLowerCase().includes(q) && !c.nom.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
-      if (filterGenre && c.genre !== filterGenre) return false
-      if (filterSelectionne && !c.selectionne) return false
-      if (tailleMin && (c.taille ?? 0) < Number(tailleMin)) return false
-      if (tailleMax && (c.taille ?? 999) > Number(tailleMax)) return false
+      if (q && ![c.prenom, c.nom, c.email, c.ville ?? '', c.telephone, c.instagram ?? '']
+        .some(v => v.toLowerCase().includes(q))) return false
+      if (filterGenre         && c.genre          !== filterGenre)         return false
+      if (filterSelectionne   && !c.selectionne)                           return false
+      if (tailleMin           && (c.taille ?? 0) < Number(tailleMin))      return false
+      if (tailleMax           && (c.taille ?? 999) > Number(tailleMax))    return false
+      if (filterInstagram     && !c.instagram)                             return false
+      if (filterVille         && !c.ville?.toLowerCase().includes(filterVille.toLowerCase())) return false
+      if (filterDisponibilite && c.disponibilite  !== filterDisponibilite) return false
+      if (filterExperience    && c.experience     !== filterExperience)    return false
       return true
     })
     .sort((a, b) => {
@@ -62,8 +72,14 @@ export default function DashboardPage() {
       if (sortBy === 'nom')    cmp = `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`)
       if (sortBy === 'taille') cmp = (a.taille ?? 0) - (b.taille ?? 0)
       if (sortBy === 'date')   cmp = new Date(a.date_inscription).getTime() - new Date(b.date_inscription).getTime()
+      if (sortBy === 'age') {
+        const ageA = a.date_naissance ? new Date().getFullYear() - new Date(a.date_naissance).getFullYear() : 0
+        const ageB = b.date_naissance ? new Date().getFullYear() - new Date(b.date_naissance).getFullYear() : 0
+        cmp = ageA - ageB
+      }
       return sortAsc ? cmp : -cmp
-    }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax, sortBy, sortAsc])
+    }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax,
+         filterInstagram, filterVille, filterDisponibilite, filterExperience, sortBy, sortAsc])
 
   const { selectedIds, selectedCount, allFilteredSelected, selectedBreakdown, toggleSelect, toggleSelectAll, clearSelection } = useSelection(filtered)
   const detailIdx = detail ? filtered.findIndex(c => c.id === detail.id) : -1
@@ -76,12 +92,13 @@ export default function DashboardPage() {
   }
 
   function handleExportCSV() {
-    if (candidatures.length > 500 && !window.confirm(`Exporter ${candidatures.length} candidatures ? Le fichier peut être volumineux.`)) return
-    const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Date inscription','Notifié']
-    const rows = candidatures.map(c => [
+    if (filtered.length > 500 && !window.confirm(`Exporter ${filtered.length} candidatures ? Le fichier peut être volumineux.`)) return
+    const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Instagram','Date inscription','Notifié']
+    const rows = filtered.map(c => [
       c.prenom, c.nom, c.email, c.telephone, c.genre ?? '',
       c.taille ?? '', c.ville ?? '', c.pays ?? '',
       c.experience ?? '', c.disponibilite ?? '', c.langues ?? '',
+      c.instagram ?? '',
       new Date(c.date_inscription).toLocaleDateString('fr-CA'),
       c.selectionne ? 'Oui' : 'Non',
     ])
@@ -148,10 +165,18 @@ export default function DashboardPage() {
         onSort={key => { if (sortBy === key) setSortAsc(v => !v); else { setSortBy(key); setSortAsc(key === 'nom') } }}
         allFilteredSelected={allFilteredSelected} onToggleSelectAll={toggleSelectAll}
         filteredCount={filtered.length} totalCount={candidatures.length}
-        hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax)}
-        onResetFilters={() => { setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('') }}
-        showArchived={showArchived}     onToggleArchived={toggleShowArchived}
+        hasActiveFilters={!!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience)}
+        onResetFilters={() => {
+          setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('')
+          setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null)
+        }}
+        showArchived={showArchived}           onToggleArchived={toggleShowArchived}
         archivedCount={archivedCount}
+        filterInstagram={filterInstagram}         onFilterInstagram={setFilterInstagram}
+        filterVille={filterVille}                 onFilterVille={setFilterVille}
+        filterDisponibilite={filterDisponibilite} onFilterDisponibilite={setFilterDisponibilite}
+        filterExperience={filterExperience}       onFilterExperience={setFilterExperience}
+        viewMode={viewMode}                       onSetViewMode={setViewMode}
       />
 
       {/* GRILLE */}

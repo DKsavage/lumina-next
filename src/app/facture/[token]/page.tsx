@@ -134,7 +134,7 @@ export default function FacturePage() {
             <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>Rep. M. Jonas Friard</div>
             <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>2165 Avenue Charlemagne</div>
             <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>Montréal, H1W 0A7, QC</div>
-            <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>casting@luminamodels.ca</div>
+            <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>luminaphotography.mtl@gmail.com</div>
           </div>
 
           {/* Tableau articles */}
@@ -178,7 +178,7 @@ export default function FacturePage() {
           <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #e0e0e0' }}>
             <div style={{ fontSize: '11px', color: '#9b9b9b', lineHeight: 1.7 }}>
               Ce document constitue une facture de services de mannequinat à des fins comptables.
-              Veuillez retourner ce document signé à casting@luminamodels.ca.
+              Veuillez retourner ce document signé à luminaphotography.mtl@gmail.com.
             </div>
           </div>
 

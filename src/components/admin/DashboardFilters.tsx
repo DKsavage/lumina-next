@@ -98,6 +98,7 @@ export function DashboardFilters({
   filterInstagram, onFilterInstagram,
   filterVille, onFilterVille,
   allTags,
+  showArchived, onToggleArchived, archivedCount,
 }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -173,6 +174,15 @@ export function DashboardFilters({
             onClick={() => setDrawerOpen(true)}
             variant="dashed"
           />
+
+          {/* Archivées toggle */}
+          {onToggleArchived && (
+            <Chip
+              label={showArchived ? `Archivées (${archivedCount ?? 0})` : 'Archivées'}
+              active={!!showArchived}
+              onClick={onToggleArchived}
+            />
+          )}
 
           {/* Reset si filtres actifs */}
           {hasActiveFilters && (

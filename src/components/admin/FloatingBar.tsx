@@ -2,6 +2,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import type { Candidature } from '@/types/candidature'
 
 interface Props {
@@ -73,8 +74,14 @@ export function FloatingBar({
               }}
             >
               {item.photo_profil_signed && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.photo_profil_signed} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+                <Image
+                  src={item.photo_profil_signed}
+                  alt=""
+                  fill
+                  unoptimized
+                  style={{ objectFit: 'cover', objectPosition: 'top' }}
+                  sizes="28px"
+                />
               )}
             </div>
           ))}

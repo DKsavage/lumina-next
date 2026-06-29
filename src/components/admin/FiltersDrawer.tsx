@@ -29,8 +29,8 @@ interface Props {
   hasActiveFilters:       boolean
 }
 
-const DISPONIBILITES = ['Immédiatement', 'Dans 1 mois', 'Dans 3 mois', 'Selon disponibilité']
-const EXPERIENCES    = ['Débutant', 'Intermédiaire', 'Professionnel']
+const DISPONIBILITES = ['Flexible', 'Jours de semaine', 'Weekends', 'Voyages OK']
+const EXPERIENCES    = ['Débutant(e)', 'Quelques shootings', 'Expérimenté(e)']
 
 function DrawerChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
@@ -44,7 +44,7 @@ function DrawerChip({ label, active, onClick }: { label: string; active: boolean
         background: active ? 'var(--color-ink)' : '#fff',
         color: active ? 'var(--color-paper)' : 'var(--color-ink)',
         cursor: 'pointer',
-        transition: 'all .25s var(--spring)',
+        transition: 'background .25s var(--spring), color .25s var(--spring), border-color .25s var(--spring)',
       }}
     >
       {label}

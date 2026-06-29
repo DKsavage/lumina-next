@@ -163,7 +163,7 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
             background: selected ? (isAmb ? '#C4973A' : 'var(--red)') : 'rgba(247,243,238,.25)',
             border: selected ? `1.5px solid #fff` : `1.5px solid rgba(255,255,255,.5)`,
             boxShadow: selected ? (isAmb ? '0 2px 6px rgba(196,151,58,.4)' : '0 2px 6px rgba(139,0,32,.35)') : 'none',
-            transition: 'all .2s var(--spring)',
+            transition: 'background .2s var(--spring), border-color .2s var(--spring), box-shadow .2s var(--spring)',
           }}>
             {selected && (
               <svg width="8" height="7" viewBox="0 0 10 8" fill="none">

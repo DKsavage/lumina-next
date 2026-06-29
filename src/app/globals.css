@@ -24,6 +24,10 @@
   --color-red-lt:     #B5002A;
   --color-blush:      #EDD8D8;
   --color-champagne:  #C4A05A;
+  --color-gold:       #C4973A;
+  --color-gold-light: rgba(196,151,58,.10);
+  --color-gold-mid:   rgba(196,151,58,.28);
+  --color-cream-deep: #EDE7DC;
   --color-muted:      #8A8078;
   --color-border:     rgba(12, 11, 9, 0.07);
 
@@ -125,6 +129,14 @@
   --sidebar-ring:      oklch(0.708 0 0);
 }
 
+/* ── LUMINA DASHBOARD — tokens complémentaires ── */
+:root {
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --spring-fast: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --shadow-card: 0 1px 3px rgba(26,20,16,.07), 0 2px 6px rgba(26,20,16,.04);
+  --shadow-card-hover: 0 3px 8px rgba(26,20,16,.09), 0 1px 3px rgba(26,20,16,.05);
+}
+
 /* ── RESET & BASE ────────────────────────────────────────────
    box-sizing: border-box → padding ne gonfle plus la largeur
    antialiased → rendu typographique macOS lissé
@@ -159,6 +171,16 @@ body {
    opacity: 0.028 → imperceptible mais donne la "peau" du papier.
    mix-blend-mode: multiply → se mélange au contenu comme impression offset.
 ────────────────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: .028;
+}
+
 body::after {
   content: '';
   position: fixed;
@@ -329,6 +351,34 @@ body:has(a:hover, button:hover) #cur-dot {
 .fade-in-delayed {
   opacity: 0;
   animation: fadeInDelayed 1s ease 2s forwards;
+}
+
+/* ════════════════════════════════════════════════
+   DASHBOARD KEYFRAMES — Phase 12 animations
+   ════════════════════════════════════════════════ */
+@keyframes shimmer {
+  from { background-position: -300px 0; }
+  to   { background-position:  300px 0; }
+}
+
+@keyframes drawerUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes barUp {
+  from { opacity: 0; transform: translateY(16px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes barDown {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(16px) scale(.97); }
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 /* ════════════════════════════════════════════════

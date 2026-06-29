@@ -1,38 +1,39 @@
-// DashboardFilters — barre de recherche, filtres genre/notifiés/taille et tri.
-// Purement présentationnel : reçoit l'état et expose des callbacks vers le parent.
+// DashboardFilters — barre recherche + chips simples + chip Tri + trigger drawer.
+// Les filtres avancés sont dans FiltersDrawer.
 'use client'
 
-import type { ChangeEvent } from 'react'
+import { useState } from 'react'
 import type { SortKey } from '@/types/candidature'
+import { FiltersDrawer } from '@/components/admin/FiltersDrawer'
 import { TIER_CONFIG, type Tier } from '@/components/admin/tierConfig'
 
+const SORT_LABELS: Record<SortKey, string> = {
+  date:   'Date',
+  nom:    'Nom',
+  taille: 'Taille',
+  age:    'Âge',
+}
+const SORT_CYCLE: SortKey[] = ['date', 'nom', 'taille', 'age']
+
 interface Props {
-  search:              string
-  onSearch:            (v: string) => void
-  filterGenre:         string | null
-  onFilterGenre:       (g: string | null) => void
-  filterSelectionne:   boolean
-  onFilterSelectionne: (v: boolean) => void
-  tailleMin:           string
-  tailleMax:           string
-  onTailleMin:         (v: string) => void
-  onTailleMax:         (v: string) => void
-  sortBy:              SortKey
-  sortAsc:             boolean
-  onSort:              (key: SortKey) => void
-  allFilteredSelected: boolean
-  onToggleSelectAll:   () => void
-  filteredCount:       number
-  totalCount:          number
-  hasActiveFilters:    boolean
-  onResetFilters:      () => void
-  showArchived:        boolean
-  onToggleArchived:    () => void
-  archivedCount:       number
-  filterInstagram:        boolean
-  onFilterInstagram:      (v: boolean) => void
-  filterVille:            string
-  onFilterVille:          (v: string) => void
+  search:                 string
+  onSearch:               (v: string) => void
+  filterGenre:            string | null
+  onFilterGenre:          (g: string | null) => void
+  filterSelectionne:      boolean
+  onFilterSelectionne:    (v: boolean) => void
+  sortBy:                 SortKey
+  sortAsc:                boolean
+  onSort:                 (key: SortKey) => void
+  filteredCount:          number
+  totalCount:             number
+  hasActiveFilters:       boolean
+  onResetFilters:         () => void
+  // Drawer props
+  tailleMin:              string
+  tailleMax:              string
+  onTailleMin:            (v: string) => void
+  onTailleMax:            (v: string) => void
   filterDisponibilite:    string | null
   onFilterDisponibilite:  (v: string | null) => void
   filterExperience:       string | null
@@ -41,213 +42,166 @@ interface Props {
   onFilterTier:           (v: string | null) => void
   filterTag:              string | null
   onFilterTag:            (v: string | null) => void
+  filterInstagram:        boolean
+  onFilterInstagram:      (v: boolean) => void
+  filterVille:            string
+  onFilterVille:          (v: string) => void
   allTags:                string[]
-  viewMode:               'grid' | 'list'
-  onSetViewMode:          (m: 'grid' | 'list') => void
+  // Legacy props kept for backwards compatibility with existing callers
+  allFilteredSelected?:   boolean
+  onToggleSelectAll?:     () => void
+  showArchived?:          boolean
+  onToggleArchived?:      () => void
+  archivedCount?:         number
+  viewMode?:              'grid' | 'list'
+  onSetViewMode?:         (m: 'grid' | 'list') => void
 }
 
-function sortBtnStyle(active: boolean): React.CSSProperties {
-  return {
-    fontFamily:   "'Montserrat', sans-serif",
-    fontSize:     '.44rem',
-    letterSpacing: '.22em',
-    border:       `1px solid ${active ? 'var(--ink)' : 'var(--border)'}`,
-    color:        active ? 'var(--ink)' : 'var(--muted)',
-    background:   'transparent',
-    padding:      '.35rem .8rem',
-    cursor:       'pointer',
-    fontWeight:   active ? 500 : 400,
-    transition:   'all .15s',
-  }
+function Chip({ label, active, onClick, variant = 'default' }: { label: string; active: boolean; onClick: () => void; variant?: 'default' | 'rouge' | 'dashed' }) {
+  const bg    = active ? (variant === 'rouge' ? 'var(--red)' : 'var(--ink)') : '#fff'
+  const color = active ? 'var(--paper)' : 'var(--ink)'
+  const border = variant === 'dashed'
+    ? `1px dashed var(--border)`
+    : `1px solid ${active ? (variant === 'rouge' ? 'var(--red)' : 'var(--ink)') : 'rgba(26,20,16,.12)'}`
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        height: '22px', borderRadius: '100px', padding: '0 .6rem', flexShrink: 0,
+        display: 'flex', alignItems: 'center', gap: '.28rem',
+        fontSize: '.44rem', fontWeight: 500, letterSpacing: '.12em', textTransform: 'uppercase',
+        border, background: variant === 'dashed' ? 'transparent' : bg,
+        color: variant === 'dashed' ? 'var(--muted)' : color,
+        cursor: 'pointer', fontFamily: "'Montserrat', sans-serif",
+        transition: 'background .3s var(--spring), color .3s var(--spring), border-color .3s var(--spring)',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {label}
+    </button>
+  )
 }
 
 export function DashboardFilters({
   search, onSearch,
   filterGenre, onFilterGenre,
   filterSelectionne, onFilterSelectionne,
-  tailleMin, tailleMax, onTailleMin, onTailleMax,
   sortBy, sortAsc, onSort,
-  allFilteredSelected, onToggleSelectAll,
   filteredCount, totalCount,
   hasActiveFilters, onResetFilters,
-  showArchived, onToggleArchived, archivedCount,
-  filterInstagram, onFilterInstagram,
-  filterVille, onFilterVille,
+  tailleMin, tailleMax, onTailleMin, onTailleMax,
   filterDisponibilite, onFilterDisponibilite,
   filterExperience, onFilterExperience,
   filterTier, onFilterTier,
-  filterTag, onFilterTag, allTags,
-  viewMode, onSetViewMode,
+  filterTag, onFilterTag,
+  filterInstagram, onFilterInstagram,
+  filterVille, onFilterVille,
+  allTags,
 }: Props) {
-  return (
-    <div style={{ padding: '2rem 2rem 0' }}>
-      {/* Recherche */}
-      <div style={{ maxWidth: '42rem', marginBottom: '1.2rem' }}>
-        <input
-          type="search"
-          placeholder="Rechercher par nom ou email…"
-          value={search}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
-          className="w-full bg-transparent text-ink font-light outline-none"
-          style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.9rem', borderBottom: '1px solid var(--border)', paddingBottom: '.75rem', transition: 'border-color .2s' }}
-          onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
-          onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
-        />
-      </div>
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
-      {/* Ligne 1 — genre + notifiés + tout sélect. */}
-      <div className="flex items-center gap-[.5rem] flex-wrap mb-[.75rem]">
-        {(['Femme', 'Homme', 'Non-binaire'] as const).map(g => (
-          <button
-            key={g}
-            type="button"
-            onClick={() => onFilterGenre(filterGenre === g ? null : g)}
-            className="font-medium uppercase transition-colors duration-200"
-            style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterGenre === g ? 'var(--red)' : 'var(--border)'}`, color: filterGenre === g ? 'var(--red)' : 'var(--muted)', background: filterGenre === g ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}
-          >
-            {g}
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => onFilterSelectionne(!filterSelectionne)}
-          className="font-medium uppercase transition-colors duration-200"
-          style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterSelectionne ? 'var(--red)' : 'var(--border)'}`, color: filterSelectionne ? 'var(--red)' : 'var(--muted)', background: filterSelectionne ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}
-        >
-          Notifiés
-        </button>
-        <button
-          type="button"
-          onClick={onToggleArchived}
-          className="font-medium uppercase transition-colors duration-200"
-          style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${showArchived ? 'var(--ink)' : 'var(--border)'}`, color: showArchived ? 'var(--ink)' : 'var(--muted)', background: showArchived ? 'rgba(0,0,0,.06)' : 'transparent', padding: '.35rem .8rem' }}
-        >
-          Archivées{archivedCount > 0 && !showArchived ? ` (${archivedCount})` : ''}
-        </button>
-        <button
-          type="button"
-          onClick={() => onFilterInstagram(!filterInstagram)}
-          className="font-medium uppercase transition-colors duration-200"
-          style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${filterInstagram ? 'var(--red)' : 'var(--border)'}`, color: filterInstagram ? 'var(--red)' : 'var(--muted)', background: filterInstagram ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.35rem .8rem' }}
-        >
-          Instagram ✦
-        </button>
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="font-medium uppercase text-muted transition-colors duration-200 hover:text-red"
-            style={{ fontSize: '.44rem', letterSpacing: '.22em', background: 'none', padding: '.35rem .5rem' }}
-          >
-            Réinitialiser ×
-          </button>
-        )}
-        <div className="flex items-center gap-2" style={{ marginLeft: 'auto' }}>
-          <button
-            type="button"
-            onClick={onToggleSelectAll}
-            className="font-medium uppercase transition-colors duration-200"
-            style={{ fontSize: '.44rem', letterSpacing: '.22em', cursor: 'pointer', border: `1px solid ${allFilteredSelected ? 'var(--ink)' : 'var(--border)'}`, color: allFilteredSelected ? 'var(--ink)' : 'var(--muted)', background: 'transparent', padding: '.35rem .8rem' }}
-          >
-            {allFilteredSelected ? 'Tout désélect.' : 'Tout sélect.'}
-          </button>
-          <span className="text-muted font-light" style={{ fontSize: '.55rem' }}>
-            {filteredCount} / {totalCount}
-          </span>
-          <div style={{ display: 'flex', border: '1px solid var(--border)', marginLeft: '.25rem' }}>
-            {(['grid', 'list'] as const).map(m => (
-              <button key={m} type="button" onClick={() => onSetViewMode(m)}
-                className="font-medium"
-                style={{ fontSize: '.7rem', padding: '.28rem .55rem', background: viewMode === m ? 'var(--ink)' : 'transparent', color: viewMode === m ? 'var(--paper)' : 'var(--muted)', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
-                {m === 'grid' ? '⊞' : '≡'}
-              </button>
-            ))}
+  function cycleSortBy() {
+    const idx  = SORT_CYCLE.indexOf(sortBy)
+    const next = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length]
+    onSort(next)
+  }
+
+  const hasDrawerFilters = !!(tailleMin || tailleMax || filterDisponibilite || filterExperience || filterTier || filterTag || filterInstagram || filterVille)
+
+  return (
+    <>
+      <div style={{ padding: '0 .8rem .6rem', display: 'flex', flexDirection: 'column', gap: '.45rem' }}>
+
+        {/* Search bar */}
+        <div style={{ background: '#fff', borderRadius: '1rem', border: '1px solid rgba(26,20,16,.12)', padding: '3px', boxShadow: '0 1px 0 rgba(255,255,255,.9) inset, var(--shadow-card)' }}>
+          <div style={{ background: 'var(--paper)', borderRadius: 'calc(1rem - 3px)', display: 'flex', alignItems: 'center', padding: '.45rem .65rem', gap: '.5rem', boxShadow: '0 1px 2px rgba(26,20,16,.05) inset' }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.5" style={{ flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              value={search}
+              onChange={e => onSearch(e.target.value)}
+              placeholder="Rechercher, filtrer, naviguer…"
+              style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '.58rem', letterSpacing: '.1em', fontWeight: 300, color: 'var(--ink)', fontFamily: "'Montserrat', sans-serif" }}
+            />
+            <span style={{ fontSize: '.44rem', fontWeight: 500, color: 'var(--muted)', background: 'var(--cream-deep, #EDE7DC)', border: '1px solid rgba(26,20,16,.12)', borderRadius: '3px', padding: '2px 5px', flexShrink: 0 }}>
+              ⌘K
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* Ligne 2 — taille + ville + dispo + expérience + tri */}
-      <div className="flex items-center gap-[.5rem] flex-wrap" style={{ marginBottom: '.5rem' }}>
-        <div className="flex items-center gap-1" style={{ border: '1px solid var(--border)', padding: '.25rem .6rem' }}>
-          <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em' }}>Taille</span>
-          <input
-            type="number"
-            value={tailleMin}
-            onChange={e => onTailleMin(e.target.value)}
-            placeholder="min"
-            style={{ width: '3rem', background: 'transparent', border: 'none', outline: 'none', fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', textAlign: 'center' }}
+        {/* Chips row */}
+        <div style={{ display: 'flex', gap: '.3rem', flexWrap: 'wrap', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {/* Tous / count */}
+          <Chip
+            label={`Tous (${filteredCount})`}
+            active={!filterGenre && !filterSelectionne}
+            onClick={() => { onFilterGenre(null); onFilterSelectionne(false) }}
           />
-          <span className="text-muted" style={{ fontSize: '.55rem' }}>—</span>
-          <input
-            type="number"
-            value={tailleMax}
-            onChange={e => onTailleMax(e.target.value)}
-            placeholder="max"
-            style={{ width: '3rem', background: 'transparent', border: 'none', outline: 'none', fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', textAlign: 'center' }}
+
+          {/* Sélectionnés */}
+          <Chip
+            label="● Sélect."
+            active={filterSelectionne}
+            onClick={() => onFilterSelectionne(!filterSelectionne)}
+            variant="rouge"
           />
-          <span className="text-muted" style={{ fontSize: '.4rem' }}>cm</span>
-        </div>
-        {/* Ville */}
-        <input
-          type="text"
-          value={filterVille}
-          onChange={e => onFilterVille(e.target.value)}
-          placeholder="Ville…"
-          style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.62rem', color: 'var(--ink)', background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.25rem .6rem', width: '6rem' }}
-          onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
-          onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
-        />
-        {/* Disponibilité */}
-        {(['Flexible', 'Jours de semaine', 'Weekends', 'Voyages OK'] as const).map(d => (
-          <button key={d} type="button"
-            onClick={() => onFilterDisponibilite(filterDisponibilite === d ? null : d)}
-            className="font-medium uppercase transition-colors duration-200"
-            style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterDisponibilite === d ? 'var(--red)' : 'var(--border)'}`, color: filterDisponibilite === d ? 'var(--red)' : 'var(--muted)', background: filterDisponibilite === d ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.25rem .6rem' }}
-          >{d}</button>
-        ))}
-        {/* Expérience */}
-        {(['Débutant(e)', 'Quelques shootings', 'Expérimenté(e)'] as const).map(exp => (
-          <button key={exp} type="button"
-            onClick={() => onFilterExperience(filterExperience === exp ? null : exp)}
-            className="font-medium uppercase transition-colors duration-200"
-            style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterExperience === exp ? 'var(--red)' : 'var(--border)'}`, color: filterExperience === exp ? 'var(--red)' : 'var(--muted)', background: filterExperience === exp ? 'rgba(139,0,32,.04)' : 'transparent', padding: '.25rem .6rem' }}
-          >{exp}</button>
-        ))}
-        {/* Filtres tier */}
-        {(Object.entries(TIER_CONFIG) as [Tier, typeof TIER_CONFIG[Tier]][]).map(([key, cfg]) => (
-          <button key={key} type="button"
-            onClick={() => onFilterTier(filterTier === key ? null : key)}
-            className="font-medium uppercase transition-colors duration-200"
-            style={{ fontSize: '.4rem', letterSpacing: '.18em', cursor: 'pointer', whiteSpace: 'nowrap', border: `1px solid ${filterTier === key ? cfg.border : 'var(--border)'}`, color: filterTier === key ? cfg.color : 'var(--muted)', background: filterTier === key ? cfg.bg : 'transparent', padding: '.25rem .6rem' }}
-          >{cfg.label}</button>
-        ))}
 
-        {allTags.length > 0 && allTags.map(tag => (
-          <button key={tag} type="button"
-            onClick={() => onFilterTag(filterTag === tag ? null : tag)}
-            className="font-medium transition-colors duration-200"
-            style={{ fontSize: '.42rem', letterSpacing: '.12em', cursor: 'pointer', whiteSpace: 'nowrap',
-              border: `1px solid ${filterTag === tag ? 'var(--red)' : 'var(--border)'}`,
-              color: filterTag === tag ? 'var(--red)' : 'var(--muted)',
-              background: filterTag === tag ? 'rgba(139,0,32,.04)' : 'transparent',
-              padding: '.25rem .6rem' }}
-          >#{tag}</button>
-        ))}
+          {/* Séparateur */}
+          <div style={{ width: 1, height: 14, background: 'rgba(26,20,16,.12)', flexShrink: 0 }} />
 
-        <div className="flex items-center gap-1" style={{ marginLeft: 'auto' }}>
-          <span className="font-medium uppercase text-muted" style={{ fontSize: '.4rem', letterSpacing: '.2em', marginRight: '.3rem' }}>Tri</span>
-          {([['date','Date'],['nom','Nom'],['taille','Taille'],['age','Âge']] as [SortKey, string][]).map(([key, label]) => (
+          {/* Genre */}
+          <Chip label="Femmes" active={filterGenre === 'Femme'}   onClick={() => onFilterGenre(filterGenre === 'Femme'   ? null : 'Femme')} />
+          <Chip label="Hommes" active={filterGenre === 'Homme'}   onClick={() => onFilterGenre(filterGenre === 'Homme'   ? null : 'Homme')} />
+
+          {/* Séparateur */}
+          <div style={{ width: 1, height: 14, background: 'rgba(26,20,16,.12)', flexShrink: 0 }} />
+
+          {/* Tri chip */}
+          <Chip
+            label={`Tri : ${SORT_LABELS[sortBy]} ${sortAsc ? '↑' : '↓'}`}
+            active={sortBy !== 'date' || sortAsc}
+            onClick={cycleSortBy}
+          />
+
+          {/* Filtres avancés */}
+          <Chip
+            label={hasDrawerFilters ? `+ Filtres (${[tailleMin||tailleMax,filterDisponibilite,filterExperience,filterTier,filterTag,filterInstagram||'',filterVille].filter(Boolean).length})` : '+ Filtres avancés'}
+            active={hasDrawerFilters}
+            onClick={() => setDrawerOpen(true)}
+            variant="dashed"
+          />
+
+          {/* Reset si filtres actifs */}
+          {hasActiveFilters && (
             <button
-              key={key}
               type="button"
-              onClick={() => onSort(key)}
-              style={sortBtnStyle(sortBy === key)}
+              onClick={onResetFilters}
+              style={{ fontSize: '.42rem', letterSpacing: '.12em', fontWeight: 500, textTransform: 'uppercase', color: 'var(--red)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, padding: '0 .2rem' }}
             >
-              {label}{sortBy === key ? (sortAsc ? ' ↑' : ' ↓') : ''}
+              ✕ Reset
             </button>
-          ))}
+          )}
         </div>
       </div>
-    </div>
+
+      <FiltersDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        tailleMin={tailleMin}           onTailleMin={onTailleMin}
+        tailleMax={tailleMax}           onTailleMax={onTailleMax}
+        filterDisponibilite={filterDisponibilite} onFilterDisponibilite={onFilterDisponibilite}
+        filterExperience={filterExperience}       onFilterExperience={onFilterExperience}
+        filterTier={filterTier}                   onFilterTier={onFilterTier}
+        filterTag={filterTag}                     onFilterTag={onFilterTag}
+        filterInstagram={filterInstagram}         onFilterInstagram={onFilterInstagram}
+        filterVille={filterVille}                 onFilterVille={onFilterVille}
+        allTags={allTags}
+        onResetAll={onResetFilters}
+        hasActiveFilters={hasDrawerFilters}
+      />
+    </>
   )
 }

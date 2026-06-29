@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trancher — Sélection + État vide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F7F3EE; --cream-deep: #EDE7DC;
+    --ink: #1A1410; --ink-soft: #4A3F35;
+    --rouge: #8B0020; --rouge-light: rgba(139,0,32,.07); --rouge-mid: rgba(139,0,32,.16);
+    --muted: #9A8F84; --border: rgba(26,20,16,.07); --border-strong: rgba(26,20,16,.12);
+    --green: #2E7D32; --gold: #C4973A; --gold-light: rgba(196,151,58,.1); --gold-mid: rgba(196,151,58,.28);
+    --spring: cubic-bezier(0.32,0.72,0,1);
+  }
+  body { background:#E8E3DC; font-family:'Montserrat',sans-serif; font-weight:300; color:var(--ink); padding:2rem 1.5rem 4rem; }
+  body::before { content:''; position:fixed; inset:0; z-index:99; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity:.025; }
+
+  h2.block-title { font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; font-size:1.2rem; letter-spacing:.03em; color:var(--ink); margin-bottom:.2rem; }
+  .block-sub { font-size:.5rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-bottom:1.2rem; }
+
+  .sep { display:flex; align-items:center; gap:.75rem; margin:2.5rem 0 1.5rem; }
+  .sep::before,.sep::after { content:''; flex:1; height:1px; background:linear-gradient(to right,transparent,var(--border-strong),transparent); }
+  .sep span { font-size:.46rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+
+  /* card shell */
+  .c-out { background:var(--cream-deep); border:1px solid var(--border); border-radius:1.1rem; padding:3px; box-shadow:0 1px 0 rgba(255,255,255,.65) inset,0 1px 3px rgba(26,20,16,.07),0 2px 6px rgba(26,20,16,.04); }
+  .c-in { background:#fff; border-radius:calc(1.1rem - 3px); overflow:hidden; box-shadow:0 1px 0 rgba(255,255,255,.9) inset; }
+  .c-photo { height:110px; position:relative; overflow:hidden; }
+  .c-foot { padding:.5rem .6rem .48rem; border-top:1px solid var(--border); }
+  .c-name { font-family:'Cormorant Garamond',serif; font-weight:400; font-size:.9rem; letter-spacing:.02em; color:var(--ink); }
+  .c-sub { font-size:.4rem; letter-spacing:.13em; font-weight:400; color:var(--muted); text-transform:uppercase; margin-top:2px; }
+  .c-dispo { display:flex; align-items:center; gap:.3rem; font-size:.4rem; letter-spacing:.12em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-top:.3rem; }
+  .c-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+  .c-dot.g { background:var(--green); }
+  .c-tags { display:flex; gap:.22rem; margin-top:.3rem; }
+  .c-tag { font-size:.38rem; letter-spacing:.1em; font-weight:500; text-transform:uppercase; padding:1.5px 5px; border-radius:100px; background:var(--rouge-light); color:var(--rouge); border:1px solid var(--rouge-mid); }
+  .c-tag.n { background:var(--cream); color:var(--muted); border-color:var(--border-strong); }
+
+  /* ══════════════════════════
+     BLOC 1 — ÉTAT SÉLECTION
+  ══════════════════════════ */
+  .sel-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  @media(max-width:800px){.sel-grid{grid-template-columns:1fr 1fr;}}
+
+  .opt-lbl { font-size:.5rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; display:flex; align-items:center; gap:.4rem; }
+  .opt-lbl::before { content:''; display:inline-block; width:10px; height:1px; background:var(--rouge); }
+  .opt-desc { font-size:.52rem; line-height:1.55; color:var(--ink-soft); font-weight:300; margin-bottom:.7rem; }
+  .rec { display:inline-block; font-size:.42rem; letter-spacing:.12em; font-weight:500; text-transform:uppercase; background:var(--rouge-light); color:var(--rouge); border:1px solid var(--rouge-mid); border-radius:100px; padding:.15rem .5rem; margin-bottom:.5rem; }
+
+  /* Select dot top-left */
+  .sel-dot { position:absolute; top:8px; left:8px; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.5rem; transition:all .25s var(--spring); }
+  .sel-dot.off { background:rgba(247,243,238,.25); border:1.5px solid rgba(255,255,255,.5); }
+  .sel-dot.on { background:var(--rouge); border:1.5px solid #fff; color:#fff; box-shadow:0 2px 6px rgba(139,0,32,.35); }
+  .sel-dot.on::after { content:'✓'; font-size:.52rem; font-weight:500; }
+
+  /* A — dot seul, rien sur la card */
+  /* (card normale, juste le dot change) */
+
+  /* B — outline rouge + fond teinté */
+  .c-out.sel-b {
+    border-color: var(--rouge);
+    box-shadow: 0 1px 0 rgba(255,255,255,.65) inset,
+                0 0 0 2.5px rgba(139,0,32,.2),
+                0 1px 3px rgba(26,20,16,.07);
+  }
+  .c-out.sel-b .c-in { background: rgba(139,0,32,.025); }
+
+  /* C — photo assombrie + outline + checkmark plein */
+  .c-out.sel-c {
+    border-color: var(--rouge);
+    box-shadow: 0 1px 0 rgba(255,255,255,.65) inset,
+                0 0 0 2.5px rgba(139,0,32,.2),
+                0 1px 3px rgba(26,20,16,.07);
+  }
+  .c-out.sel-c .c-photo::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(139,0,32,.12);
+  }
+  .c-out.sel-c .c-in { background: rgba(139,0,32,.025); }
+
+  /* ══════════════════════════
+     BLOC 2 — ÉTAT VIDE
+  ══════════════════════════ */
+  .empty-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+  @media(max-width:700px){.empty-grid{grid-template-columns:1fr;}}
+
+  /* Device shell léger */
+  .dev { background:var(--cream-deep); border:1px solid var(--border-strong); border-radius:1.25rem; padding:4px; box-shadow:0 2px 0 rgba(255,255,255,.55) inset,0 3px 10px rgba(26,20,16,.07); }
+  .dev-in { background:var(--cream); border-radius:calc(1.25rem - 4px); overflow:hidden; min-height:280px; display:flex; flex-direction:column; }
+
+  /* chips context */
+  .chips-ctx { display:flex; gap:.25rem; padding:.6rem .7rem .4rem; border-bottom:1px solid var(--border); }
+  .chip { height:19px; border-radius:100px; padding:0 .5rem; font-size:.38rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; border:1px solid var(--border-strong); display:flex; align-items:center; gap:.2rem; }
+  .chip.on { background:var(--ink); color:var(--cream); border-color:var(--ink); }
+  .chip.rouge { background:var(--rouge); color:#fff; border-color:var(--rouge); }
+  .chip.off { background:#fff; color:var(--ink-soft); }
+
+  /* Empty state A — illustration abstraite + texte */
+  .empty-a {
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:2rem 1.5rem; gap:.9rem;
+  }
+  .empty-illustration {
+    width:64px; height:64px; border-radius:1rem;
+    background:var(--cream-deep); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
+    position:relative; overflow:hidden;
+  }
+  /* Grille abstraite de cards fantômes */
+  .ghost-grid { display:grid; grid-template-columns:1fr 1fr; gap:3px; padding:6px; width:100%; }
+  .ghost-card { background:var(--border); border-radius:3px; height:18px; opacity:.5; }
+  .ghost-card:nth-child(3) { opacity:.25; }
+  .ghost-card:nth-child(4) { opacity:.15; }
+
+  .empty-headline { font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; font-size:1rem; letter-spacing:.03em; color:var(--ink); text-align:center; }
+  .empty-sub { font-size:.48rem; letter-spacing:.1em; font-weight:300; color:var(--muted); text-align:center; line-height:1.6; }
+  .empty-cta { height:26px; border-radius:100px; padding:0 .75rem; background:var(--rouge); color:#fff; font-size:.42rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase; display:flex; align-items:center; box-shadow:0 1px 5px rgba(139,0,32,.28); }
+  .active-filters { display:flex; gap:.25rem; flex-wrap:wrap; justify-content:center; }
+  .af-chip { height:17px; border-radius:100px; padding:0 .45rem; font-size:.36rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; background:var(--rouge-light); color:var(--rouge); border:1px solid var(--rouge-mid); display:flex; align-items:center; gap:.25rem; }
+  .af-chip-x { font-size:.5rem; opacity:.7; }
+
+  /* Empty state B — minimaliste, juste texte */
+  .empty-b {
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:2rem 1.5rem; gap:.6rem;
+  }
+  .empty-b-num { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:3rem; line-height:1; color:var(--cream-deep); }
+  .empty-b-headline { font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; font-size:.9rem; color:var(--ink-soft); text-align:center; }
+  .empty-b-cta { height:22px; border-radius:100px; padding:0 .65rem; border:1px solid var(--border-strong); color:var(--ink-soft); font-size:.38rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase; display:flex; align-items:center; margin-top:.25rem; }
+</style>
+</head>
+<body>
+
+<!-- ════════ BLOC 1 : ÉTAT SÉLECTION ════════ -->
+<h2 class="block-title">État d'une card sélectionnée</h2>
+<p class="block-sub">3 niveaux de feedback visuel · choisis ce qui te convient</p>
+
+<div class="sel-grid">
+
+  <!-- A — dot seul -->
+  <div>
+    <div class="opt-lbl">A — Dot seul</div>
+    <p class="opt-desc">Seul le cercle ✓ en haut à gauche change. La card reste identique. Discret — tu sais ce que tu as coché sans bruit visuel.</p>
+    <div class="c-out">
+      <div class="c-in">
+        <div class="c-photo" style="background:linear-gradient(155deg,#8B7E74,#4A4038);">
+          <div class="sel-dot on"></div>
+        </div>
+        <div class="c-foot">
+          <div class="c-name">Sofia Ramos</div>
+          <div class="c-sub">174 cm · F · Toronto</div>
+          <div class="c-dispo"><div class="c-dot g"></div>Disponible</div>
+          <div class="c-tags"><span class="c-tag">Editorial</span><span class="c-tag n">Runway</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B — outline + fond teinté -->
+  <div>
+    <div class="opt-lbl">B — Outline rouge + fond teinté</div>
+    <div class="rec">★ Recommandé</div>
+    <p class="opt-desc">Outline bordeaux 2.5px + fond très légèrement rose. Visible en périphérie visuelle dans une grille de 50 cards sans être agressif.</p>
+    <div class="c-out sel-b">
+      <div class="c-in">
+        <div class="c-photo" style="background:linear-gradient(155deg,#8B7E74,#4A4038);">
+          <div class="sel-dot on"></div>
+        </div>
+        <div class="c-foot">
+          <div class="c-name">Sofia Ramos</div>
+          <div class="c-sub">174 cm · F · Toronto</div>
+          <div class="c-dispo"><div class="c-dot g"></div>Disponible</div>
+          <div class="c-tags"><span class="c-tag">Editorial</span><span class="c-tag n">Runway</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C — photo assombrie -->
+  <div>
+    <div class="opt-lbl">C — Photo teintée + outline</div>
+    <p class="opt-desc">En plus de l'outline, un voile bordeaux très léger recouvre la photo. Le plus expressif — comme "tamponner" un modèle. Peut sembler chargé.</p>
+    <div class="c-out sel-c">
+      <div class="c-in">
+        <div class="c-photo" style="background:linear-gradient(155deg,#8B7E74,#4A4038);">
+          <div class="sel-dot on"></div>
+        </div>
+        <div class="c-foot">
+          <div class="c-name">Sofia Ramos</div>
+          <div class="c-sub">174 cm · F · Toronto</div>
+          <div class="c-dispo"><div class="c-dot g"></div>Disponible</div>
+          <div class="c-tags"><span class="c-tag">Editorial</span><span class="c-tag n">Runway</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════ BLOC 2 : ÉTAT VIDE ════════ -->
+<div class="sep"><span>État vide — aucun résultat de filtre</span></div>
+
+<div class="empty-grid">
+
+  <!-- Empty A — illustration + filtres actifs + CTA -->
+  <div>
+    <div class="opt-lbl">A — Contextuel avec filtres actifs</div>
+    <div class="rec">★ Recommandé</div>
+    <p class="opt-desc">Montre les filtres qui ont produit 0 résultats avec une croix pour les retirer un par un. Texte en Cormorant italic. CTA "Réinitialiser".</p>
+    <div class="dev">
+      <div class="dev-in">
+        <div class="chips-ctx">
+          <div class="chip off">Tous</div>
+          <div class="chip rouge">Femmes</div>
+          <div class="chip rouge">180–190 cm</div>
+          <div class="chip off">+ Filtres</div>
+        </div>
+        <div class="empty-a">
+          <div class="empty-illustration">
+            <div class="ghost-grid">
+              <div class="ghost-card"></div>
+              <div class="ghost-card"></div>
+              <div class="ghost-card"></div>
+              <div class="ghost-card"></div>
+            </div>
+          </div>
+          <div>
+            <div class="empty-headline">Aucun modèle trouvé</div>
+          </div>
+          <div class="active-filters">
+            <div class="af-chip">Femmes <span class="af-chip-x">✕</span></div>
+            <div class="af-chip">180–190 cm <span class="af-chip-x">✕</span></div>
+          </div>
+          <p class="empty-sub">Essaie d'élargir les critères<br>ou réinitialise les filtres</p>
+          <div class="empty-cta">Réinitialiser les filtres</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty B — ultra-minimaliste -->
+  <div>
+    <div class="opt-lbl">B — Ultra-minimaliste</div>
+    <p class="opt-desc">Juste un "0" géant en Cormorant light, une ligne italic, un bouton discret. Très épuré — adapté si les états vides sont rares.</p>
+    <div class="dev">
+      <div class="dev-in">
+        <div class="chips-ctx">
+          <div class="chip off">Tous</div>
+          <div class="chip rouge">Femmes</div>
+          <div class="chip rouge">180–190 cm</div>
+          <div class="chip off">+ Filtres</div>
+        </div>
+        <div class="empty-b">
+          <div class="empty-b-num">0</div>
+          <div class="empty-b-headline">Aucun modèle ne correspond<br>à ces critères</div>
+          <div class="empty-b-cta">Réinitialiser</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:1rem;padding:.85rem 1rem;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 1px 4px rgba(26,20,16,.04);">
+  <p style="font-size:.56rem;line-height:1.7;color:var(--ink-soft);font-weight:300;">
+    <strong style="font-family:'Cormorant Garamond',serif;font-size:.9rem;font-weight:400;color:var(--ink);">Recommandations</strong><br>
+    <strong>Sélection :</strong> B — l'outline rouge est visible dans une grande grille sans surcharger. Le dot seul de A est trop subtil à plus de 20 cards. Le voile de C est trop fort pour une sélection qui reste temporaire.<br>
+    <strong>État vide :</strong> A — montrer les filtres actifs avec la possibilité de les retirer individuellement évite une frustration fréquente : "pourquoi je ne vois rien ?" Le "0" de B est élégant mais pas assez actionnable.
+  </p>
+</div>
+
+</body>
+</html>

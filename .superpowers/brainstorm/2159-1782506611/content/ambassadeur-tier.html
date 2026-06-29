@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ambassadeur — Tier Démarcation</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F7F3EE; --cream-deep: #EDE7DC;
+    --ink: #1A1410; --ink-soft: #4A3F35;
+    --rouge: #8B0020;
+    --rouge-light: rgba(139,0,32,.07); --rouge-mid: rgba(139,0,32,.16);
+    --muted: #9A8F84;
+    --border: rgba(26,20,16,.07); --border-strong: rgba(26,20,16,.12);
+    --green: #2E7D32; --green-bg: rgba(46,125,50,.08);
+    --gold: #C4973A;
+    --gold-light: rgba(196,151,58,.1);
+    --gold-mid: rgba(196,151,58,.25);
+    --gold-deep: rgba(196,151,58,.45);
+    --spring: cubic-bezier(0.32,0.72,0,1);
+  }
+  body {
+    background: #E8E3DC; font-family: 'Montserrat', sans-serif;
+    font-weight: 300; color: var(--ink); padding: 2rem 1.5rem 4rem;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; z-index:99; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity:.025;
+  }
+
+  h1.pt { font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; font-size:1.4rem; letter-spacing:.03em; color:var(--ink); margin-bottom:.2rem; }
+  .ps { font-size:.52rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-bottom:2rem; }
+
+  .cols { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
+  @media(max-width:860px){.cols{grid-template-columns:1fr;}}
+
+  .col-label {
+    font-size:.5rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase;
+    color:var(--muted); margin-bottom:.55rem;
+    display:flex; align-items:center; gap:.4rem;
+  }
+  .col-label::before { content:''; display:inline-block; width:10px; height:1px; background:var(--gold); }
+  .col-desc { font-size:.56rem; line-height:1.55; color:var(--ink-soft); margin-bottom:1rem; font-weight:300; }
+
+  /* ── BASE CARD (tier B) ── */
+  .c-base {
+    border-radius:1.1rem; padding:3px;
+    box-shadow: 0 1px 0 rgba(255,255,255,.65) inset, 0 1px 3px rgba(26,20,16,.07), 0 2px 6px rgba(26,20,16,.04);
+    margin-bottom:.5rem;
+    animation: up .5s var(--spring) both;
+    cursor:pointer;
+  }
+  @keyframes up { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .c-in {
+    border-radius:calc(1.1rem - 3px);
+    overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset;
+  }
+
+  /* ── Normal card shell ── */
+  .c-normal {
+    background:var(--cream-deep); border:1px solid var(--border);
+  }
+  .c-normal .c-in { background:#fff; }
+
+  /* photo */
+  .c-photo { height:115px; position:relative; overflow:hidden; }
+  .p1{background:linear-gradient(155deg,#C5B9AF,#7A6E66)}
+  .p2{background:linear-gradient(155deg,#D4C8BE,#9A8070)}
+  .p4{background:linear-gradient(155deg,#8B7E74,#4A4038)}
+  .p5{background:linear-gradient(155deg,#C8BDB4,#8A7C72)}
+  .p6{background:linear-gradient(155deg,#9A8878,#5E5248)}
+  .pamb{background:linear-gradient(155deg,#3D2C1E,#1A1410)}
+
+  .c-badge {
+    position:absolute; top:7px; right:7px;
+    height:16px; border-radius:100px; padding:0 7px;
+    font-size:.4rem; letter-spacing:.1em; font-weight:500; text-transform:uppercase;
+    display:flex; align-items:center;
+    background:rgba(247,243,238,.84); color:var(--ink);
+    border:1px solid rgba(255,255,255,.5);
+  }
+  .c-badge.r { background:rgba(139,0,32,.88); color:#fff; border-color:rgba(255,255,255,.2); }
+
+  .c-select {
+    position:absolute; top:7px; left:7px;
+    width:18px; height:18px; border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.5); background:rgba(247,243,238,.25);
+  }
+  .c-select.on { background:var(--rouge); border-color:var(--rouge); display:flex; align-items:center; justify-content:center; }
+  .c-select.on::after { content:'✓'; font-size:.48rem; color:#fff; font-weight:500; }
+
+  .c-foot { padding:.5rem .6rem .48rem; border-top:1px solid var(--border); }
+  .c-name { font-family:'Cormorant Garamond',serif; font-weight:400; font-size:.9rem; letter-spacing:.02em; color:var(--ink); line-height:1.1; }
+  .c-sub { font-size:.4rem; letter-spacing:.13em; font-weight:400; color:var(--muted); text-transform:uppercase; margin-top:2px; }
+  .c-dispo { display:flex; align-items:center; gap:.3rem; font-size:.4rem; letter-spacing:.12em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-top:.3rem; }
+  .c-dispo-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+  .c-dispo-dot.g { background:var(--green); }
+  .c-dispo-dot.y { background:#F59E0B; }
+  .c-tags { display:flex; gap:.22rem; flex-wrap:wrap; margin-top:.3rem; }
+  .c-tag { font-size:.38rem; letter-spacing:.1em; font-weight:500; text-transform:uppercase; padding:1.5px 5px; border-radius:100px; background:var(--rouge-light); color:var(--rouge); border:1px solid var(--rouge-mid); }
+  .c-tag.n { background:var(--cream); color:var(--muted); border-color:var(--border-strong); }
+
+  /* ═══════════════════════════════════
+     AMBASSADEUR VARIANTS
+  ═══════════════════════════════════ */
+
+  /* ── VARIANT 1 : Bordure or + fond shell champagne ── */
+  .amb-border {
+    background: linear-gradient(135deg, #D4AF72, #C4973A, #E8C97A, #B8882C);
+    border:none;
+    padding: 2px; /* plus fin — la bordure est déjà l'or */
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.3) inset,
+      0 2px 8px rgba(196,151,58,.25),
+      0 1px 3px rgba(26,20,16,.08);
+  }
+  .amb-border .c-in { background:#fff; border-radius:calc(1.1rem - 2px); }
+  .amb-border .c-photo { height:115px; }
+  /* Badge ambassadeur spécial */
+  .c-badge-amb {
+    position:absolute; bottom:7px; left:7px; right:7px;
+    height:18px; border-radius:5px; padding:0 8px;
+    font-size:.42rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:center; gap:.3rem;
+    background:linear-gradient(90deg,rgba(196,151,58,.92),rgba(228,193,110,.92));
+    color:#1A1410; border:1px solid rgba(255,255,255,.35);
+  }
+  .amb-border .c-foot { border-top:1px solid var(--gold-mid); }
+  .amb-border .c-name { color:var(--ink); }
+
+  /* ── VARIANT 2 : Card sombre ink + accent or ── */
+  .amb-dark {
+    background: var(--ink);
+    border:1px solid rgba(196,151,58,.3);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.06) inset,
+      0 2px 8px rgba(26,20,16,.18),
+      0 1px 3px rgba(26,20,16,.1),
+      0 0 0 1px rgba(196,151,58,.15);
+  }
+  .amb-dark .c-in { background:#1A1410; border-radius:calc(1.1rem - 3px); }
+  .amb-dark .c-foot { border-top:1px solid rgba(196,151,58,.18); background:#1A1410; }
+  .amb-dark .c-name { color:rgba(247,243,238,.95); }
+  .amb-dark .c-sub { color:rgba(155,143,132,.7); }
+  .amb-dark .c-dispo { color:rgba(155,143,132,.7); }
+  .amb-dark .c-tag.n { background:rgba(255,255,255,.07); color:rgba(155,143,132,.8); border-color:rgba(255,255,255,.1); }
+  .c-badge-amb-dark {
+    position:absolute; top:7px; right:7px;
+    height:16px; border-radius:100px; padding:0 7px;
+    font-size:.4rem; letter-spacing:.12em; font-weight:500; text-transform:uppercase;
+    display:flex; align-items:center; gap:.28rem;
+    background:linear-gradient(90deg,#C4973A,#E8C97A);
+    color:#1A1410;
+  }
+  .amb-dark .c-select { border-color:rgba(196,151,58,.5); background:rgba(196,151,58,.15); }
+  .amb-dark .c-select.on { background:var(--gold); border-color:var(--gold); }
+  /* ligne or en haut du footer */
+  .amb-dark .c-foot::before {
+    content:''; display:block; height:1px; margin:-0.5rem -0.6rem .45rem;
+    background:linear-gradient(to right, transparent, var(--gold), transparent);
+    opacity:.5;
+  }
+
+  /* ── VARIANT 3 : Filet or subtil + pill ambassadeur en footer ── */
+  .amb-subtle {
+    background:var(--cream-deep); border:1px solid var(--gold-mid);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.65) inset,
+      0 1px 3px rgba(196,151,58,.12),
+      0 2px 8px rgba(196,151,58,.08);
+  }
+  .amb-subtle .c-in { background:#fff; }
+  .amb-subtle .c-foot { border-top:1px solid var(--gold-light); }
+  /* pill ambassadeur dans le footer */
+  .amb-pill-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:.3rem; }
+  .amb-pill {
+    height:14px; border-radius:100px; padding:0 6px;
+    font-size:.38rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase;
+    display:flex; align-items:center; gap:.25rem;
+    background:linear-gradient(90deg,var(--gold-light),rgba(228,193,110,.12));
+    color:var(--gold); border:1px solid var(--gold-mid);
+  }
+  .amb-star { font-size:.62rem; color:var(--gold); }
+  .amb-subtle .c-name { color:var(--ink); }
+
+  /* Section separator */
+  .sep {
+    display:flex; align-items:center; gap:.75rem; margin:1.8rem 0 1.2rem;
+  }
+  .sep::before,.sep::after { content:''; flex:1; height:1px; background:linear-gradient(to right,transparent,var(--border-strong),transparent); }
+  .sep span { font-size:.48rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+
+  /* Comparison row with regular card */
+  .compare-row { display:flex; gap:.5rem; align-items:flex-start; }
+  .compare-row > * { flex:1; }
+  .compare-lbl { font-size:.44rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-bottom:.3rem; text-align:center; }
+  .compare-lbl.gold { color:var(--gold); }
+
+  /* bottom note */
+  .note-box {
+    margin-top:2rem; background:#fff; border:1px solid var(--border); border-radius:1rem;
+    padding:.9rem 1.1rem;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 1px 4px rgba(26,20,16,.05);
+  }
+  .note-title { font-family:'Cormorant Garamond',serif; font-weight:400; font-size:.95rem; color:var(--ink); margin-bottom:.35rem; }
+  .note-p { font-size:.56rem; line-height:1.65; color:var(--ink-soft); font-weight:300; }
+</style>
+</head>
+<body>
+
+<h1 class="pt">Tier Ambassadeur — Démarcation visuelle</h1>
+<p class="ps">3 façons de faire ressortir l'Ambassadeur au premier regard · Comparé avec une card normale</p>
+
+<div class="cols">
+
+  <!-- ── VARIANT 1 : Bordure or dégradée ── -->
+  <div>
+    <div class="col-label">A — Bordure or dégradée</div>
+    <p class="col-desc">Le shell de la card devient un filet or métallique. Immédiatement reconnaissable dans la grille, même en périphérie visuelle.</p>
+
+    <div class="compare-row">
+      <div>
+        <div class="compare-lbl">Normale (Platine)</div>
+        <div class="c-base c-normal" style="animation-delay:.05s">
+          <div class="c-in">
+            <div class="c-photo p4">
+              <div class="c-badge r">Platine</div>
+              <div class="c-select on"></div>
+            </div>
+            <div class="c-foot">
+              <div class="c-name">Sofia R.</div>
+              <div class="c-sub">174 cm · F · Toronto</div>
+              <div class="c-dispo"><div class="c-dispo-dot g"></div>Disponible</div>
+              <div class="c-tags"><span class="c-tag n">Editorial</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="compare-lbl gold">Ambassadeur</div>
+        <div class="c-base amb-border" style="animation-delay:.1s">
+          <div class="c-in">
+            <div class="c-photo pamb">
+              <div class="c-select on"></div>
+              <div class="c-badge-amb">✦ Ambassadeur</div>
+            </div>
+            <div class="c-foot">
+              <div class="c-name">Chloé M.</div>
+              <div class="c-sub">178 cm · F · Montréal</div>
+              <div class="c-dispo"><div class="c-dispo-dot g"></div>Disponible</div>
+              <div class="c-tags"><span class="c-tag">Editorial</span><span class="c-tag n">Runway</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VARIANT 2 : Card sombre ── -->
+  <div>
+    <div class="col-label">B — Card sombre · Accent or</div>
+    <p class="col-desc">La card entière passe en ink sombre avec accents dorés. Contraste maximal dans la grille — l'Ambassadeur saute aux yeux.</p>
+
+    <div class="compare-row">
+      <div>
+        <div class="compare-lbl">Normale (Or)</div>
+        <div class="c-base c-normal" style="animation-delay:.08s">
+          <div class="c-in">
+            <div class="c-photo p5">
+              <div class="c-badge r">Or</div>
+            </div>
+            <div class="c-foot">
+              <div class="c-name">Maya T.</div>
+              <div class="c-sub">176 cm · F · Québec</div>
+              <div class="c-dispo"><div class="c-dispo-dot g"></div>Disponible</div>
+              <div class="c-tags"><span class="c-tag">Editorial</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="compare-lbl gold">Ambassadeur</div>
+        <div class="c-base amb-dark" style="animation-delay:.13s">
+          <div class="c-in">
+            <div class="c-photo pamb">
+              <div class="c-badge-amb-dark">✦ Ambassadeur</div>
+              <div class="c-select on"></div>
+            </div>
+            <div class="c-foot">
+              <div class="c-name">Chloé M.</div>
+              <div class="c-sub">178 cm · F · Montréal</div>
+              <div class="c-dispo"><div class="c-dispo-dot g"></div>Disponible</div>
+              <div class="c-tags"><span class="c-tag n">Editorial</span><span class="c-tag n">Runway</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VARIANT 3 : Filet subtil + pill footer ── -->
+  <div>
+    <div class="col-label">C — Filet subtil · Pill footer</div>
+    <p class="col-desc">Variation la plus discrète. Bordure champagne légère + pill "Ambassadeur" dans le footer. Élégance sans brutalité.</p>
+
+    <div class="compare-row">
+      <div>
+        <div class="compare-lbl">Normale</div>
+        <div class="c-base c-normal" style="animation-delay:.1s">
+          <div class="c-in">
+            <div class="c-photo p2">
+              <div class="c-badge">Nouveau</div>
+            </div>
+            <div class="c-foot">
+              <div class="c-name">Noah C.</div>
+              <div class="c-sub">188 cm · H · Vancouver</div>
+              <div class="c-dispo"><div class="c-dispo-dot g"></div>Disponible</div>
+              <div class="c-tags"><span class="c-tag n">Débutant</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="compare-lbl gold">Ambassadeur</div>
+        <div class="c-base amb-subtle" style="animation-delay:.15s">
+          <div class="c-in">
+            <div class="c-photo pamb"></div>
+            <div class="c-foot">
+              <div class="amb-pill-row">
+                <div class="c-name">Chloé M.</div>
+                <span class="amb-star">✦</span>
+              </div>
+              <div class="c-sub">178 cm · F · Montréal</div>
+              <div class="c-dispo"><div class="c-dispo-dot g"></div>Disponible</div>
+              <div class="c-tags">
+                <span class="amb-pill">✦ Ambassadeur</span>
+                <span class="c-tag n">Runway</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note-box">
+  <div class="note-title">Comment choisir ?</div>
+  <p class="note-p">
+    <strong>A (bordure or)</strong> — Le plus immédiat. Dans une grille de 20 cards, l'Ambassadeur se repère en moins d'une seconde. Idéal si tu veux qu'on ne puisse pas le manquer.<br>
+    <strong>B (card sombre)</strong> — Le plus fort visuellement. Crée une vraie rupture dans la grille, comme une carte noire dans un jeu. Risque : peut sembler trop contrasté selon la densité de la liste.<br>
+    <strong>C (filet + pill)</strong> — Le plus raffiné. Moins immédiat mais le plus cohérent avec l'esthétique Lumina. Meilleur choix si les Ambassadeurs sont peu nombreux.
+  </p>
+</div>
+
+</body>
+</html>

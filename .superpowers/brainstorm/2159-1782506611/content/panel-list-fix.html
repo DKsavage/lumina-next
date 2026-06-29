@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel — Liste compacte</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F7F3EE; --cream-deep: #EDE7DC;
+    --ink: #1A1410; --ink-soft: #4A3F35;
+    --rouge: #8B0020; --rouge-light: rgba(139,0,32,.07); --rouge-mid: rgba(139,0,32,.16);
+    --muted: #9A8F84; --border: rgba(26,20,16,.07); --border-strong: rgba(26,20,16,.12);
+    --green: #2E7D32; --gold: #C4973A; --gold-light: rgba(196,151,58,.1); --gold-mid: rgba(196,151,58,.28);
+    --spring: cubic-bezier(0.32,0.72,0,1);
+  }
+  body { background:#E8E3DC; font-family:'Montserrat',sans-serif; font-weight:300; color:var(--ink); padding:2rem 1.5rem 4rem; }
+  body::before { content:''; position:fixed; inset:0; z-index:99; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity:.025; }
+
+  h1.pt { font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; font-size:1.5rem; letter-spacing:.03em; color:var(--ink); margin-bottom:.2rem; }
+  .ps { font-size:.52rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-bottom:1.5rem; }
+
+  /* ── SPLIT COMPARISON ── */
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+  @media(max-width:900px){.compare{grid-template-columns:1fr;}}
+  .cmp-lbl { font-size:.5rem; letter-spacing:.2em; font-weight:500; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; display:flex; align-items:center; gap:.4rem; }
+  .cmp-lbl::before { content:''; display:inline-block; width:10px; height:1px; }
+  .cmp-lbl.bad::before { background:var(--muted); }
+  .cmp-lbl.good::before { background:var(--rouge); }
+  .rec-badge { display:inline-block; font-size:.44rem; letter-spacing:.12em; font-weight:500; text-transform:uppercase; background:var(--rouge-light); color:var(--rouge); border:1px solid var(--rouge-mid); border-radius:100px; padding:.15rem .5rem; margin-bottom:.45rem; }
+
+  /* ── DEVICE SHELL ── */
+  .dev { background:var(--cream-deep); border:1px solid var(--border-strong); border-radius:1.5rem; padding:5px; box-shadow:0 2px 0 rgba(255,255,255,.55) inset,0 4px 12px rgba(26,20,16,.08),0 1px 3px rgba(26,20,16,.06); }
+  .dev-in { background:var(--cream); border-radius:calc(1.5rem - 5px); overflow:hidden; display:flex; flex-direction:column; }
+
+  /* Pill nav */
+  .nav { margin:.65rem .65rem 0; background:var(--ink); border-radius:100px; height:34px; display:flex; align-items:center; padding:0 .4rem; box-shadow:0 2px 8px rgba(26,20,16,.18),0 1px 0 rgba(255,255,255,.08) inset; }
+  .nav-logo { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.75rem; letter-spacing:.16em; color:rgba(247,243,238,.9); padding:0 .55rem; flex-shrink:0; }
+  .nav-sep { width:1px; height:12px; background:rgba(255,255,255,.1); margin:0 .12rem; flex-shrink:0; }
+  .nav-lnk { height:24px; border-radius:100px; padding:0 .55rem; display:flex; align-items:center; font-size:.4rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase; color:rgba(247,243,238,.32); }
+  .nav-lnk.on { background:rgba(255,255,255,.11); color:rgba(247,243,238,.92); }
+  .nav-r { margin-left:auto; display:flex; align-items:center; gap:.3rem; padding-right:.05rem; flex-shrink:0; }
+  .nav-bell { width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;position:relative; }
+  .nav-bell svg { width:10px;height:10px; }
+  .nav-badge { position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--rouge);border:1.5px solid var(--ink); }
+  .nav-cta { height:24px;border-radius:100px;padding:0 .35rem 0 .55rem;background:var(--rouge);display:flex;align-items:center;gap:.28rem;box-shadow:0 1px 6px rgba(139,0,32,.35); }
+  .nav-cta span { font-size:.4rem;letter-spacing:.14em;font-weight:500;text-transform:uppercase;color:#fff; }
+  .nav-cta-ico { width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;font-weight:200;line-height:1; }
+
+  /* Main area */
+  .main { display:flex; gap:.55rem; padding:.65rem; }
+
+  /* ── AVANT : grille étirée ── */
+  .grid-stretched { flex:1; display:flex; flex-direction:column; gap:.4rem; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.3rem; }
+  .gs-card { background:var(--cream-deep); border:1px solid var(--border); border-radius:.7rem; padding:2.5px; box-shadow:0 1px 0 rgba(255,255,255,.65) inset,0 1px 3px rgba(26,20,16,.06); }
+  .gs-card-in { background:#fff; border-radius:calc(.7rem - 2.5px); overflow:hidden; }
+  .gs-photo { height:50px; }
+  .gs-foot { padding:.28rem .32rem; border-top:1px solid var(--border); }
+  .gs-name { font-family:'Cormorant Garamond',serif; font-size:.68rem; color:var(--ink); }
+  .gs-sub { font-size:.3rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; }
+  .gs-card.amb { background:var(--ink); border-color:rgba(196,151,58,.3); }
+  .gs-card.amb .gs-card-in { background:#1A1410; }
+  .gs-card.amb .gs-foot { border-top-color:rgba(196,151,58,.15); }
+  .gs-card.amb .gs-name { color:rgba(247,243,238,.9); }
+  .gs-card.amb .gs-sub { color:rgba(155,143,132,.6); }
+  .chips-row { display:flex; gap:.22rem; flex-wrap:wrap; }
+  .chip { height:18px;border-radius:100px;padding:0 .45rem;font-size:.38rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border-strong);font-family:'Montserrat',sans-serif;white-space:nowrap;display:flex;align-items:center; }
+  .chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+  .chip.rouge{background:var(--rouge);color:#fff;border-color:var(--rouge);}
+  .chip.off{background:#fff;color:var(--ink-soft);}
+  .chip.more{background:transparent;color:var(--muted);border-style:dashed;}
+
+  /* ── APRÈS : liste compacte ── */
+  .list-col {
+    width:200px; flex-shrink:0;
+    display:flex; flex-direction:column; gap:.35rem;
+  }
+  .list-search {
+    background:#fff; border-radius:.7rem; border:1px solid var(--border-strong);
+    padding:2px; box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 1px 3px rgba(26,20,16,.04);
+  }
+  .list-search-in {
+    background:var(--cream); border-radius:calc(.7rem - 2px);
+    display:flex; align-items:center; padding:.3rem .45rem; gap:.35rem;
+    box-shadow:0 1px 2px rgba(26,20,16,.04) inset;
+  }
+  .s-ico { width:9px;height:9px;border:1.5px solid var(--muted);border-radius:50%;flex-shrink:0;position:relative; }
+  .s-ico::after { content:'';position:absolute;bottom:-2px;right:-2px;width:2.5px;height:1.5px;background:var(--muted);transform:rotate(45deg);border-radius:1px; }
+  .s-ph { flex:1;font-size:.48rem;letter-spacing:.08em;color:var(--muted);font-weight:300; }
+  .s-cmd { font-size:.38rem;font-weight:500;color:var(--muted);background:var(--cream-deep);border:1px solid var(--border-strong);border-radius:3px;padding:1px 4px; }
+
+  /* List items */
+  .list-items { display:flex; flex-direction:column; gap:.25rem; flex:1; overflow:hidden; }
+
+  .li-row {
+    background:var(--cream-deep); border:1px solid var(--border); border-radius:.8rem; padding:2.5px;
+    box-shadow:0 1px 0 rgba(255,255,255,.65) inset,0 1px 3px rgba(26,20,16,.06);
+    cursor:pointer; transition:transform .3s var(--spring);
+    animation:up .45s var(--spring) both;
+  }
+  .li-row:hover { transform:translateX(2px); }
+  .li-row.active { border-color:var(--rouge); box-shadow:0 1px 0 rgba(255,255,255,.65) inset,0 0 0 2px rgba(139,0,32,.18); }
+  .li-row-in { background:#fff; border-radius:calc(.8rem - 2.5px); display:flex; align-items:center; gap:.45rem; padding:.38rem .45rem; box-shadow:0 1px 0 rgba(255,255,255,.9) inset; }
+
+  /* Thumb petit */
+  .li-thumb-wrap { flex-shrink:0; background:var(--cream-deep); border-radius:.4rem; padding:1.5px; border:1px solid var(--border); }
+  .li-thumb { width:28px; height:36px; border-radius:calc(.4rem - 1.5px); }
+
+  .li-info { flex:1; min-width:0; }
+  .li-name { font-family:'Cormorant Garamond',serif; font-weight:400; font-size:.78rem; letter-spacing:.02em; color:var(--ink); line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .li-sub { font-size:.34rem; letter-spacing:.11em; font-weight:400; color:var(--muted); text-transform:uppercase; margin-top:1px; white-space:nowrap; }
+  .li-tags { display:flex; gap:.18rem; margin-top:.22rem; }
+  .li-tag { font-size:.32rem; letter-spacing:.08em; font-weight:500; text-transform:uppercase; padding:1px 4px; border-radius:100px; }
+  .li-tag.rouge { background:var(--rouge-light); color:var(--rouge); border:1px solid var(--rouge-mid); }
+  .li-tag.n { background:var(--cream); color:var(--muted); border:1px solid var(--border-strong); }
+  .li-tag.gold { background:var(--gold-light); color:var(--gold); border:1px solid var(--gold-mid); }
+  .li-dispo-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; align-self:center; }
+  .li-dispo-dot.g { background:var(--green); }
+  .li-dispo-dot.y { background:#F59E0B; }
+
+  /* Amb row */
+  .li-row.amb { background:var(--ink); border-color:rgba(196,151,58,.3); }
+  .li-row.amb .li-row-in { background:#1A1410; }
+  .li-row.amb .li-thumb-wrap { background:rgba(196,151,58,.15); border-color:rgba(196,151,58,.3); }
+  .li-row.amb .li-name { color:rgba(247,243,238,.93); }
+  .li-row.amb .li-sub { color:rgba(155,143,132,.6); }
+  .li-row.amb.active { border-color:var(--gold); box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 0 0 2px rgba(196,151,58,.25); }
+
+  @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .li-row:nth-child(1){animation-delay:.03s}
+  .li-row:nth-child(2){animation-delay:.07s}
+  .li-row:nth-child(3){animation-delay:.11s}
+  .li-row:nth-child(4){animation-delay:.15s}
+  .li-row:nth-child(5){animation-delay:.19s}
+  .li-row:nth-child(6){animation-delay:.23s}
+
+  /* Scroll hint */
+  .list-more { text-align:center; font-size:.38rem; letter-spacing:.14em; font-weight:500; text-transform:uppercase; color:var(--muted); padding:.2rem 0; }
+
+  /* ── PANEL DÉTAIL (partagé) ── */
+  .detail-panel {
+    flex:1; min-width:0;
+    background:var(--cream-deep); border:1px solid var(--border-strong);
+    border-radius:1.1rem; padding:3.5px;
+    box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 2px 8px rgba(26,20,16,.07),0 1px 3px rgba(26,20,16,.05);
+    display:flex; flex-direction:column;
+    animation:slideIn .45s var(--spring) both;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:translateX(0)} }
+  .dp-inner { background:#fff; border-radius:calc(1.1rem - 3.5px); overflow:hidden; display:flex; flex-direction:column; flex:1; box-shadow:0 1px 0 rgba(255,255,255,.9) inset; }
+
+  .dp-photo { height:140px; background:linear-gradient(155deg,#2A1F16,#0D0A08); position:relative; overflow:hidden; }
+  .dp-photo::after { content:''; position:absolute; bottom:0;left:0;right:0;height:50px; background:linear-gradient(to top,rgba(10,8,6,.55),transparent); }
+  .dp-nav-prev,.dp-nav-next { position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:20px;height:20px;border-radius:50%;background:rgba(247,243,238,.16);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:.72rem;color:rgba(247,243,238,.8); }
+  .dp-nav-prev{left:5px} .dp-nav-next{right:5px}
+  .dp-close { position:absolute;top:6px;right:6px;z-index:2;width:18px;height:18px;border-radius:50%;background:rgba(247,243,238,.18);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:.46rem;color:rgba(247,243,238,.8); }
+  .dp-amb-badge { position:absolute;bottom:8px;left:7px;z-index:2;height:14px;border-radius:100px;padding:0 6px;font-size:.36rem;letter-spacing:.1em;font-weight:500;text-transform:uppercase;display:flex;align-items:center;background:linear-gradient(90deg,#C4973A,#E8C97A);color:#1A1410; }
+  .dp-dots { position:absolute;bottom:6px;right:8px;z-index:2;display:flex;gap:3px; }
+  .dp-dot { width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.35); }
+  .dp-dot.on { background:#fff;width:8px;border-radius:100px; }
+
+  .dp-header { padding:.55rem .65rem .38rem; border-bottom:1px solid var(--border); }
+  .dp-name { font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1rem;letter-spacing:.02em;color:var(--ink);line-height:1.1;margin-bottom:2px; }
+  .dp-sub { font-size:.38rem;letter-spacing:.12em;font-weight:400;color:var(--muted);text-transform:uppercase;margin-bottom:.35rem; }
+  .dp-pills { display:flex;gap:.2rem;flex-wrap:wrap; }
+  .dp-pill { height:14px;border-radius:100px;padding:0 5px;font-size:.34rem;letter-spacing:.1em;font-weight:500;text-transform:uppercase;display:flex;align-items:center;gap:.2rem; }
+  .dp-pill.active { background:var(--rouge-light);color:var(--rouge);border:1px solid var(--rouge-mid); }
+  .dp-pill.n { background:var(--cream);color:var(--muted);border:1px solid var(--border-strong); }
+  .dp-pill.g { background:rgba(46,125,50,.08);color:var(--green);border:1px solid rgba(46,125,50,.18); }
+  .dp-pill-dot { width:3px;height:3px;border-radius:50%;background:currentColor; }
+
+  .dp-tabs { display:flex;border-bottom:1px solid var(--border);padding:0 .45rem; }
+  .dp-tab { flex:1;height:26px;display:flex;align-items:center;justify-content:center;font-size:.38rem;letter-spacing:.12em;font-weight:500;text-transform:uppercase;color:var(--muted);position:relative;cursor:pointer; }
+  .dp-tab.on { color:var(--ink); }
+  .dp-tab.on::after { content:'';position:absolute;bottom:0;left:15%;right:15%;height:1.5px;background:var(--rouge);border-radius:1px; }
+
+  .dp-body { padding:.5rem .65rem;display:flex;flex-direction:column;gap:.42rem;flex:1; }
+  .dp-section-lbl { font-size:.34rem;letter-spacing:.16em;font-weight:500;text-transform:uppercase;color:var(--muted);margin-bottom:.18rem; }
+  .dp-grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:.25rem; }
+  .dp-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:.25rem; }
+  .dp-field { background:var(--cream);border-radius:.45rem;padding:.28rem .35rem;border:1px solid var(--border); }
+  .dp-lbl { font-size:.3rem;letter-spacing:.14em;font-weight:500;text-transform:uppercase;color:var(--muted);margin-bottom:1px; }
+  .dp-val { font-size:.5rem;font-weight:400;color:var(--ink); }
+  .dp-note { background:var(--cream);border:1px solid var(--border);border-radius:.5rem;padding:.35rem .45rem; }
+  .dp-note-head { font-size:.3rem;letter-spacing:.14em;font-weight:500;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;display:flex;align-items:center;justify-content:space-between; }
+  .dp-note-edit { font-size:.38rem;color:var(--muted); }
+  .dp-note-txt { font-size:.48rem;line-height:1.45;color:var(--ink-soft);font-style:italic;font-family:'Cormorant Garamond',serif; }
+  .dp-insta { background:var(--cream);border-radius:.45rem;padding:.28rem .35rem;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+  .dp-insta .dp-lbl { margin:0; }
+  .dp-insta-val { font-size:.46rem;color:var(--rouge);font-weight:400; }
+
+  .dp-actions { display:flex;gap:.25rem;padding:.45rem .65rem .52rem;border-top:1px solid var(--border);background:#fff; }
+  .dp-btn { flex:1;height:24px;border-radius:100px;display:flex;align-items:center;justify-content:center;font-size:.36rem;letter-spacing:.12em;font-weight:500;text-transform:uppercase;border:1px solid var(--border-strong);color:var(--ink-soft);background:var(--cream); }
+  .dp-btn.primary { background:var(--rouge);color:#fff;border-color:var(--rouge);box-shadow:0 1px 5px rgba(139,0,32,.28); }
+  .dp-btn.icon { flex:0 0 24px;font-size:.65rem; }
+
+  .kbd-hint { display:flex;align-items:center;justify-content:center;gap:.3rem;margin-top:.3rem;opacity:.45; }
+  .kbd { font-size:.34rem;font-weight:500;color:var(--muted);background:var(--cream-deep);border:1px solid var(--border-strong);border-radius:3px;padding:1px 4px; }
+  .kbd-lbl { font-size:.32rem;letter-spacing:.1em;color:var(--muted); }
+</style>
+</head>
+<body>
+
+<h1 class="pt">Panneau détail — liste compacte à gauche</h1>
+<p class="ps">Panel ouvert · La grille devient une liste scrollable aux proportions fixes</p>
+
+<div class="compare">
+
+  <!-- ── AVANT ── -->
+  <div>
+    <div class="cmp-lbl bad">✗ Avant — grille étirée</div>
+    <div class="dev">
+      <div class="dev-in">
+        <div class="nav">
+          <span class="nav-logo">Lumina</span>
+          <div class="nav-sep"></div>
+          <div style="display:flex;flex:1;"><div class="nav-lnk on">Modèles</div><div class="nav-lnk">Sessions</div></div>
+          <div class="nav-r"><div class="nav-bell"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(247,243,238,.5)" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nav-badge"></div></div><div class="nav-cta"><span>Session</span><div class="nav-cta-ico">+</div></div></div>
+        </div>
+        <div class="main">
+          <div class="grid-stretched">
+            <div class="chips-row"><div class="chip on">Tous</div><div class="chip rouge">● Sélect.</div><div class="chip off">F</div><div class="chip more">+</div></div>
+            <div class="grid-2">
+              <div class="gs-card amb"><div class="gs-card-in"><div class="gs-photo" style="background:linear-gradient(155deg,#2A1F16,#0D0A08);"></div><div class="gs-foot"><div class="gs-name">Chloé M.</div><div class="gs-sub">178 · MTL</div></div></div></div>
+              <div class="gs-card"><div class="gs-card-in"><div class="gs-photo" style="background:linear-gradient(155deg,#8B7E74,#4A4038);"></div><div class="gs-foot"><div class="gs-name">Sofia R.</div><div class="gs-sub">174 · TOR</div></div></div></div>
+              <div class="gs-card"><div class="gs-card-in"><div class="gs-photo" style="background:linear-gradient(155deg,#C5B9AF,#7A6E66);"></div><div class="gs-foot"><div class="gs-name">Maya T.</div><div class="gs-sub">176 · QC</div></div></div></div>
+              <div class="gs-card"><div class="gs-card-in"><div class="gs-photo" style="background:linear-gradient(155deg,#D4C8BE,#9A8070);"></div><div class="gs-foot"><div class="gs-name">Noah C.</div><div class="gs-sub">188 · VAN</div></div></div></div>
+            </div>
+            <p style="font-size:.38rem;color:var(--muted);font-weight:400;letter-spacing:.06em;opacity:.7;padding:.1rem .1rem;">← cards étirées, proportions cassées</p>
+          </div>
+          <!-- panel (placeholder) -->
+          <div style="width:190px;flex-shrink:0;background:var(--cream-deep);border:1px solid var(--border-strong);border-radius:1rem;padding:3px;opacity:.5;">
+            <div style="background:#fff;border-radius:calc(1rem - 3px);height:100%;min-height:260px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── APRÈS ── -->
+  <div>
+    <div class="cmp-lbl good">✓ Après — liste compacte</div>
+    <div class="rec-badge">Proportions fixes · Scannable · Scroll naturel</div>
+    <div class="dev">
+      <div class="dev-in">
+        <div class="nav">
+          <span class="nav-logo">Lumina</span>
+          <div class="nav-sep"></div>
+          <div style="display:flex;flex:1;"><div class="nav-lnk on">Modèles</div><div class="nav-lnk">Sessions</div></div>
+          <div class="nav-r"><div class="nav-bell"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(247,243,238,.5)" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nav-badge"></div></div><div class="nav-cta"><span>Session</span><div class="nav-cta-ico">+</div></div></div>
+        </div>
+
+        <div class="main">
+
+          <!-- Liste compacte gauche -->
+          <div class="list-col">
+            <div class="list-search">
+              <div class="list-search-in">
+                <div class="s-ico"></div>
+                <span class="s-ph">Rechercher…</span>
+                <span class="s-cmd">⌘K</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:.2rem;"><div class="chip on" style="font-size:.36rem;height:16px;">Tous</div><div class="chip rouge" style="font-size:.36rem;height:16px;">● 28</div><div class="chip off" style="font-size:.36rem;height:16px;">F</div><div class="chip more" style="font-size:.36rem;height:16px;">+</div></div>
+            <div class="list-items">
+
+              <div class="li-row amb active">
+                <div class="li-row-in">
+                  <div class="li-thumb-wrap"><div class="li-thumb" style="background:linear-gradient(155deg,#2A1F16,#0D0A08);"></div></div>
+                  <div class="li-info">
+                    <div class="li-name">Chloé Mercier</div>
+                    <div class="li-sub">178 · F · Montréal</div>
+                    <div class="li-tags"><span class="li-tag gold">✦ Amb.</span></div>
+                  </div>
+                  <div class="li-dispo-dot g"></div>
+                </div>
+              </div>
+
+              <div class="li-row">
+                <div class="li-row-in">
+                  <div class="li-thumb-wrap"><div class="li-thumb" style="background:linear-gradient(155deg,#8B7E74,#4A4038);"></div></div>
+                  <div class="li-info">
+                    <div class="li-name">Sofia Ramos</div>
+                    <div class="li-sub">174 · F · Toronto</div>
+                    <div class="li-tags"><span class="li-tag rouge">Editorial</span></div>
+                  </div>
+                  <div class="li-dispo-dot g"></div>
+                </div>
+              </div>
+
+              <div class="li-row">
+                <div class="li-row-in">
+                  <div class="li-thumb-wrap"><div class="li-thumb" style="background:linear-gradient(155deg,#C5B9AF,#7A6E66);"></div></div>
+                  <div class="li-info">
+                    <div class="li-name">Maya Tremblay</div>
+                    <div class="li-sub">176 · F · Québec</div>
+                    <div class="li-tags"><span class="li-tag n">Pub</span></div>
+                  </div>
+                  <div class="li-dispo-dot y"></div>
+                </div>
+              </div>
+
+              <div class="li-row">
+                <div class="li-row-in">
+                  <div class="li-thumb-wrap"><div class="li-thumb" style="background:linear-gradient(155deg,#D4C8BE,#9A8070);"></div></div>
+                  <div class="li-info">
+                    <div class="li-name">Noah Carrier</div>
+                    <div class="li-sub">188 · H · Vancouver</div>
+                    <div class="li-tags"><span class="li-tag n">Débutant</span></div>
+                  </div>
+                  <div class="li-dispo-dot g"></div>
+                </div>
+              </div>
+
+              <div class="li-row">
+                <div class="li-row-in">
+                  <div class="li-thumb-wrap"><div class="li-thumb" style="background:linear-gradient(155deg,#C8BDB4,#8A7C72);"></div></div>
+                  <div class="li-info">
+                    <div class="li-name">Alexis Dupont</div>
+                    <div class="li-sub">185 · H · Paris</div>
+                    <div class="li-tags"><span class="li-tag rouge">Editorial</span></div>
+                  </div>
+                  <div class="li-dispo-dot g"></div>
+                </div>
+              </div>
+
+              <div class="li-row">
+                <div class="li-row-in">
+                  <div class="li-thumb-wrap"><div class="li-thumb" style="background:linear-gradient(155deg,#EDE7DC,#B5A898);"></div></div>
+                  <div class="li-info">
+                    <div class="li-name">Léa Fontaine</div>
+                    <div class="li-sub">172 · F · Lyon</div>
+                    <div class="li-tags"><span class="li-tag n">Catalog</span></div>
+                  </div>
+                  <div class="li-dispo-dot g"></div>
+                </div>
+              </div>
+
+            </div>
+            <div class="list-more">↓ 136 de plus</div>
+            <div class="kbd-hint">
+              <span class="kbd">↑</span><span class="kbd">↓</span>
+              <span class="kbd-lbl">Naviguer</span>
+              <span style="color:var(--border-strong);margin:0 .2rem;">·</span>
+              <span class="kbd">Esc</span><span class="kbd-lbl">Fermer</span>
+            </div>
+          </div>
+
+          <!-- Panneau détail -->
+          <div class="detail-panel">
+            <div class="dp-inner">
+              <div class="dp-photo">
+                <div class="dp-nav-prev">‹</div>
+                <div class="dp-nav-next">›</div>
+                <div class="dp-close">✕</div>
+                <div class="dp-amb-badge">✦ Ambassadeur</div>
+                <div class="dp-dots"><div class="dp-dot on"></div><div class="dp-dot"></div></div>
+              </div>
+              <div class="dp-header">
+                <div class="dp-name">Chloé Mercier</div>
+                <div class="dp-sub">178 cm · F · Montréal · 26 ans</div>
+                <div class="dp-pills">
+                  <div class="dp-pill g"><div class="dp-pill-dot"></div>Disponible</div>
+                  <div class="dp-pill n">Editorial</div>
+                  <div class="dp-pill n">Runway</div>
+                </div>
+              </div>
+              <div class="dp-tabs">
+                <div class="dp-tab on">Infos</div>
+                <div class="dp-tab">Mesures</div>
+                <div class="dp-tab">Sessions</div>
+              </div>
+              <div class="dp-body">
+                <div>
+                  <div class="dp-section-lbl">Mensurations</div>
+                  <div class="dp-grid-3">
+                    <div class="dp-field"><div class="dp-lbl">Poitrine</div><div class="dp-val">86</div></div>
+                    <div class="dp-field"><div class="dp-lbl">Taille</div><div class="dp-val">61</div></div>
+                    <div class="dp-field"><div class="dp-lbl">Hanches</div><div class="dp-val">90</div></div>
+                  </div>
+                </div>
+                <div class="dp-grid-2">
+                  <div class="dp-field"><div class="dp-lbl">Pointure</div><div class="dp-val">38 EU</div></div>
+                  <div class="dp-field"><div class="dp-lbl">Yeux</div><div class="dp-val">Verts</div></div>
+                </div>
+                <div class="dp-note">
+                  <div class="dp-note-head">Note interne <span class="dp-note-edit">✏</span></div>
+                  <div class="dp-note-txt">"Parfaite pour éditorial hiver. Très pro en session."</div>
+                </div>
+                <div class="dp-insta">
+                  <div class="dp-lbl">Instagram</div>
+                  <div class="dp-insta-val">@chloe.mercier ↗</div>
+                </div>
+              </div>
+              <div class="dp-actions">
+                <div class="dp-btn primary">✓ Sélect.</div>
+                <div class="dp-btn">+ Session</div>
+                <div class="dp-btn icon">✏</div>
+                <div class="dp-btn icon" style="color:var(--muted);">⋯</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="background:#fff;border:1px solid var(--border);border-radius:1rem;padding:.85rem 1rem;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 1px 4px rgba(26,20,16,.05);">
+  <p style="font-size:.57rem;line-height:1.7;color:var(--ink-soft);font-weight:300;">
+    <strong style="font-family:'Cormorant Garamond',serif;font-size:.9rem;font-weight:400;color:var(--ink);">Comportement dynamique</strong><br>
+    Panel <strong>fermé</strong> → grille normale 3 colonnes avec photos grandes. Panel <strong>ouvert</strong> → transition spring, la grille se rétracte en liste compacte fixe (200px). Chaque clic dans la liste met à jour le panel sans animation de slide — juste un cross-fade 200ms. Navigation ↑↓ au clavier également.
+  </p>
+</div>
+
+</body>
+</html>

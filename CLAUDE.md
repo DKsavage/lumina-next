@@ -94,7 +94,7 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 ## Phases
 
-Phases 0–11 terminées (voir git log).
+Phases 0–12 terminées (voir git log).
 
 **Phase 11** (2026-06-26) : Emails bilingues EN/FR (EN en premier, séparateur 2px, tous les templates), remerciement + paiement post-session, cron automatique (J-5/J-2/J-1/matin, `vercel.json`), tracking emails Resend (livré/cliqué/bounce, webhook Svix HMAC), tags/labels modèles, notes internes, répartition paiement par modèle, page facture imprimable `/facture/[token]` (template Word Lumina, numéro auto `LUM-YYYY-TOKEN`).
 
@@ -105,14 +105,7 @@ Phases 0–11 terminées (voir git log).
 - `PATCH /api/sessions/models/[id]` — payment_amount par modèle
 - `src/app/facture/[token]/page.tsx` — page imprimable
 
-**Phase 12 — Refonte dashboard** (spec + plan prêts, exécution à venir)
-- Spec : `docs/superpowers/specs/2026-06-26-dashboard-redesign-design.md`
-- Plan : `docs/superpowers/plans/2026-06-26-dashboard-redesign.md` — 11 tâches, invoquer `superpowers:subagent-driven-development`
-- Pill nav desktop · bottom nav mobile · double-bezel cards · Ambassadeur dark+or
-- KPI bande unifiée · chips filtres + drawer · tri chip dédié
-- Panel détail slide-in (grille 3→2 cols largeur fixe) · tabs · nav clavier
-- Barre sélection flottante (thumbnails empilés, spring) · skeleton loaders
-- Sélection card : outline rouge + fond teinté · État vide : filtres actifs + CTA
+**Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill flottante, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar thumbnails spring, DetailPanel slide-in tabs, empty state. CSS vars gold/spring/grain, `admin/layout.tsx` grain scoped.
 
 **Backlog actif :**
 - Page `/qr` — QR code print-friendly pointant vers `https://luminamodels.ca` · lib `qrcode.react`

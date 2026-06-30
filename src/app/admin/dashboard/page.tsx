@@ -289,7 +289,7 @@ export default function DashboardPage() {
                     onToggle={toggleSelect}
                     onViewDetail={setDetail}
                     onTierChange={handleTierChange}
-                    style={!detail && c.tier === 'ambassadeur' ? { gridRow: 'span 2' } : undefined}
+                    style={undefined}
                   />
                 ))}
               </div>

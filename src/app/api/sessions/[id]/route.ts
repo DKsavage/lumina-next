@@ -139,7 +139,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         method: 'POST',
         headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY!}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Flawa Models <casting@flawamodels.ca>',
+          from: 'Flawa Models <casting@luminamodels.ca>',
           reply_to: 'luminaphotography.mtl@gmail.com',
           to: [m.model_email],
           subject: `Mise à jour — ${session.project}`,
@@ -164,7 +164,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">
       <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@flawamodels.ca · flawamodels.ca · Montréal
+      casting@luminamodels.ca · luminamodels.ca · Montréal
     </div>
   </td></tr>
 </table>

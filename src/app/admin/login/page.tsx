@@ -129,7 +129,7 @@ export default function AdminLoginPage() {
                 }}
                 onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
                 onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
-                placeholder="casting@flawamodels.ca"
+                placeholder="casting@luminamodels.ca"
               />
 
               {error && (

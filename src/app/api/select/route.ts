@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       'Content-Type':  'application/json',
     },
     body: JSON.stringify({
-      from:     'Flawa Models <casting@flawamodels.ca>',
+      from:     'Flawa Models <casting@luminamodels.ca>',
       reply_to: 'luminaphotography.mtl@gmail.com',
       to:       [email],
       subject:  'Félicitations — Tu as été sélectionné(e) par Flawa Models',
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
   <tr><td style="padding:0 40px 28px;">
     <div style="border-top:1px solid #e2e2e2;padding-top:16px;">
       <span style="font-family:Georgia,serif;font-size:15px;letter-spacing:0.08em;text-transform:uppercase;color:#d4293a;font-weight:700;">Flawa Models</span>
-      <div style="font-size:12px;color:#6b6b6b;margin-top:4px;">casting@flawamodels.ca &nbsp;·&nbsp; flawamodels.ca</div>
+      <div style="font-size:12px;color:#6b6b6b;margin-top:4px;">casting@luminamodels.ca &nbsp;·&nbsp; luminamodels.ca</div>
     </div>
   </td></tr>
 </table>

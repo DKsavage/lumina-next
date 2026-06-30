@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          from: 'Flawa Models <casting@flawamodels.ca>',
+          from: 'Flawa Models <casting@luminamodels.ca>',
           to:   [m.model_email],
           subject,
           html,

@@ -75,4 +75,4 @@ export interface Session {
 }
 
 // URL de base du site — utilisé pour construire les liens de confirmation
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://flawamodels.ca'
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luminamodels.ca'

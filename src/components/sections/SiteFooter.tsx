@@ -43,7 +43,7 @@ export default function SiteFooter() {
           Instagram
         </a>
         <a
-          href="mailto:casting@flawamodels.ca"
+          href="mailto:casting@luminamodels.ca"
           className="nav-link font-medium uppercase text-muted"
           style={{ fontSize: '.55rem', letterSpacing: '.25em' }}
         >

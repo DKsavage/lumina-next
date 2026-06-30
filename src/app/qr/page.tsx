@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from 'qrcode.react'
 
-const URL = 'https://flawamodels.ca'
+const URL = 'https://luminamodels.ca'
 
 export default function QRPage() {
   return (

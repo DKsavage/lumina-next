@@ -61,13 +61,13 @@ Migration **Flawa Models** de HTML vanilla → Next.js 15.
 Agence de casting international, formulaire d'inscription mannequins.
 
 - **Repo** : `lumina-next`, branche `main` → auto-deploy Vercel
-- **URL prod** : `https://flawamodels.ca` — live en production
+- **URL prod** : `https://luminamodels.ca` — live en production
 
 ---
 
 ## Stack
 
-Next.js 15 App Router · TypeScript strict · Tailwind v4 · shadcn/ui · Framer Motion · Supabase (table `candidatures`, bucket `photos-candidatures`, Auth OTP 8 chiffres) · Resend `casting@flawamodels.ca` · reCAPTCHA v3 clé `6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ`
+Next.js 15 App Router · TypeScript strict · Tailwind v4 · shadcn/ui · Framer Motion · Supabase (table `candidatures`, bucket `photos-candidatures`, Auth OTP 8 chiffres) · Resend `casting@luminamodels.ca` · reCAPTCHA v3 clé `6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ`
 
 ---
 
@@ -108,7 +108,7 @@ Phases 0–12 terminées (voir git log).
 **Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill flottante, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar thumbnails spring, DetailPanel slide-in tabs, empty state. CSS vars gold/spring/grain, `admin/layout.tsx` grain scoped.
 
 **Backlog actif :**
-- Page `/qr` — QR code print-friendly pointant vers `https://flawamodels.ca` · lib `qrcode.react`
+- Page `/qr` — QR code print-friendly pointant vers `https://luminamodels.ca` · lib `qrcode.react`
 - Portfolio photos par modèle (page publique, consentement, galerie)
 - Photos site public (refonte page d'accueil)
 

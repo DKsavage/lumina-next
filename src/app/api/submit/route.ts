@@ -62,7 +62,7 @@ async function sendConfirmationEmails(data: Record<string, string>) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:     'Flawa Models <casting@flawamodels.ca>',
+      from:     'Flawa Models <casting@luminamodels.ca>',
       reply_to: 'luminaphotography.mtl@gmail.com',
       to:       [data.email],
       subject:  'Inscription reçue — Flawa Models',
@@ -108,7 +108,7 @@ async function sendConfirmationEmails(data: Record<string, string>) {
             <tr><td style="padding:6px 0;color:#6b6b6b">Instagram</td><td>${data.instagram ? '@' + data.instagram : '—'}</td></tr>
           </table>
           <p style="margin-top:24px;">
-            <a href="https://flawamodels.ca/admin/dashboard"
+            <a href="https://luminamodels.ca/admin/dashboard"
                style="background:#8B0020;color:#fff;padding:12px 24px;text-decoration:none;font-size:0.8rem;letter-spacing:0.1em;">
               Voir le dashboard →
             </a>
@@ -190,7 +190,7 @@ export async function POST(request: Request) {
       const existing = await dupRes.json() as { id: string }[]
       if (existing.length > 0) {
         return NextResponse.json(
-          { success: false, message: 'Une candidature avec cet email existe déjà. Contacte-nous à casting@flawamodels.ca pour toute correction.' },
+          { success: false, message: 'Une candidature avec cet email existe déjà. Contacte-nous à casting@luminamodels.ca pour toute correction.' },
           { status: 409 }
         )
       }

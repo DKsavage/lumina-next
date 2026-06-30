@@ -246,7 +246,7 @@ function buildEmail(params: {
   <tr><td style="padding:20px 40px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;line-height:1.7;">
       <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@flawamodels.ca · flawamodels.ca · Montréal
+      casting@luminamodels.ca · luminamodels.ca · Montréal
     </div>
   </td></tr>
 </table>
@@ -396,7 +396,7 @@ export async function POST(request: NextRequest) {
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          from:     'Flawa Models <casting@flawamodels.ca>',
+          from:     'Flawa Models <casting@luminamodels.ca>',
           reply_to: 'luminaphotography.mtl@gmail.com',
           to:       [m.email],
           subject:  `${session.project} — Convocation / Call sheet`,

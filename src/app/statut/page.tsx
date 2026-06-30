@@ -100,7 +100,7 @@ export default function StatutPage() {
           fontSize: '.75rem', color: '#9b9b9b' }}>
           <span style={{ fontFamily: 'Georgia, serif', color: '#8B0020', fontWeight: 700 }}>Flawa Models</span>
           {' '}·{' '}
-          <a href="mailto:casting@flawamodels.ca" style={{ color: '#9b9b9b' }}>casting@flawamodels.ca</a>
+          <a href="mailto:casting@luminamodels.ca" style={{ color: '#9b9b9b' }}>casting@luminamodels.ca</a>
         </div>
       </div>
     </div>

@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY!}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'Flawa Models <casting@flawamodels.ca>',
+            from: 'Flawa Models <casting@luminamodels.ca>',
             to:   [m.model_email],
             subject,
             html,

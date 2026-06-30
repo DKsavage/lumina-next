@@ -29,7 +29,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Content-Type':  'application/json',
     },
     body: JSON.stringify({
-      from: 'Flawa Models <casting@flawamodels.ca>',
+      from: 'Flawa Models <casting@luminamodels.ca>',
       to:   [to],
       subject,
       html,
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">
       <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@flawamodels.ca · flawamodels.ca · Montréal
+      casting@luminamodels.ca · luminamodels.ca · Montréal
     </div>
   </td></tr>
 </table>
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">
       <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@flawamodels.ca · flawamodels.ca · Montréal
+      casting@luminamodels.ca · luminamodels.ca · Montréal
     </div>
   </td></tr>
 </table>

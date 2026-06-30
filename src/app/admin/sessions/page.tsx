@@ -91,7 +91,7 @@ export default function SessionsPage() {
       <nav className="sticky top-0 z-40 flex items-center justify-between bg-paper" style={{ borderBottom: '1px solid var(--border)', padding: '1.2rem 2rem' }}>
         <div className="flex items-center gap-8">
           <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: '1.4rem', color: 'var(--ink)' }}>
-            Lumina<span style={{ color: 'var(--red)' }}>.</span>
+            Flawa Models
           </span>
           <span className="hidden md:block font-medium uppercase text-muted" style={{ fontSize: '.44rem', letterSpacing: '.3em' }}>Historique Sessions</span>
         </div>

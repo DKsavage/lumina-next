@@ -58,7 +58,7 @@ export default function StatutPage() {
         boxShadow: '0 4px 24px rgba(0,0,0,.06)' }}>
 
         <p style={{ fontSize: '.78rem', color: '#6b6b6b', letterSpacing: '.15em', textTransform: 'uppercase',
-          fontWeight: 600, margin: '0 0 .5rem' }}>Lumina Photography</p>
+          fontWeight: 600, margin: '0 0 .5rem' }}>Flawa Models</p>
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', fontWeight: 300, color: '#0c0b09', margin: '0 0 2rem' }}>
           Statut de candidature
         </h1>
@@ -98,9 +98,9 @@ export default function StatutPage() {
 
         <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '1.5rem',
           fontSize: '.75rem', color: '#9b9b9b' }}>
-          <span style={{ fontFamily: 'Georgia, serif', color: '#8B0020', fontWeight: 700 }}>Lumina</span>
-          {' '}Photography ·{' '}
-          <a href="mailto:casting@luminamodels.ca" style={{ color: '#9b9b9b' }}>casting@luminamodels.ca</a>
+          <span style={{ fontFamily: 'Georgia, serif', color: '#8B0020', fontWeight: 700 }}>Flawa Models</span>
+          {' '}·{' '}
+          <a href="mailto:casting@flawamodels.ca" style={{ color: '#9b9b9b' }}>casting@flawamodels.ca</a>
         </div>
       </div>
     </div>

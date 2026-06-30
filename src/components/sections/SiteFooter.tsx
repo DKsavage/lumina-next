@@ -22,7 +22,7 @@ export default function SiteFooter() {
         className="font-display italic font-semibold"
         style={{ fontSize: '1.1rem', letterSpacing: '-0.01em', color: 'var(--ink)' }}
       >
-        Lumina<em style={{ color: 'var(--red)', fontStyle: 'normal' }}>.</em>
+        Flawa<em style={{ color: 'var(--red)', fontStyle: 'normal' }}> Models</em>
       </motion.div>
 
       <motion.div
@@ -43,7 +43,7 @@ export default function SiteFooter() {
           Instagram
         </a>
         <a
-          href="mailto:casting@luminamodels.ca"
+          href="mailto:casting@flawamodels.ca"
           className="nav-link font-medium uppercase text-muted"
           style={{ fontSize: '.55rem', letterSpacing: '.25em' }}
         >
@@ -59,7 +59,7 @@ export default function SiteFooter() {
         className="font-light"
         style={{ fontSize: '.52rem', color: 'rgba(12,11,9,.2)', letterSpacing: '.1em' }}
       >
-        © 2026 Lumina Photography
+        © 2026 Flawa Models
       </motion.p>
     </footer>
   )

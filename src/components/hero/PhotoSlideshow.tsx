@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 
 const SLIDES = [
-  { seed: 'couA', pos: 'center 20%', alt: 'Mannequin Lumina — portrait éditorial' },
-  { seed: 'couB', pos: 'center 15%', alt: 'Mannequin Lumina — pose mode' },
-  { seed: 'couC', pos: 'center top', alt: 'Mannequin Lumina — shooting commercial' },
-  { seed: 'couD', pos: '60% 10%',   alt: 'Mannequin Lumina — campagne mode' },
-  { seed: 'couE', pos: 'center 25%', alt: 'Mannequin Lumina — casting' },
+  { seed: 'couA', pos: 'center 20%', alt: 'Mannequin Flawa Models — portrait éditorial' },
+  { seed: 'couB', pos: 'center 15%', alt: 'Mannequin Flawa Models — pose mode' },
+  { seed: 'couC', pos: 'center top', alt: 'Mannequin Flawa Models — shooting commercial' },
+  { seed: 'couD', pos: '60% 10%',   alt: 'Mannequin Flawa Models — campagne mode' },
+  { seed: 'couE', pos: 'center 25%', alt: 'Mannequin Flawa Models — casting' },
 ]
 
 interface Props {

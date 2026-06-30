@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from 'qrcode.react'
 
-const URL = 'https://luminamodels.ca'
+const URL = 'https://flawamodels.ca'
 
 export default function QRPage() {
   return (
@@ -16,7 +16,7 @@ export default function QRPage() {
           className="uppercase tracking-[0.3em] text-xs"
           style={{ color: '#8B0020', fontFamily: 'var(--font-montserrat)', fontWeight: 300 }}
         >
-          Lumina Models
+          Flawa Models
         </p>
         <h1
           className="text-3xl italic"

@@ -29,7 +29,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Content-Type':  'application/json',
     },
     body: JSON.stringify({
-      from: 'Lumina Photography <casting@luminamodels.ca>',
+      from: 'Flawa Models <casting@flawamodels.ca>',
       to:   [to],
       subject,
       html,
@@ -126,8 +126,7 @@ export async function GET(request: NextRequest) {
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <tr><td style="height:4px;background:#8B0020;"></td></tr>
   <tr><td style="padding:28px 40px 20px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
-    <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
+    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
   </td></tr>
   <tr><td style="padding:0 40px 32px;">
     <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Dear ${esc(sm.model_prenom)},</p>
@@ -152,9 +151,8 @@ export async function GET(request: NextRequest) {
   </td></tr>
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Lumina</span>
-      <span style="font-family:Georgia,serif;font-size:12px;color:#0a0a0a;font-weight:300;margin-left:4px;">Photography</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
+      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
+      casting@flawamodels.ca · flawamodels.ca · Montréal
     </div>
   </td></tr>
 </table>
@@ -165,8 +163,7 @@ export async function GET(request: NextRequest) {
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <tr><td style="height:4px;background:#8B0020;"></td></tr>
   <tr><td style="padding:28px 40px 20px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
-    <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
+    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
   </td></tr>
   <tr><td style="padding:0 40px 32px;">
     <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Dear ${esc(sm.model_prenom)},</p>
@@ -181,9 +178,8 @@ export async function GET(request: NextRequest) {
   </td></tr>
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Lumina</span>
-      <span style="font-family:Georgia,serif;font-size:12px;color:#0a0a0a;font-weight:300;margin-left:4px;">Photography</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
+      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
+      casting@flawamodels.ca · flawamodels.ca · Montréal
     </div>
   </td></tr>
 </table>

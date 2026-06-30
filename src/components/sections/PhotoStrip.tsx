@@ -7,11 +7,11 @@ import Image from 'next/image'
    Le container utilise staggerChildren → chaque photo entre avec 80ms de décalage.
    En prod : remplacer les URLs picsum par Supabase Storage. */
 const PHOTOS = [
-  { seed: 'strip1', alt: 'Mannequin Lumina — portrait éditorial' },
-  { seed: 'strip2', alt: 'Mannequin Lumina — mode printemps' },
-  { seed: 'strip3', alt: 'Mannequin Lumina — campagne commerciale' },
-  { seed: 'strip4', alt: 'Mannequin Lumina — editorial fashion' },
-  { seed: 'strip5', alt: 'Mannequin Lumina — lookbook été' },
+  { seed: 'strip1', alt: 'Mannequin Flawa Models — portrait éditorial' },
+  { seed: 'strip2', alt: 'Mannequin Flawa Models — mode printemps' },
+  { seed: 'strip3', alt: 'Mannequin Flawa Models — campagne commerciale' },
+  { seed: 'strip4', alt: 'Mannequin Flawa Models — editorial fashion' },
+  { seed: 'strip5', alt: 'Mannequin Flawa Models — lookbook été' },
 ]
 
 const EASE = [0.16, 1, 0.3, 1] as const

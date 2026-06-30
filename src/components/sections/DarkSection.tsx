@@ -107,7 +107,7 @@ export default function DarkSection() {
             className="font-light leading-[1.9]"
             style={{ fontSize: '.85rem', color: 'rgba(247,243,238,.5)', marginBottom: '2.8rem', maxWidth: '380px' }}
           >
-            Lumina Photography est plus qu'une agence — c'est un collectif de créateurs. Depuis 2018, nous collaborons avec des marques exigeantes et des photographes reconnus à l'international.
+            Flawa Models est plus qu'une agence — c'est un collectif de créateurs. Depuis 2018, nous collaborons avec des marques exigeantes et des photographes reconnus à l'international.
           </motion.p>
 
           <motion.a

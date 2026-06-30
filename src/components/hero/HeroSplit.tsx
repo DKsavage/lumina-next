@@ -5,11 +5,11 @@ import Image from 'next/image'
 import CandidatureForm from '../form/CandidatureForm'
 
 const SLIDES = [
-  { seed: 'lumA', pos: 'center 20%', alt: 'Mannequin Lumina — portrait éditorial' },
-  { seed: 'lumB', pos: 'center 15%', alt: 'Mannequin Lumina — pose mode' },
-  { seed: 'lumC', pos: 'center top', alt: 'Mannequin Lumina — shooting commercial' },
-  { seed: 'lumD', pos: '60% 10%',   alt: 'Mannequin Lumina — campagne mode' },
-  { seed: 'lumE', pos: 'center 25%', alt: 'Mannequin Lumina — casting 2026' },
+  { seed: 'lumA', pos: 'center 20%', alt: 'Mannequin Flawa Models — portrait éditorial' },
+  { seed: 'lumB', pos: 'center 15%', alt: 'Mannequin Flawa Models — pose mode' },
+  { seed: 'lumC', pos: 'center top', alt: 'Mannequin Flawa Models — shooting commercial' },
+  { seed: 'lumD', pos: '60% 10%',   alt: 'Mannequin Flawa Models — campagne mode' },
+  { seed: 'lumE', pos: 'center 25%', alt: 'Mannequin Flawa Models — casting 2026' },
 ]
 
 export default function HeroSplit() {
@@ -30,11 +30,11 @@ export default function HeroSplit() {
     <>
       {/* ══ NAV — position: fixed, z-index: 500 ══ */}
       <nav className="lum-nav">
-        <a href="#" className="lum-logo" aria-label="Lumina Photography">
+        <a href="#" className="lum-logo" aria-label="Flawa Models">
           <div className="logo-mark" aria-hidden="true">
             <span>L</span>
           </div>
-          <span className="logo-word">Lumina<em>.</em></span>
+          <span className="logo-word">Flawa<em> Models</em></span>
         </a>
         <nav className="lum-nav-links" aria-label="Navigation principale">
           <a href="#" className="lum-nav-link">L&apos;agence</a>

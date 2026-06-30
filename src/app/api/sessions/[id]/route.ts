@@ -139,7 +139,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         method: 'POST',
         headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY!}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Lumina Photography <casting@luminamodels.ca>',
+          from: 'Flawa Models <casting@flawamodels.ca>',
           reply_to: 'luminaphotography.mtl@gmail.com',
           to: [m.model_email],
           subject: `Mise à jour — ${session.project}`,
@@ -150,8 +150,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <tr><td style="height:4px;background:#8B0020;"></td></tr>
   <tr><td style="padding:28px 40px 32px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
-    <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
+    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
     <p style="margin:24px 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour <strong>${esc(m.model_prenom)}</strong>,</p>
     <p style="margin:0 0 20px;font-size:15px;color:#0a0a0a;line-height:1.7;">Des informations ont été mises à jour pour votre convocation au projet <strong>${esc(session.project)}</strong>.</p>
     <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Date</p>
@@ -164,9 +163,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   </td></tr>
   <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Lumina</span>
-      <span style="font-family:Georgia,serif;font-size:12px;color:#0a0a0a;font-weight:300;margin-left:4px;">Photography</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
+      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
+      casting@flawamodels.ca · flawamodels.ca · Montréal
     </div>
   </td></tr>
 </table>

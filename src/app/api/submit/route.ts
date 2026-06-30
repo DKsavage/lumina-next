@@ -62,17 +62,17 @@ async function sendConfirmationEmails(data: Record<string, string>) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:     'Lumina Photography <casting@luminamodels.ca>',
+      from:     'Flawa Models <casting@flawamodels.ca>',
       reply_to: 'luminaphotography.mtl@gmail.com',
       to:       [data.email],
-      subject:  'Inscription reçue — Lumina Photography',
+      subject:  'Inscription reçue — Flawa Models',
       html: `
         <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #0a0a0a;">
-          <h1 style="font-weight: 300; font-size: 2rem; margin-bottom: 8px;">Lumina Photography</h1>
+          <h1 style="font-weight: 300; font-size: 2rem; margin-bottom: 8px;">Flawa Models</h1>
           <p style="color: #6b6b6b; margin-bottom: 32px;">Agence de casting international</p>
           <p>Bonjour <strong>${data.prenom}</strong>,</p>
           <p>Ta candidature a bien été enregistrée. Nous te contacterons dès qu'un projet correspondant à ton profil se présente.</p>
-          <p style="color: #6b6b6b; font-size: 0.9rem; margin-top: 32px;">L'équipe Lumina Photography</p>
+          <p style="color: #6b6b6b; font-size: 0.9rem; margin-top: 32px;">L'équipe Flawa Models</p>
         </div>
       `,
     }),
@@ -108,7 +108,7 @@ async function sendConfirmationEmails(data: Record<string, string>) {
             <tr><td style="padding:6px 0;color:#6b6b6b">Instagram</td><td>${data.instagram ? '@' + data.instagram : '—'}</td></tr>
           </table>
           <p style="margin-top:24px;">
-            <a href="https://luminamodels.ca/admin/dashboard"
+            <a href="https://flawamodels.ca/admin/dashboard"
                style="background:#8B0020;color:#fff;padding:12px 24px;text-decoration:none;font-size:0.8rem;letter-spacing:0.1em;">
               Voir le dashboard →
             </a>
@@ -190,7 +190,7 @@ export async function POST(request: Request) {
       const existing = await dupRes.json() as { id: string }[]
       if (existing.length > 0) {
         return NextResponse.json(
-          { success: false, message: 'Une candidature avec cet email existe déjà. Contacte-nous à casting@luminamodels.ca pour toute correction.' },
+          { success: false, message: 'Une candidature avec cet email existe déjà. Contacte-nous à casting@flawamodels.ca pour toute correction.' },
           { status: 409 }
         )
       }

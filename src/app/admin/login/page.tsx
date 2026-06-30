@@ -78,9 +78,8 @@ export default function AdminLoginPage() {
           <span
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontStyle: 'italic', fontSize: '2.2rem', letterSpacing: '-.01em', color: 'var(--ink)' }}
           >
-            Lumina
+            Flawa Models
           </span>
-          <span className="text-red" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.2rem' }}>.</span>
           <div
             className="mt-2 font-medium uppercase text-muted"
             style={{ fontSize: '.5rem', letterSpacing: '.4em' }}
@@ -130,7 +129,7 @@ export default function AdminLoginPage() {
                 }}
                 onFocus={e => { e.currentTarget.style.borderColor = 'var(--red)' }}
                 onBlur={e  => { e.currentTarget.style.borderColor = 'var(--border)' }}
-                placeholder="casting@luminamodels.ca"
+                placeholder="casting@flawamodels.ca"
               />
 
               {error && (

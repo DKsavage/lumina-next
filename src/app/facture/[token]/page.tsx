@@ -55,7 +55,7 @@ export default function FacturePage() {
   )
 
   const fullName   = [data.model_prenom, data.model_nom].filter(Boolean).join(' ')
-  const invoiceNum = `LUM-${new Date().getFullYear()}-${token.slice(0, 6).toUpperCase()}`
+  const invoiceNum = `FLW-${new Date().getFullYear()}-${token.slice(0, 6).toUpperCase()}`
   const today      = new Date().toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' })
   const deadline   = addDays(new Date().toISOString().slice(0, 10), 30)
   const amount     = data.payment_amount
@@ -131,7 +131,7 @@ export default function FacturePage() {
             <div style={{ fontSize: '11px', letterSpacing: '.18em', textTransform: 'uppercase', color: '#6b6b6b', fontWeight: 700, marginBottom: '8px' }}>
               Facturé à
             </div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0a0a0a', lineHeight: 1.6 }}>Photographie Lumina Inc.</div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0a0a0a', lineHeight: 1.6 }}>Flawa Models Inc.</div>
             <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>Rep. M. Jonas Friard</div>
             <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>2165 Avenue Charlemagne</div>
             <div style={{ fontSize: '13px', color: '#0a0a0a', lineHeight: 1.6 }}>Montréal, H1W 0A7, QC</div>

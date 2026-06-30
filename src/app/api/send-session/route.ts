@@ -219,8 +219,7 @@ function buildEmail(params: {
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <tr><td style="height:4px;background:#8B0020;"></td></tr>
   <tr><td style="padding:28px 40px 20px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Lumina</span>
-    <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;font-weight:300;margin-left:6px;">Photography</span>
+    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
   </td></tr>
   ${sectionEn}
   <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
@@ -246,9 +245,8 @@ function buildEmail(params: {
   </td></tr>
   <tr><td style="padding:20px 40px;border-top:1px solid #e2e2e2;">
     <div style="font-size:12px;color:#6b6b6b;line-height:1.7;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Lumina</span>
-      <span style="font-family:Georgia,serif;font-size:12px;color:#0a0a0a;font-weight:300;margin-left:4px;">Photography</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
+      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
+      casting@flawamodels.ca · flawamodels.ca · Montréal
     </div>
   </td></tr>
 </table>
@@ -398,7 +396,7 @@ export async function POST(request: NextRequest) {
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          from:     'Lumina Photography <casting@luminamodels.ca>',
+          from:     'Flawa Models <casting@flawamodels.ca>',
           reply_to: 'luminaphotography.mtl@gmail.com',
           to:       [m.email],
           subject:  `${session.project} — Convocation / Call sheet`,

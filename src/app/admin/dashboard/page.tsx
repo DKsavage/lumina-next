@@ -133,7 +133,7 @@ export default function DashboardPage() {
     const csv  = 'sep=,\r\n' + [headers, ...rows].map(r => r.map(escape).join(',')).join('\r\n')
     const blob = new Blob([new TextEncoder().encode('﻿' + csv)], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
-    const a    = Object.assign(document.createElement('a'), { href: url, download: `lumina-${new Date().toISOString().slice(0,10)}.csv` })
+    const a    = Object.assign(document.createElement('a'), { href: url, download: `flawa-${new Date().toISOString().slice(0,10)}.csv` })
     a.click(); URL.revokeObjectURL(url)
   }
 

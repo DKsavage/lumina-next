@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Lumina Photography — Casting International',
+  title: 'Flawa Models — Casting International',
   description: 'Agence de casting photographique. Shootings éditoriaux, commerciaux, campagnes de mode internationales. Tous profils, toutes origines.',
 }
 

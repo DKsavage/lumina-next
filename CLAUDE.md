@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# CLAUDE.md — lumina-next (Lumina Photography)
+# CLAUDE.md — flawa-models (Flawa Models)
 
 Lis ce fichier en entier avant de commencer. Il remplace la mémoire de session.
 
@@ -57,17 +57,17 @@ Quand l'utilisateur tape `/graphify` → invoquer le skill `graphify` avant tout
 
 ## Projet
 
-Migration **Lumina Photography** de HTML vanilla → Next.js 15.
+Migration **Flawa Models** de HTML vanilla → Next.js 15.
 Agence de casting international, formulaire d'inscription mannequins.
 
 - **Repo** : `lumina-next`, branche `main` → auto-deploy Vercel
-- **URL prod** : `https://luminamodels.ca` — live en production
+- **URL prod** : `https://flawamodels.ca` — live en production
 
 ---
 
 ## Stack
 
-Next.js 15 App Router · TypeScript strict · Tailwind v4 · shadcn/ui · Framer Motion · Supabase (table `candidatures`, bucket `photos-candidatures`, Auth OTP 8 chiffres) · Resend `casting@luminamodels.ca` · reCAPTCHA v3 clé `6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ`
+Next.js 15 App Router · TypeScript strict · Tailwind v4 · shadcn/ui · Framer Motion · Supabase (table `candidatures`, bucket `photos-candidatures`, Auth OTP 8 chiffres) · Resend `casting@flawamodels.ca` · reCAPTCHA v3 clé `6LddUeAsAAAAAO4fcgYselTJy8a0EBen0SoPookQ`
 
 ---
 
@@ -96,7 +96,7 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 Phases 0–12 terminées (voir git log).
 
-**Phase 11** (2026-06-26) : Emails bilingues EN/FR (EN en premier, séparateur 2px, tous les templates), remerciement + paiement post-session, cron automatique (J-5/J-2/J-1/matin, `vercel.json`), tracking emails Resend (livré/cliqué/bounce, webhook Svix HMAC), tags/labels modèles, notes internes, répartition paiement par modèle, page facture imprimable `/facture/[token]` (template Word Lumina, numéro auto `LUM-YYYY-TOKEN`).
+**Phase 11** (2026-06-26) : Emails bilingues EN/FR (EN en premier, séparateur 2px, tous les templates), remerciement + paiement post-session, cron automatique (J-5/J-2/J-1/matin, `vercel.json`), tracking emails Resend (livré/cliqué/bounce, webhook Svix HMAC), tags/labels modèles, notes internes, répartition paiement par modèle, page facture imprimable `/facture/[token]` (template Word Lumina, numéro auto `FLW-YYYY-TOKEN`).
 
 **Nouvelles routes Phase 11 :**
 - `GET /api/cron/reminders` — cron 13h UTC, anti-doublon via `sent_at`
@@ -108,7 +108,7 @@ Phases 0–12 terminées (voir git log).
 **Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill flottante, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar thumbnails spring, DetailPanel slide-in tabs, empty state. CSS vars gold/spring/grain, `admin/layout.tsx` grain scoped.
 
 **Backlog actif :**
-- Page `/qr` — QR code print-friendly pointant vers `https://luminamodels.ca` · lib `qrcode.react`
+- Page `/qr` — QR code print-friendly pointant vers `https://flawamodels.ca` · lib `qrcode.react`
 - Portfolio photos par modèle (page publique, consentement, galerie)
 - Photos site public (refonte page d'accueil)
 

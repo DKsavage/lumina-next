@@ -99,11 +99,7 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
 
   return (
     <div
-      role="checkbox"
-      aria-checked={selected}
-      tabIndex={0}
       onClick={() => onToggle(c.id)}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(c.id) } }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{ ...outerStyle, ...cardStyle }}
@@ -155,22 +151,29 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
             ) : null
           })()}
 
-          {/* Select dot top-left */}
-          <div style={{
-            position: 'absolute', top: 8, left: 8,
-            width: 20, height: 20, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: selected ? (isAmb ? '#C4973A' : 'var(--red)') : 'rgba(247,243,238,.25)',
-            border: selected ? `1.5px solid #fff` : `1.5px solid rgba(255,255,255,.5)`,
-            boxShadow: selected ? (isAmb ? '0 2px 6px rgba(196,151,58,.4)' : '0 2px 6px rgba(139,0,32,.35)') : 'none',
-            transition: 'background .2s var(--spring), border-color .2s var(--spring), box-shadow .2s var(--spring)',
-          }}>
+          {/* Select dot top-left — bouton réel pour clavier/lecteur d'écran */}
+          <button
+            type="button"
+            aria-label={selected ? `Désélectionner ${c.prenom} ${c.nom}` : `Sélectionner ${c.prenom} ${c.nom}`}
+            aria-pressed={selected}
+            onClick={e => { e.stopPropagation(); onToggle(c.id) }}
+            style={{
+              position: 'absolute', top: 8, left: 8,
+              width: 28, height: 28, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: selected ? (isAmb ? '#C4973A' : 'var(--red)') : 'rgba(247,243,238,.25)',
+              border: selected ? `1.5px solid #fff` : `1.5px solid rgba(255,255,255,.5)`,
+              boxShadow: selected ? (isAmb ? '0 2px 6px rgba(196,151,58,.4)' : '0 2px 6px rgba(139,0,32,.35)') : 'none',
+              transition: 'background .2s var(--spring), border-color .2s var(--spring), box-shadow .2s var(--spring)',
+              cursor: 'pointer',
+            }}
+          >
             {selected && (
               <svg width="8" height="7" viewBox="0 0 10 8" fill="none">
                 <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )}
-          </div>
+          </button>
 
           {/* Doublon badge */}
           {isDuplicate && (

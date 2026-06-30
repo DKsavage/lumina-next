@@ -35,7 +35,7 @@ export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSess
           fontSize: '.85rem', letterSpacing: '.16em',
           color: 'rgba(247,243,238,.92)', padding: '0 .65rem', flexShrink: 0,
         }}>
-          Flawa Models
+          F
         </span>
 
         {/* Séparateur */}

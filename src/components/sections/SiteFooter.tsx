@@ -22,7 +22,7 @@ export default function SiteFooter() {
         className="font-display italic font-semibold"
         style={{ fontSize: '1.1rem', letterSpacing: '-0.01em', color: 'var(--ink)' }}
       >
-        Flawa<em style={{ color: 'var(--red)', fontStyle: 'normal' }}> Models</em>
+        F
       </motion.div>
 
       <motion.div

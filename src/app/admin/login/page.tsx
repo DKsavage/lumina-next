@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
           <span
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontStyle: 'italic', fontSize: '2.2rem', letterSpacing: '-.01em', color: 'var(--ink)' }}
           >
-            Flawa Models
+            F
           </span>
           <div
             className="mt-2 font-medium uppercase text-muted"

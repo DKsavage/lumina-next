@@ -32,9 +32,9 @@ export default function HeroSplit() {
       <nav className="lum-nav">
         <a href="#" className="lum-logo" aria-label="Flawa Models">
           <div className="logo-mark" aria-hidden="true">
-            <span>L</span>
+            <span>F</span>
           </div>
-          <span className="logo-word">Flawa<em> Models</em></span>
+          <span className="logo-word">F</span>
         </a>
         <nav className="lum-nav-links" aria-label="Navigation principale">
           <a href="#" className="lum-nav-link">L&apos;agence</a>

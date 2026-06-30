@@ -34,7 +34,7 @@ export default function HeroSplit() {
           <div className="logo-mark" aria-hidden="true">
             <span>F</span>
           </div>
-          <span className="logo-word">F</span>
+          <span className="logo-word">Flawa<em> Models</em></span>
         </a>
         <nav className="lum-nav-links" aria-label="Navigation principale">
           <a href="#" className="lum-nav-link">L&apos;agence</a>

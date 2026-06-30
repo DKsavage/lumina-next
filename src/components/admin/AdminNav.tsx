@@ -9,10 +9,11 @@ interface Props {
   onExportCSV:    () => void
   onLogout:       () => void
   onNewSession:   () => void
+  onSearch:       () => void
   loading:        boolean
 }
 
-export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSession, loading }: Props) {
+export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSession, onSearch, loading }: Props) {
   const [isPressed, setIsPressed] = useState(false)
   const pathname = usePathname()
 
@@ -68,6 +69,20 @@ export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSess
 
         {/* Droite */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '.35rem', marginLeft: 'auto', flexShrink: 0, paddingRight: '.1rem' }}>
+          {/* Recherche ⌘K */}
+          <button
+            onClick={onSearch}
+            style={{ height: 30, borderRadius: '100px', background: 'rgba(255,255,255,.07)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '.4rem', padding: '0 .65rem', transition: 'background-color .2s' }}
+            aria-label="Rechercher (⌘K)"
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.12)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.07)' }}
+          >
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="rgba(247,243,238,.5)" strokeWidth="1.6">
+              <circle cx="9" cy="9" r="6"/><path d="M14 14l3.5 3.5" strokeLinecap="round"/>
+            </svg>
+            <kbd style={{ fontSize: '.38rem', color: 'rgba(247,243,238,.3)', fontFamily: 'inherit', letterSpacing: '.04em', background: 'none', border: 'none', padding: 0 }}>⌘K</kbd>
+          </button>
+
           {/* Cloche avec badge */}
           <button
             onClick={onRefresh}

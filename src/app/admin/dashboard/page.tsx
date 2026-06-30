@@ -11,6 +11,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useCandidatures }  from '@/hooks/admin/useCandidatures'
 import { useSelection }     from '@/hooks/admin/useSelection'
 import { AdminNav }         from '@/components/admin/AdminNav'
+import { SearchOverlay }   from '@/components/admin/SearchOverlay'
 import { KpiStrip }         from '@/components/admin/KpiStrip'
 import { SkeletonCard }     from '@/components/admin/SkeletonCard'
 import { CandidatureCard }  from '@/components/admin/CandidatureCard'
@@ -54,8 +55,18 @@ export default function DashboardPage() {
   // sessionStatusId — ID de la session dont on veut afficher le suivi de confirmation
   const [sessionStatusId,   setSessionStatusId]   = useState<string | null>(null)
   const [viewMode,          setViewMode]          = useState<'grid' | 'list'>('grid')
+  const [searchOpen,        setSearchOpen]        = useState(false)
 
   useEffect(() => { setConfirmDelete(false) }, [detail])
+
+  // Cmd+K / Ctrl+K global → ouvre la recherche
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setSearchOpen(true) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   /* useMemo évite de re-trier toute la liste à chaque frappe */
   const filtered = useMemo(() => candidatures
@@ -169,6 +180,7 @@ export default function DashboardPage() {
         onExportCSV={handleExportCSV}
         onLogout={logout}
         onNewSession={() => setComposerOpen(true)}
+        onSearch={() => setSearchOpen(true)}
         loading={loading}
       />
 
@@ -391,6 +403,16 @@ export default function DashboardPage() {
 
       {/* TOAST */}
       <Toast message={toast} />
+
+      {/* RECHERCHE GLOBALE ⌘K */}
+      <SearchOverlay
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelectCandidat={id => {
+          const found = candidatures.find(c => c.id === id)
+          if (found) setDetail(found)
+        }}
+      />
     </div>
   )
 }

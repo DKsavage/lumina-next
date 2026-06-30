@@ -250,9 +250,7 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', gap: '.6rem', padding: '.65rem .8rem 6rem' }}>
           {/* Zone grille — rétrécit quand panel ouvert */}
           <div style={{
-            flex: detail ? '0 0 auto' : 1,
-            maxWidth: detail ? 'calc(2 * 200px + .5rem)' : undefined,
-            transition: 'max-width .4s var(--spring), flex .4s var(--spring)',
+            flex: 1,
             minWidth: 0,
           }}>
             {viewMode === 'list' ? (
@@ -267,9 +265,7 @@ export default function DashboardPage() {
             ) : (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: detail
-                  ? 'repeat(2, minmax(0, 200px))'
-                  : 'repeat(auto-fill, minmax(200px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
                 gap: '1rem',
               }}>
                 {filtered.map((c) => (
@@ -289,7 +285,7 @@ export default function DashboardPage() {
             {/* Load more */}
             {hasMore && !detail && (
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-                <button onClick={loadMore} disabled={loadingMore} style={{ fontSize: '.5rem', letterSpacing: '.3em', fontWeight: 500, textTransform: 'uppercase', background: 'none', border: '1px solid var(--border)', padding: '.7rem 2rem', cursor: loadingMore ? 'not-allowed' : 'pointer', color: 'var(--muted)', opacity: loadingMore ? .5 : 1 }}>
+                <button onClick={loadMore} disabled={loadingMore} style={{ fontSize: '.52rem', letterSpacing: '.3em', fontWeight: 500, textTransform: 'uppercase', background: 'none', border: '1px solid var(--border)', padding: '.7rem 2rem', cursor: loadingMore ? 'not-allowed' : 'pointer', color: 'var(--muted)', opacity: loadingMore ? .5 : 1 }}>
                   {loadingMore ? 'Chargement…' : 'Charger plus'}
                 </button>
               </div>

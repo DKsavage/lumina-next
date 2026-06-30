@@ -171,6 +171,13 @@ body {
    opacity: 0.028 → imperceptible mais donne la "peau" du papier.
    mix-blend-mode: multiply → se mélange au contenu comme impression offset.
 ────────────────────────────────────────────────────────────── */
+/* focus-visible scoped admin — navigation clavier visible sans polluer le site public */
+.admin-grain button:focus-visible,
+.admin-grain a:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
 .admin-grain::before {
   content: '';
   position: fixed;

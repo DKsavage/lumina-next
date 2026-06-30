@@ -105,7 +105,7 @@ export function FloatingBar({
       <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,.12)', flexShrink: 0 }} />
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '.3rem', flex: 1 }}>
+      <div style={{ display: 'flex', gap: '.3rem', flex: 1, minWidth: 0, overflow: 'hidden' }}>
         {confirmNotify ? (
           <>
             <button

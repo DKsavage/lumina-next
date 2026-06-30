@@ -190,7 +190,7 @@ export function DetailPanel({
           {/* Close button */}
           <button
             onClick={onClose}
-            style={{ position: 'absolute', top: 7, right: 7, zIndex: 2, width: 20, height: 20, borderRadius: '50%', background: 'rgba(247,243,238,.2)', border: '1px solid rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.46rem', color: 'rgba(247,243,238,.8)', cursor: 'pointer' }}
+            style={{ position: 'absolute', top: 7, right: 7, zIndex: 2, width: 32, height: 32, borderRadius: '50%', background: 'rgba(247,243,238,.2)', border: '1px solid rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.46rem', color: 'rgba(247,243,238,.8)', cursor: 'pointer' }}
             aria-label="Fermer"
           >✕</button>
 
@@ -199,7 +199,7 @@ export function DetailPanel({
             <button
               onClick={onPrev}
               disabled={detailIdx <= 0}
-              style={{ background: 'rgba(247,243,238,.2)', border: '1px solid rgba(255,255,255,.2)', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.5rem', color: 'rgba(247,243,238,.8)', cursor: detailIdx <= 0 ? 'not-allowed' : 'pointer', opacity: detailIdx <= 0 ? .4 : 1 }}
+              style={{ background: 'rgba(247,243,238,.2)', border: '1px solid rgba(255,255,255,.2)', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.5rem', color: 'rgba(247,243,238,.8)', cursor: detailIdx <= 0 ? 'not-allowed' : 'pointer', opacity: detailIdx <= 0 ? .4 : 1 }}
               aria-label="Précédent (←)"
             >←</button>
             <span style={{ fontSize: '.35rem', fontFamily: "'Montserrat', sans-serif", color: 'rgba(247,243,238,.7)', fontVariantNumeric: 'tabular-nums', minWidth: '2rem', textAlign: 'center' }}>
@@ -208,7 +208,7 @@ export function DetailPanel({
             <button
               onClick={onNext}
               disabled={detailIdx >= filteredLength - 1}
-              style={{ background: 'rgba(247,243,238,.2)', border: '1px solid rgba(255,255,255,.2)', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.5rem', color: 'rgba(247,243,238,.8)', cursor: detailIdx >= filteredLength - 1 ? 'not-allowed' : 'pointer', opacity: detailIdx >= filteredLength - 1 ? .4 : 1 }}
+              style={{ background: 'rgba(247,243,238,.2)', border: '1px solid rgba(255,255,255,.2)', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.5rem', color: 'rgba(247,243,238,.8)', cursor: detailIdx >= filteredLength - 1 ? 'not-allowed' : 'pointer', opacity: detailIdx >= filteredLength - 1 ? .4 : 1 }}
               aria-label="Suivant (→)"
             >→</button>
           </div>

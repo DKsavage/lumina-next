@@ -100,7 +100,7 @@ export default async function ConfirmPage({ params }: Props) {
         <p style={{ color: '#6b6b6b', lineHeight: 1.7, margin: 0 }}>Ce lien de confirmation n'existe pas ou a expiré.</p>
         <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '1.5rem', fontSize: '.75rem', color: '#9b9b9b' }}>
           <span style={{ fontFamily: 'Georgia, serif', color: '#8B0020', fontWeight: 700 }}>Flawa Models</span>
-          {' '}· casting@flawamodels.ca
+          {' '}· casting@luminamodels.ca
         </div>
       </PageShell>
     )
@@ -165,8 +165,8 @@ export default async function ConfirmPage({ params }: Props) {
       )}
 
       <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '1.5rem', fontSize: '.75rem', color: '#9b9b9b' }}>
-        <span style={{ fontFamily: 'Georgia, serif', color: '#8B0020', fontWeight: 700 }}>Lumina</span>
-        {' '}Photography · casting@luminamodels.ca
+        <span style={{ fontFamily: 'Georgia, serif', color: '#8B0020', fontWeight: 700 }}>Flawa Models</span>
+        {' '}· casting@luminamodels.ca
       </div>
     </PageShell>
   )

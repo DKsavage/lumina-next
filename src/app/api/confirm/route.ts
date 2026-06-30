@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status') as 'confirmed' | 'cancelled' | null
   const reason = searchParams.get('reason') ?? null
 
-  // Paramètres obligatoires — token invalide → 400 sans redirect (lien cassé)
-  if (!token || !status || !['confirmed', 'cancelled'].includes(status)) {
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!token || !status || !['confirmed', 'cancelled'].includes(status) || !UUID_RE.test(token)) {
     return NextResponse.json({ error: 'Paramètres invalides.' }, { status: 400 })
   }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 interface Props {
   newCount:       number
@@ -13,6 +14,7 @@ interface Props {
 
 export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSession, loading }: Props) {
   const [isPressed, setIsPressed] = useState(false)
+  const pathname = usePathname()
 
   return (
     <div style={{ padding: '.8rem .8rem 0', position: 'sticky', top: '.8rem', zIndex: 40 }}>
@@ -54,8 +56,8 @@ export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSess
                 display: 'flex', alignItems: 'center',
                 fontSize: '.44rem', letterSpacing: '.15em', fontWeight: 500,
                 textTransform: 'uppercase', textDecoration: 'none',
-                color: link.href === '/admin/dashboard' ? 'rgba(247,243,238,.95)' : 'rgba(247,243,238,.35)',
-                background: link.href === '/admin/dashboard' ? 'rgba(255,255,255,.11)' : 'transparent',
+                color: pathname === link.href ? 'rgba(247,243,238,.95)' : 'rgba(247,243,238,.35)',
+                background: pathname === link.href ? 'rgba(255,255,255,.11)' : 'transparent',
                 transition: 'background-color .3s var(--spring), color .3s var(--spring), transform .15s var(--spring)',
               }}
             >
@@ -97,7 +99,7 @@ export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSess
             onMouseLeave={() => setIsPressed(false)}
             style={{
               height: 30, borderRadius: '100px', padding: '0 .45rem 0 .7rem',
-              background: 'var(--color-red)', border: 'none', cursor: 'pointer',
+              background: 'var(--red)', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: '.35rem',
               boxShadow: '0 1px 6px rgba(139,0,32,.35), 0 1px 0 rgba(255,255,255,.15) inset',
               transition: 'transform .25s var(--spring-fast)',

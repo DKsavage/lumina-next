@@ -118,7 +118,6 @@ export default function DashboardPage() {
   }
 
   function handleExportCSV() {
-    if (filtered.length > 500 && !window.confirm(`Exporter ${filtered.length} candidatures ? Le fichier peut être volumineux.`)) return
     const headers = ['Prénom','Nom','Email','Téléphone','Genre','Taille','Ville','Pays','Expérience','Disponibilité','Langues','Instagram','Date inscription','Notifié']
     const rows = filtered.map(c => [
       c.prenom, c.nom, c.email, c.telephone, c.genre ?? '',
@@ -178,7 +177,6 @@ export default function DashboardPage() {
         <KpiStrip items={[
           { label: 'Nouvelles',      value: candidatures.filter(c => (Date.now() - new Date(c.date_inscription).getTime()) / 86400000 < 7).length, accent: true, trend: undefined },
           { label: 'Modèles actifs', value: candidatures.length },
-          { label: 'Sessions',       value: 0 },
           { label: 'Sélectionnés',   value: candidatures.filter(c => c.selectionne).length },
         ]} />
       </div>

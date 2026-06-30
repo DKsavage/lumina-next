@@ -229,28 +229,26 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                   </div>
                   {m.group && <div style={{ fontSize: '.62rem', color: 'var(--muted)' }}>{m.group.name} · {m.group.call_time}</div>}
                   {m.cancel_reason && <div style={{ fontSize: '.62rem', color: '#8B0020', marginTop: '.1rem' }}>Raison : {m.cancel_reason}</div>}
-                  {/* Indicateurs tracking email */}
-                  <div style={{ display: 'flex', gap: '.4rem', marginTop: '.25rem', flexWrap: 'wrap' }}>
-                    {m.email_bounced_at && (
-                      <span style={{ fontSize: '.38rem', letterSpacing: '.1em', fontWeight: 700, textTransform: 'uppercase', color: '#fff', background: '#8B0020', padding: '.1rem .35rem' }}>
-                        Adresse invalide
-                      </span>
-                    )}
-                    {!m.email_bounced_at && m.email_clicked_at && (
-                      <span style={{ fontSize: '.4rem', letterSpacing: '.08em', color: 'rgba(20,120,60,.9)', fontWeight: 600 }}>
-                        Lien cliqué · {new Date(m.email_clicked_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    )}
-                    {!m.email_bounced_at && !m.email_clicked_at && m.email_delivered_at && (
-                      <span style={{ fontSize: '.4rem', letterSpacing: '.08em', color: 'var(--muted)' }}>
-                        Livré · {new Date(m.email_delivered_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    )}
-                    {!m.email_bounced_at && !m.email_delivered_at && (
-                      <span style={{ fontSize: '.4rem', letterSpacing: '.08em', color: 'var(--muted)', opacity: .6 }}>
-                        En attente de livraison
-                      </span>
-                    )}
+                  {/* Trio d'icônes tracking email — 3 états indépendants visibles simultanément */}
+                  <div style={{ display: 'flex', gap: '.4rem', marginTop: '.25rem', alignItems: 'center' }}>
+                    <span
+                      title={m.email_delivered_at
+                        ? `Livré · ${new Date(m.email_delivered_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                        : 'Non livré'}
+                      style={{ fontSize: '.8rem', color: m.email_delivered_at ? 'rgba(20,120,60,.85)' : 'rgba(0,0,0,.15)', lineHeight: 1, cursor: 'default' }}
+                    >✓</span>
+                    <span
+                      title={m.email_clicked_at
+                        ? `Lien cliqué · ${new Date(m.email_clicked_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                        : 'Lien non cliqué'}
+                      style={{ fontSize: '.8rem', color: m.email_clicked_at ? '#2563eb' : 'rgba(0,0,0,.15)', lineHeight: 1, cursor: 'default' }}
+                    >👆</span>
+                    <span
+                      title={m.email_bounced_at
+                        ? `Adresse invalide · ${new Date(m.email_bounced_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                        : 'Aucun problème de livraison'}
+                      style={{ fontSize: '.8rem', color: m.email_bounced_at ? '#8B0020' : 'rgba(0,0,0,.15)', lineHeight: 1, cursor: 'default' }}
+                    >⚠</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '.3rem', flexShrink: 0 }}>

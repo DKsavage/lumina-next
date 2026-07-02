@@ -100,7 +100,7 @@ Phases 0–13 terminées (voir git log).
 
 **Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar spring, DetailPanel slide-in tabs, empty state.
 
-**Phase 13** (2026-07-02) : Icônes email ✓/👆/⚠ dans SessionStatusPanel · Bouton Partager nav (QR inline + copier lien + Web Share API mobile) · Page `/qr` print-friendly.
+**Phase 13** (2026-07-02) : Icônes email Lucide (CheckCircle2/MousePointerClick/AlertCircle) dans SessionStatusPanel · Bouton Partager nav (QR inline + copier lien + Web Share API mobile) · Page `/qr` print-friendly · Bouton tier chip visible (bordure + chevron + couleur par tier).
 
 **Backlog actif :**
 - Portfolio photos par modèle (page publique, consentement, galerie)

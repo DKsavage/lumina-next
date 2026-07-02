@@ -137,7 +137,7 @@ Dans `DashboardFilters` existants : ajout d'un champ date **"Dispo le"**.
 | AnimatePresence | Skip page load | `initial={false}` sur tous les AnimatePresence des nouveaux composants |
 | Bouton "+" | Scale on press | `active:scale-[0.96] transition-transform` — feedback tactile sans exagération |
 | Bouton "+" | Hit area | Minimum 40×40px — `p-2` autour de l'icône `size-4` |
-| Icône ⚠️ conflit | Icon animation | `opacity 0→1` + `scale 0.25→1` + `blur 4px→0`, spring duration: 0.3, bounce: 0 |
+| Icône ⚠️ conflit | Icon animation | `opacity 0→1` + `scale 0.25→1` + `blur 4px→0`, spring duration: 0.3, bounce: 0. SVG custom fourni (triangle, stroke-width 1.5, pas de fill) — voir section SVG ci-dessous |
 | Border radius | Concentric | Panneau outer `rounded-xl` · lignes inner `rounded-lg` · chip tier `rounded-full` |
 | Transitions | Pas de `transition: all` | `transition-property: opacity, transform` uniquement |
 
@@ -170,6 +170,21 @@ Lumina n'a pas de vert dans sa palette. Plutôt que d'en introduire un, on utili
 |---|---|---|---|---|
 | Mobile (`< 640px`) | Full-width, texte centré | Slide up depuis le bas (bottom sheet), `max-h-60` | Section collapsible avec toggle | Dans `FiltersDrawer` existant |
 | Desktop (`≥ 640px`) | Inline sous le champ date | Dropdown attaché au badge, `max-h-72` | Section fixe en bas du tab assign | Inline dans `DashboardFilters` |
+
+### Icône conflit — SVG fourni
+
+Sauvegarder dans `src/components/icons/WarningTriangle.tsx` comme composant React :
+- `stroke` = `currentColor` (pas `#000000`) pour hériter de la couleur parente
+- `width` / `height` via props avec défaut `16`
+- Couleur d'utilisation : `#B45309` (amber chaud)
+
+```svg
+<svg width="24" height="24" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20.0429 21H3.95705C2.41902 21 1.45658 19.3364 2.22324 18.0031L10.2662 4.01533C11.0352 2.67792 12.9648 2.67791 13.7338 4.01532L21.7768 18.0031C22.5434 19.3364 21.581 21 20.0429 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M12 9V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M12 17.01L12.01 16.9989" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+```
 
 ### Micro-copie (frontend-design — écriture)
 

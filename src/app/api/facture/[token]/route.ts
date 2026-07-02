@@ -37,3 +37,31 @@ export async function GET(
 
   return NextResponse.json({ success: true, data: row })
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  const { token } = await params
+  if (!token) return NextResponse.json({ success: false }, { status: 400 })
+
+  const body = await req.json() as { payment_amount: number | null }
+  const url = process.env.SUPABASE_URL!
+  const key = process.env.SUPABASE_SERVICE_KEY!
+
+  const res = await fetch(
+    `${url}/rest/v1/session_models?token=eq.${encodeURIComponent(token)}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ payment_amount: body.payment_amount }),
+    }
+  )
+  if (!res.ok) return NextResponse.json({ success: false }, { status: 500 })
+  return NextResponse.json({ success: true })
+}

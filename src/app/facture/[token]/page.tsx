@@ -29,9 +29,11 @@ function addDays(dateStr: string, n: number) {
 
 export default function FacturePage() {
   const { token } = useParams<{ token: string }>()
-  const [data,    setData]    = useState<InvoiceData | null>(null)
-  const [error,   setError]   = useState('')
-  const [adresse, setAdresse] = useState('')
+  const [data,         setData]         = useState<InvoiceData | null>(null)
+  const [error,        setError]        = useState('')
+  const [adresse,      setAdresse]      = useState('')
+  const [amountInput,  setAmountInput]  = useState('')
+  const [amountSaving, setAmountSaving] = useState(false)
 
   useEffect(() => {
     fetch(`/api/facture/${token}`)
@@ -39,6 +41,10 @@ export default function FacturePage() {
       .then(d => {
         if (!d.success) { setError(d.message ?? 'Lien invalide.'); return }
         setData(d.data)
+        const initial = d.data.payment_amount
+          ?? (d.data.session?.compensation_json?.amount ? parseFloat(d.data.session.compensation_json.amount) : null)
+          ?? 0
+        setAmountInput(initial.toString())
       })
       .catch(() => setError('Erreur réseau.'))
   }, [token])
@@ -58,9 +64,7 @@ export default function FacturePage() {
   const invoiceNum = `FLW-${new Date().getFullYear()}-${token.slice(0, 6).toUpperCase()}`
   const today      = new Date().toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' })
   const deadline   = addDays(new Date().toISOString().slice(0, 10), 30)
-  const amount     = data.payment_amount
-    ?? (data.session?.compensation_json?.amount ? parseFloat(data.session.compensation_json.amount) : null)
-    ?? 0
+  const amount     = parseFloat(amountInput) || 0
   const sessionDate = data.session
     ? new Date(data.session.date + 'T12:00:00').toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' })
     : ''
@@ -76,9 +80,11 @@ export default function FacturePage() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
+          .print-only { display: block !important; }
           body { margin: 0; }
           .invoice-wrapper { box-shadow: none !important; margin: 0 !important; }
         }
+        .print-only { display: none; }
       `}</style>
 
       <div style={{ background: '#f5f5f5', minHeight: '100dvh', padding: '32px 16px', fontFamily: 'Arial, sans-serif' }}>
@@ -119,7 +125,30 @@ export default function FacturePage() {
               <div style={{ fontSize: '13px', color: '#0a0a0a', marginBottom: '10px' }}>{today}</div>
               <div style={{ fontSize: '12px', color: '#6b6b6b', marginBottom: '2px' }}>Paiement avant le</div>
               <div style={{ fontSize: '13px', color: '#0a0a0a', marginBottom: '10px' }}>{deadline}</div>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: '#8B0020' }}>Solde dû : {fmt(amount)} $</div>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#8B0020', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
+                <span>Solde dû :</span>
+                <input
+                  className="no-print"
+                  type="number"
+                  value={amountInput}
+                  min={0}
+                  step={0.01}
+                  onChange={e => setAmountInput(e.target.value)}
+                  onBlur={async () => {
+                    const val = parseFloat(amountInput) || 0
+                    setAmountSaving(true)
+                    await fetch(`/api/facture/${token}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ payment_amount: val }),
+                    })
+                    setAmountSaving(false)
+                  }}
+                  style={{ width: '90px', border: 'none', borderBottom: `1px solid ${amountSaving ? '#aaa' : '#8B0020'}`, outline: 'none', fontFamily: 'Arial, sans-serif', fontSize: '15px', fontWeight: 700, color: '#8B0020', background: 'transparent', textAlign: 'right', padding: '1px 0' }}
+                />
+                <span className="print-only" style={{ display: 'none' }}>{fmt(amount)}</span>
+                <span>$</span>
+              </div>
             </div>
           </div>
 

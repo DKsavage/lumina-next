@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import type { Candidature } from '@/types/candidature'
 import { calcAge } from '@/types/candidature'
+import { Pencil } from 'lucide-react'
 
 interface ModelSession {
   id:                 string
@@ -558,10 +559,10 @@ export function DetailPanel({
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--paper)', color: 'var(--muted)', border: '1px solid rgba(26,20,16,.12)', fontSize: '.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--paper)', color: 'var(--muted)', border: '1px solid rgba(26,20,16,.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-label="Modifier le profil"
               >
-                ✏
+                <Pencil size={12} strokeWidth={1.5} />
               </button>
             </div>
           )}

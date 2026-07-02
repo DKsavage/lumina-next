@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { Candidature } from '@/types/candidature'
 import { TIER_CONFIG, type Tier } from '@/components/admin/tierConfig'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Eye } from 'lucide-react'
 
 interface Props {
   c:            Candidature
@@ -260,10 +260,10 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onViewDetail(c) }}
-            style={{ position: 'absolute', bottom: '.5rem', right: '.6rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '.7rem', color: isAmb ? 'rgba(196,151,58,.6)' : 'var(--muted)', lineHeight: 1, padding: '.2rem' }}
+            style={{ position: 'absolute', bottom: '.5rem', right: '.6rem', background: 'none', border: 'none', cursor: 'pointer', color: isAmb ? 'rgba(196,151,58,.6)' : 'var(--muted)', lineHeight: 1, padding: '.2rem', display: 'flex', alignItems: 'center' }}
             aria-label="Voir le profil"
           >
-            →
+            <Eye size={13} strokeWidth={1.5} />
           </button>
         </div>
       </div>

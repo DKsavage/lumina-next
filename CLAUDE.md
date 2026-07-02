@@ -108,9 +108,9 @@ Phases 0–12 terminées (voir git log).
 **Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill flottante, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar thumbnails spring, DetailPanel slide-in tabs, empty state. CSS vars gold/spring/grain, `admin/layout.tsx` grain scoped.
 
 **Backlog actif :**
-- Page `/qr` — QR code print-friendly pointant vers `https://luminamodels.ca` · lib `qrcode.react`
 - Portfolio photos par modèle (page publique, consentement, galerie)
 - Photos site public (refonte page d'accueil)
+- **Brainstorm nouvelles fonctionnalités** — à faire en début de prochaine session (skill `superpowers:brainstorming`). Contexte : l'utilisateur veut explorer des features utiles pour l'agence au-delà du backlog actuel. Partir du graphify-out/ à jour pour éviter de proposer ce qui existe déjà.
 
 **Variables à ajouter sur Vercel si pas encore fait :**
 - `CRON_SECRET` — protège `/api/cron/reminders`

@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { Candidature } from '@/types/candidature'
 import { TIER_CONFIG, type Tier } from '@/components/admin/tierConfig'
+import { ChevronDown } from 'lucide-react'
 
 interface Props {
   c:            Candidature
@@ -194,27 +195,41 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
             <div style={{ position: 'absolute', top: 0, left: '1rem', right: '1rem', height: 1, background: 'linear-gradient(to right,transparent,#C4973A,transparent)', opacity: .45 }} />
           )}
 
-          {/* Tier dropdown inline */}
-          <div ref={tierRef} style={{ position: 'relative', marginBottom: '.35rem' }}>
+          {/* Tier dropdown — chip visible avec bordure + chevron */}
+          <div ref={tierRef} style={{ position: 'relative', marginBottom: '.4rem' }}>
             <button
               type="button"
               onClick={e => { e.stopPropagation(); setTierOpen(v => !v) }}
               style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                fontSize: '.38rem', letterSpacing: '.12em', fontWeight: 500, textTransform: 'uppercase',
-                color: isAmb ? '#C4973A' : 'var(--muted)',
+                display: 'inline-flex', alignItems: 'center', gap: '.25rem',
+                padding: '.22rem .5rem',
+                borderRadius: '100px',
+                cursor: 'pointer',
+                fontSize: '.5rem', letterSpacing: '.12em', fontWeight: 600, textTransform: 'uppercase',
+                ...(c.tier
+                  ? { background: TIER_CONFIG[c.tier as Tier].bg, color: TIER_CONFIG[c.tier as Tier].color, border: `1px solid ${TIER_CONFIG[c.tier as Tier].border}` }
+                  : { background: 'transparent', color: isAmb ? 'rgba(196,151,58,.6)' : 'var(--muted)', border: `1px dashed ${isAmb ? 'rgba(196,151,58,.35)' : 'rgba(26,20,16,.2)'}` }
+                ),
               }}
             >
               {c.tier ? `${isAmb ? '✦ ' : ''}${TIER_CONFIG[c.tier as Tier]?.label ?? c.tier}` : '+ Tier'}
+              <ChevronDown size={9} strokeWidth={2.5} />
             </button>
             {tierOpen && (
-              <div style={{ position: 'absolute', bottom: '100%', left: 0, zIndex: 50, background: 'var(--paper)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,.1)', minWidth: '110px', marginBottom: 4, borderRadius: '.5rem' }}>
+              <div style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, zIndex: 50, background: 'var(--paper)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,.1)', minWidth: '120px', borderRadius: '.6rem', overflow: 'hidden' }}>
                 {(Object.entries(TIER_CONFIG) as [Tier, typeof TIER_CONFIG[Tier]][]).map(([key, cfg]) => (
-                  <button key={key} type="button" onClick={e => { e.stopPropagation(); onTierChange(c.id, key); setTierOpen(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.4rem .7rem', fontSize: '.42rem', letterSpacing: '.12em', fontWeight: 600, color: cfg.color, background: c.tier === key ? cfg.bg : 'transparent', border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
-                    {cfg.label} {c.tier === key ? '✓' : ''}
+                  <button key={key} type="button" onClick={e => { e.stopPropagation(); onTierChange(c.id, key); setTierOpen(false) }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '.5rem .75rem', fontSize: '.48rem', letterSpacing: '.12em', fontWeight: 600, color: cfg.color, background: c.tier === key ? cfg.bg : 'transparent', border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+                    {cfg.label}
+                    {c.tier === key && <span style={{ fontSize: '.55rem' }}>✓</span>}
                   </button>
                 ))}
-                {c.tier && <button type="button" onClick={e => { e.stopPropagation(); onTierChange(c.id, null); setTierOpen(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.4rem .7rem', fontSize: '.4rem', letterSpacing: '.1em', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}>Retirer</button>}
+                {c.tier && (
+                  <button type="button" onClick={e => { e.stopPropagation(); onTierChange(c.id, null); setTierOpen(false) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.45rem .75rem', fontSize: '.44rem', letterSpacing: '.1em', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Retirer le tier
+                  </button>
+                )}
               </div>
             )}
           </div>

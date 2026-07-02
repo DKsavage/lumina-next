@@ -94,23 +94,18 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 ## Phases
 
-Phases 0–12 terminées (voir git log).
+Phases 0–13 terminées (voir git log).
 
-**Phase 11** (2026-06-26) : Emails bilingues EN/FR (EN en premier, séparateur 2px, tous les templates), remerciement + paiement post-session, cron automatique (J-5/J-2/J-1/matin, `vercel.json`), tracking emails Resend (livré/cliqué/bounce, webhook Svix HMAC), tags/labels modèles, notes internes, répartition paiement par modèle, page facture imprimable `/facture/[token]` (template Word Lumina, numéro auto `FLW-YYYY-TOKEN`).
+**Phase 11** (2026-06-26) : Emails bilingues EN/FR, cron reminders (J-5/J-2/J-1/matin), tracking Resend (livré/cliqué/bounce webhook), tags/labels, notes internes, paiement par modèle, facture imprimable `/facture/[token]`.
 
-**Nouvelles routes Phase 11 :**
-- `GET /api/cron/reminders` — cron 13h UTC, anti-doublon via `sent_at`
-- `POST /api/webhooks/resend` — events livré/cliqué/bounce
-- `GET /api/facture/[token]` — données facture publiques
-- `PATCH /api/sessions/models/[id]` — payment_amount par modèle
-- `src/app/facture/[token]/page.tsx` — page imprimable
+**Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar spring, DetailPanel slide-in tabs, empty state.
 
-**Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill flottante, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar thumbnails spring, DetailPanel slide-in tabs, empty state. CSS vars gold/spring/grain, `admin/layout.tsx` grain scoped.
+**Phase 13** (2026-07-02) : Icônes email ✓/👆/⚠ dans SessionStatusPanel · Bouton Partager nav (QR inline + copier lien + Web Share API mobile) · Page `/qr` print-friendly.
 
 **Backlog actif :**
 - Portfolio photos par modèle (page publique, consentement, galerie)
 - Photos site public (refonte page d'accueil)
-- **Brainstorm nouvelles fonctionnalités** — à faire en début de prochaine session (skill `superpowers:brainstorming`). Contexte : l'utilisateur veut explorer des features utiles pour l'agence au-delà du backlog actuel. Partir du graphify-out/ à jour pour éviter de proposer ce qui existe déjà.
+- **Brainstorm nouvelles fonctionnalités dashboard** — prochaine session · skill `superpowers:brainstorming` · partir du graphify-out/ à jour
 
 **Variables à ajouter sur Vercel si pas encore fait :**
 - `CRON_SECRET` — protège `/api/cron/reminders`

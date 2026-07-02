@@ -211,7 +211,7 @@ export function DashboardFilters({
 
           {/* Filtres avancés */}
           <Chip
-            label={hasDrawerFilters ? `+ Filtres (${[tailleMin||tailleMax,filterDisponibilite,filterExperience,filterTier,filterTag,filterInstagram||'',filterVille].filter(Boolean).length})` : '+ Filtres avancés'}
+            label={hasDrawerFilters ? `+ Filtres (${[tailleMin||tailleMax,filterDisponibilite,filterExperience,filterTier,filterTag,filterInstagram||'',filterVille,filterAvailDate].filter(Boolean).length})` : '+ Filtres avancés'}
             active={hasDrawerFilters}
             onClick={() => setDrawerOpen(true)}
             variant="dashed"

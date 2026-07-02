@@ -122,6 +122,73 @@ Dans `DashboardFilters` existants : ajout d'un champ date **"Dispo le"**.
 
 ---
 
+---
+
+## Design
+
+### Principes appliqués (make-interfaces-feel-better)
+
+| Composant | Principe | Décision |
+|---|---|---|
+| Badge dispo (nombre) | Tabular numbers | `font-variant-numeric: tabular-nums` — le chiffre change selon la date, zéro layout shift |
+| Panneau déroulant | Shadow over border | `box-shadow` multicouche (0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.08)) — s'adapte au fond `#F7F3EE` |
+| Panneau déroulant | Stagger enter | Chaque ligne : `delay = index × 40ms`, `translateY(6px) → 0` + `opacity 0 → 1`, spring bounce: 0 |
+| Panneau déroulant | Exit subtil | `translateY(4px)` + `opacity → 0`, durée 150ms — la sortie est plus douce que l'entrée |
+| AnimatePresence | Skip page load | `initial={false}` sur tous les AnimatePresence des nouveaux composants |
+| Bouton "+" | Scale on press | `active:scale-[0.96] transition-transform` — feedback tactile sans exagération |
+| Bouton "+" | Hit area | Minimum 40×40px — `p-2` autour de l'icône `size-4` |
+| Icône ⚠️ conflit | Icon animation | `opacity 0→1` + `scale 0.25→1` + `blur 4px→0`, spring duration: 0.3, bounce: 0 |
+| Border radius | Concentric | Panneau outer `rounded-xl` · lignes inner `rounded-lg` · chip tier `rounded-full` |
+| Transitions | Pas de `transition: all` | `transition-property: opacity, transform` uniquement |
+
+### Signature typographique (frontend-design)
+
+Le badge disponibilité utilise les deux faces de Lumina en tension :
+
+```
+┌─────────────────────────────────────────┐
+│  12  disponibles ce jour   ↓            │
+│  ↑                                      │
+│  Cormorant Garamond 300 italic, 1.1rem  │
+│       ↑                                 │
+│       Montserrat 200 uppercase, .45rem  │
+└─────────────────────────────────────────┘
+```
+
+Ce n'est pas un badge admin générique — c'est un moment éditorial dans un outil opérationnel. Cohérent avec le AdminNav pill et les tier chips existants.
+
+### Couleurs disponibilité
+
+Lumina n'a pas de vert dans sa palette. Plutôt que d'en introduire un, on utilise :
+- **Disponible** → `var(--ink)` à 60% opacity + dot `#6B7B5E` (sage discret, pas de vert criard)
+- **Conflit ⚠️** → `#B45309` (amber chaud, lisible sur `#F7F3EE` sans casser la palette)
+- **Fond panneau** → `#F7F3EE` avec `backdrop-filter: none` — même base que le reste du dashboard
+
+### Responsive
+
+| Viewport | Badge | Panneau | Section assign | Filtre "Dispo le" |
+|---|---|---|---|---|
+| Mobile (`< 640px`) | Full-width, texte centré | Slide up depuis le bas (bottom sheet), `max-h-60` | Section collapsible avec toggle | Dans `FiltersDrawer` existant |
+| Desktop (`≥ 640px`) | Inline sous le champ date | Dropdown attaché au badge, `max-h-72` | Section fixe en bas du tab assign | Inline dans `DashboardFilters` |
+
+### Micro-copie (frontend-design — écriture)
+
+Voix active, sentence case, vocabulaire constant dans tout le flow :
+
+| Élément | Texte |
+|---|---|
+| Badge avec résultats | `12 disponibles ce jour` |
+| Badge zéro résultat | `Aucun modèle disponible ce jour` |
+| Toggle fermé | `↓ voir` |
+| Toggle ouvert | `↑ masquer` |
+| Bouton ajouter | `+` (icône seule, aria-label: `Ajouter [prénom] à la session`) |
+| Warning conflit | `Déjà confirmé·e ce jour` (tooltip au hover) |
+| Section assign | `Autres disponibles` |
+| État vide section assign | `Tous les modèles disponibles sont déjà dans la session` |
+| Filtre dashboard | `Dispo le` (label court, consistent avec les autres filtres) |
+
+---
+
 ## Hors scope
 
 - Portfolio photos par modèle

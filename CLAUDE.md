@@ -96,16 +96,17 @@ Fond `#F7F3EE` · Rouge `#8B0020` · Cormorant Garamond 300 italic (display) · 
 
 Phases 0–13 terminées (voir git log).
 
-**Phase 11** (2026-06-26) : Emails bilingues EN/FR, cron reminders (J-5/J-2/J-1/matin), tracking Resend (livré/cliqué/bounce webhook), tags/labels, notes internes, paiement par modèle, facture imprimable `/facture/[token]`.
+**Phase 14** (2026-07-02) : Availability Finder — `GET /api/candidatures/available?date=` (filtre dispo + conflits session confirmed) · `AvailabilityBadge` dans SessionComposer (badge éditorial Cormorant+Montserrat, stagger dropdown, bouton +) · section "Autres disponibles" tab assign · filtre "Dispo le" inline dans DashboardFilters · `WarningTriangle` icon SVG custom · `disponibilite` : Flexible/Jours de semaine/Weekends/Voyages OK — weekday/weekend via UTC noon.
 
-**Phase 12** (2026-06-29) : Refonte dashboard — AdminNav pill, KpiStrip, SkeletonCard, FiltersDrawer, CandidatureCard double-bezel+Ambassadeur, FloatingBar spring, DetailPanel slide-in tabs, empty state.
-
-**Phase 13** (2026-07-02) : Icônes email Lucide (CheckCircle2/MousePointerClick/AlertCircle) dans SessionStatusPanel · Bouton Partager nav (QR inline + copier lien + Web Share API mobile) · Page `/qr` print-friendly · Bouton tier chip visible (bordure + chevron + couleur par tier).
+**Bugs résolus (2026-07-02) :**
+- SessionStatusPanel : icônes SVG `CheckIcon`/`HourglassIcon` (remplace ✓/⏳) · espacement relance→filtres (mb-6 + borderTop) · toggle TFP/Rémunéré par modèle (Set<string>, null=TFP) · bouton ↻ rafraîchir sans fermer le panel
+- Facture : montant éditable inline (useState + onBlur) · `PATCH /api/facture/[token]` sauvegarde en DB · champ masqué à l'impression
+- CandidatureCard : `Eye` (Lucide) remplace `→` pour voir le détail
+- DetailPanel : `Pencil` (Lucide) remplace `✏` pour modifier le profil
 
 **Backlog actif :**
 - Portfolio photos par modèle (page publique, consentement, galerie)
 - Photos site public (refonte page d'accueil)
-- **Brainstorm nouvelles fonctionnalités dashboard** — prochaine session · skill `superpowers:brainstorming` · partir du graphify-out/ à jour
 
 **Variables à ajouter sur Vercel si pas encore fait :**
 - `CRON_SECRET` — protège `/api/cron/reminders`

@@ -6,6 +6,24 @@
 import { useState, useEffect } from 'react'
 import { CheckCircle2, MousePointerClick, AlertCircle } from 'lucide-react'
 import { SessionEditPanel } from '@/components/admin/SessionEditPanel'
+
+function CheckIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" strokeWidth="1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 13L9 17L19 7" />
+    </svg>
+  )
+}
+
+function HourglassIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" strokeWidth="1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 12C15.866 12 19 8.86599 19 5H5C5 8.86599 8.13401 12 12 12ZM12 12C15.866 12 19 15.134 19 19H5C5 15.134 8.13401 12 12 12Z" />
+      <path d="M5 2L12 2L19 2" />
+      <path d="M5 22H12L19 22" />
+    </svg>
+  )
+}
 // sending — type de relance en cours (null si aucun), protège contre le double-clic
 
 interface ModelStatus {
@@ -42,15 +60,24 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
   const [editing,       setEditing]       = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting,      setDeleting]      = useState(false)
-  const [addOpen,       setAddOpen]       = useState(false)
-  const [addForm,       setAddForm]       = useState({ prenom: '', nom: '', email: '', role: 'Maquillage' })
-  const [addSaving,     setAddSaving]     = useState(false)
+  const [addOpen,        setAddOpen]        = useState(false)
+  const [addForm,        setAddForm]        = useState({ prenom: '', nom: '', email: '', role: 'Maquillage' })
+  const [addSaving,      setAddSaving]      = useState(false)
+  const [paymentEnabled, setPaymentEnabled] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
     fetch(`/api/sessions/${sessionId}`)
       .then(r => r.json())
-      .then(d => { if (d.success) { setModels(d.data); setStats(d.stats); setMaxModels(d.session?.max_models ?? null) } })
+      .then(d => {
+        if (d.success) {
+          setModels(d.data)
+          setStats(d.stats)
+          setMaxModels(d.session?.max_models ?? null)
+          // payment_amount !== null → rémunéré au chargement
+          setPaymentEnabled(new Set(d.data.filter((m: ModelStatus) => m.payment_amount !== null).map((m: ModelStatus) => m.id)))
+        }
+      })
       .finally(() => setLoading(false))
   }, [sessionId])
 
@@ -142,7 +169,7 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
         </div>
 
         {/* Boutons de relance — J-5/J-2 vers pending, J-1/morning vers confirmés */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-6">
           {(['j5', 'j2', 'j1', 'morning', 'merci', 'paiement'] as const).map(type => {
             const labels = { j5: 'Relance J-5', j2: 'Relance J-2 (urgente)', j1: 'Rappel J-1', morning: 'Rappel matin J', merci: 'Remerciement', paiement: 'Paiement envoyé' }
             return (
@@ -176,7 +203,7 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
         </div>
 
         {/* Filtres par statut */}
-        <div className="flex gap-1 mb-4">
+        <div className="flex gap-1 mb-4" style={{ borderTop: '1px solid var(--border)', paddingTop: '.75rem' }}>
           {(['all', 'confirmed', 'pending', 'cancelled'] as const).map(f => (
             <button
               key={f}
@@ -216,8 +243,13 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                   background: m.status === 'confirmed' ? 'rgba(20,120,60,.04)' : m.status === 'cancelled' ? 'rgba(139,0,32,.04)' : 'transparent',
                 }}
               >
-                <span style={{ fontSize: '1rem', flexShrink: 0 }}>
-                  {m.status === 'confirmed' ? '✓' : m.status === 'cancelled' ? '✗' : '⏳'}
+                <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center',
+                  color: m.status === 'confirmed' ? 'rgba(20,120,60,.8)' : m.status === 'cancelled' ? 'rgba(139,0,32,.7)' : 'var(--muted)' }}>
+                  {m.status === 'confirmed'
+                    ? <CheckIcon size={15} />
+                    : m.status === 'cancelled'
+                      ? <span style={{ fontSize: '.9rem', lineHeight: 1 }}>✗</span>
+                      : <HourglassIcon size={15} />}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem' }}>
@@ -263,34 +295,65 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                     {m.confirmed_at && new Date(m.confirmed_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     {m.cancelled_at && new Date(m.cancelled_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </div>
-                  {/* Montant + lien facture */}
+                  {/* Rémunération — toggle par modèle, amount + facture si activé */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem' }}>
-                    <input
-                      type="number"
-                      defaultValue={m.payment_amount ?? ''}
-                      placeholder="0.00"
-                      min={0}
-                      step={0.01}
-                      onBlur={async e => {
-                        const val = e.target.value === '' ? null : parseFloat(e.target.value)
-                        await fetch(`/api/sessions/models/${m.id}`, {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ payment_amount: val }),
-                        })
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const enabled = paymentEnabled.has(m.id)
+                        if (enabled) {
+                          await fetch(`/api/sessions/models/${m.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ payment_amount: null }),
+                          })
+                          setPaymentEnabled(prev => { const next = new Set(prev); next.delete(m.id); return next })
+                        } else {
+                          setPaymentEnabled(prev => new Set([...prev, m.id]))
+                        }
                       }}
-                      style={{ width: '5rem', fontFamily: "'Montserrat', sans-serif", fontSize: '.62rem', fontWeight: 300, textAlign: 'right', background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.2rem .4rem', color: 'var(--ink)' }}
-                    />
-                    <span style={{ fontSize: '.55rem', color: 'var(--muted)' }}>$</span>
-                    <a
-                      href={`/facture/${m.token}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Voir la facture"
-                      style={{ fontSize: '.65rem', color: 'var(--muted)', textDecoration: 'none', lineHeight: 1 }}
+                      title={paymentEnabled.has(m.id) ? 'Marquer comme TFP' : 'Marquer comme rémunéré'}
+                      style={{
+                        fontSize: '.38rem', letterSpacing: '.14em', fontWeight: 600, textTransform: 'uppercase',
+                        background: paymentEnabled.has(m.id) ? 'rgba(20,120,60,.06)' : 'transparent',
+                        color: paymentEnabled.has(m.id) ? 'rgba(20,120,60,.8)' : 'var(--muted)',
+                        border: `1px solid ${paymentEnabled.has(m.id) ? 'rgba(20,120,60,.2)' : 'var(--border)'}`,
+                        padding: '.2rem .45rem', cursor: 'pointer', flexShrink: 0,
+                        fontFamily: "'Montserrat', sans-serif",
+                      }}
                     >
-                      ↗
-                    </a>
+                      {paymentEnabled.has(m.id) ? 'Rémunéré' : 'TFP'}
+                    </button>
+                    {paymentEnabled.has(m.id) && (
+                      <>
+                        <input
+                          type="number"
+                          defaultValue={m.payment_amount ?? ''}
+                          placeholder="0.00"
+                          min={0}
+                          step={0.01}
+                          onBlur={async e => {
+                            const val = e.target.value === '' ? null : parseFloat(e.target.value)
+                            await fetch(`/api/sessions/models/${m.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ payment_amount: val }),
+                            })
+                          }}
+                          style={{ width: '5rem', fontFamily: "'Montserrat', sans-serif", fontSize: '.62rem', fontWeight: 300, textAlign: 'right', background: 'transparent', border: '1px solid var(--border)', outline: 'none', padding: '.2rem .4rem', color: 'var(--ink)' }}
+                        />
+                        <span style={{ fontSize: '.55rem', color: 'var(--muted)' }}>$</span>
+                        <a
+                          href={`/facture/${m.token}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Voir la facture"
+                          style={{ fontSize: '.65rem', color: 'var(--muted)', textDecoration: 'none', lineHeight: 1 }}
+                        >
+                          ↗
+                        </a>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

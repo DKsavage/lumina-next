@@ -12,6 +12,7 @@
 
 import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
+import { buildEmailWrapper, buildCtaButtons, esc as escFromLib } from '../src/lib/email.ts'
 
 // ---------------------------------------------------------------------------
 // Fonctions pures copiées depuis les sources Next.js
@@ -254,5 +255,98 @@ describe('esc', () => {
       esc('<a href="page?a=1&b=2">lien</a>'),
       '&lt;a href=&quot;page?a=1&amp;b=2&quot;&gt;lien&lt;/a&gt;',
     )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Tests — buildEmailWrapper (import depuis src/lib/email.ts)
+// ---------------------------------------------------------------------------
+
+describe('buildEmailWrapper', () => {
+  test('contient DOCTYPE et structure HTML de base', () => {
+    const html = buildEmailWrapper({ projectName: 'Test', bodyEn: '', bodyFr: '' })
+    assert.ok(html.includes('<!DOCTYPE html>'))
+    assert.ok(html.includes('<body'))
+    assert.ok(html.includes('</html>'))
+  })
+
+  test('fond extérieur #F7F3EE', () => {
+    const html = buildEmailWrapper({ projectName: 'Test', bodyEn: '', bodyFr: '' })
+    assert.ok(html.includes('background:#F7F3EE'))
+  })
+
+  test('header rouge #8B0020 avec nom du projet échappé', () => {
+    const html = buildEmailWrapper({ projectName: 'Lumina Été', bodyEn: '', bodyFr: '' })
+    assert.ok(html.includes('background:#8B0020'))
+    assert.ok(html.includes('Lumina Été'))
+  })
+
+  test('échappe le nom de projet malicieux', () => {
+    const html = buildEmailWrapper({ projectName: '<script>xss</script>', bodyEn: '', bodyFr: '' })
+    assert.ok(!html.includes('<script>'))
+    assert.ok(html.includes('&lt;script&gt;'))
+  })
+
+  test('subLabel présent si fourni', () => {
+    const html = buildEmailWrapper({ projectName: 'T', subLabel: 'Photoshoot · 15 juillet', bodyEn: '', bodyFr: '' })
+    assert.ok(html.includes('Photoshoot · 15 juillet'))
+  })
+
+  test('section EN absente si bodyEn vide', () => {
+    const html = buildEmailWrapper({ projectName: 'T', bodyEn: '', bodyFr: 'Bonjour' })
+    assert.ok(!html.includes('· EN ·'))
+    assert.ok(html.includes('· FR ·'))
+  })
+
+  test('section FR absente si bodyFr vide', () => {
+    const html = buildEmailWrapper({ projectName: 'T', bodyEn: 'Hello', bodyFr: '' })
+    assert.ok(!html.includes('· FR ·'))
+    assert.ok(html.includes('· EN ·'))
+  })
+
+  test('sections EN et FR présentes si les deux fournis', () => {
+    const html = buildEmailWrapper({ projectName: 'T', bodyEn: 'Hello', bodyFr: 'Bonjour' })
+    assert.ok(html.includes('· EN ·'))
+    assert.ok(html.includes('· FR ·'))
+  })
+
+  test('footer crème #F7F3EE avec email et domaine', () => {
+    const html = buildEmailWrapper({ projectName: 'T', bodyEn: '', bodyFr: '' })
+    assert.ok(html.includes('casting@luminamodels.ca'))
+    assert.ok(html.includes('luminamodels.ca'))
+  })
+})
+
+describe('buildCtaButtons', () => {
+  test('bouton primaire rouge pleine largeur sans border-radius', () => {
+    const html = buildCtaButtons({ primaryLabel: 'Confirmer', primaryUrl: 'https://x.com/c' })
+    assert.ok(html.includes('background:#8B0020'))
+    assert.ok(html.includes('display:block'))
+    assert.ok(html.includes('Confirmer'))
+    assert.ok(html.includes('https://x.com/c'))
+    assert.ok(!html.includes('border-radius'))
+  })
+
+  test('pas de bouton secondaire si non fourni', () => {
+    const html = buildCtaButtons({ primaryLabel: 'OK', primaryUrl: 'https://x.com' })
+    assert.ok(!html.includes('#E0E0E0'))
+  })
+
+  test('bouton secondaire blanc-bordure si fourni', () => {
+    const html = buildCtaButtons({
+      primaryLabel:   'Confirmer', primaryUrl:   'https://x.com/c',
+      secondaryLabel: 'Annuler',   secondaryUrl: 'https://x.com/a',
+    })
+    assert.ok(html.includes('border:1px solid #E0E0E0'))
+    assert.ok(html.includes('Annuler'))
+    assert.ok(html.includes('https://x.com/a'))
+  })
+})
+
+describe('esc (import src/lib/email.ts)', () => {
+  test('même comportement que la copie locale', () => {
+    assert.equal(escFromLib('<b>test & "val"</b>'), '&lt;b&gt;test &amp; &quot;val&quot;&lt;/b&gt;')
+    assert.equal(escFromLib(null), '')
+    assert.equal(escFromLib(undefined), '')
   })
 })

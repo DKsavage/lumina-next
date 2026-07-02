@@ -46,6 +46,8 @@ interface Props {
   onFilterInstagram:      (v: boolean) => void
   filterVille:            string
   onFilterVille:          (v: string) => void
+  filterAvailDate:        string
+  onFilterAvailDate:      (v: string) => void
   allTags:                string[]
   // Legacy props kept for backwards compatibility with existing callers
   allFilteredSelected?:   boolean
@@ -97,6 +99,7 @@ export function DashboardFilters({
   filterTag, onFilterTag,
   filterInstagram, onFilterInstagram,
   filterVille, onFilterVille,
+  filterAvailDate, onFilterAvailDate,
   allTags,
   showArchived, onToggleArchived, archivedCount,
 }: Props) {
@@ -108,7 +111,7 @@ export function DashboardFilters({
     onSort(next)
   }
 
-  const hasDrawerFilters = !!(tailleMin || tailleMax || filterDisponibilite || filterExperience || filterTier || filterTag || filterInstagram || filterVille)
+  const hasDrawerFilters = !!(tailleMin || tailleMax || filterDisponibilite || filterExperience || filterTier || filterTag || filterInstagram || filterVille || filterAvailDate)
 
   return (
     <>
@@ -158,6 +161,45 @@ export function DashboardFilters({
           <Chip label="Hommes" active={filterGenre === 'Homme'}   onClick={() => onFilterGenre(filterGenre === 'Homme'   ? null : 'Homme')} />
 
           {/* Séparateur */}
+          <div style={{ width: 1, height: 14, background: 'rgba(26,20,16,.12)', flexShrink: 0 }} />
+
+          {/* Dispo le — filtre date disponibilité */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.25rem', flexShrink: 0 }}>
+            <span style={{
+              fontFamily: "'Montserrat', sans-serif", fontWeight: 500,
+              fontSize: '.42rem', letterSpacing: '.12em', textTransform: 'uppercase',
+              color: filterAvailDate ? 'var(--ink)' : 'var(--muted)',
+              whiteSpace: 'nowrap',
+            }}>
+              Dispo le
+            </span>
+            <input
+              type="date"
+              value={filterAvailDate}
+              onChange={e => onFilterAvailDate(e.target.value)}
+              style={{
+                fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: '.44rem',
+                background: 'transparent', border: 'none', borderBottom: '1px solid rgba(26,20,16,.2)',
+                outline: 'none', color: filterAvailDate ? 'var(--ink)' : 'var(--muted)',
+                paddingBottom: '1px', cursor: 'pointer',
+                width: filterAvailDate ? 'auto' : '80px',
+              }}
+            />
+            {filterAvailDate && (
+              <button
+                type="button"
+                onClick={() => onFilterAvailDate('')}
+                aria-label="Effacer filtre date"
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px',
+                  fontSize: '.5rem', color: 'var(--muted)', lineHeight: 1,
+                  minWidth: 24, minHeight: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <div style={{ width: 1, height: 14, background: 'rgba(26,20,16,.12)', flexShrink: 0 }} />
 
           {/* Tri chip */}

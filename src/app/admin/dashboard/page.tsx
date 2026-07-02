@@ -44,6 +44,8 @@ export default function DashboardPage() {
   const [filterExperience,    setFilterExperience]    = useState<string | null>(null)
   const [filterTier,          setFilterTier]          = useState<string | null>(null)
   const [filterTag,           setFilterTag]           = useState<string | null>(null)
+  const [filterAvailDate,    setFilterAvailDate]    = useState('')
+  const [availableDateIds,   setAvailableDateIds]   = useState<Set<string> | null>(null)
   const [composerOpen,      setComposerOpen]      = useState(false)
   const [sending,           setSending]           = useState(false)
   const [toast,             setToast]             = useState('')
@@ -85,6 +87,7 @@ export default function DashboardPage() {
       if (filterExperience    && c.experience     !== filterExperience)    return false
       if (filterTier          && c.tier           !== filterTier)          return false
       if (filterTag           && !(c.tags ?? []).includes(filterTag))      return false
+      if (availableDateIds !== null && !availableDateIds.has(c.id))        return false
       return true
     })
     .sort((a, b) => {
@@ -99,7 +102,8 @@ export default function DashboardPage() {
       }
       return sortAsc ? cmp : -cmp
     }), [candidatures, deferredSearch, filterGenre, filterSelectionne, tailleMin, tailleMax,
-         filterInstagram, filterVille, filterDisponibilite, filterExperience, filterTier, filterTag, sortBy, sortAsc])
+         filterInstagram, filterVille, filterDisponibilite, filterExperience, filterTier, filterTag,
+         availableDateIds, sortBy, sortAsc])
 
   const allTags = useMemo(() =>
     [...new Set(candidatures.flatMap(c => c.tags ?? []))].sort()
@@ -163,7 +167,19 @@ export default function DashboardPage() {
     return () => window.removeEventListener('keydown', onKey)
   }, [lightbox, detail, detailIdx, filtered])
 
-  const hasActiveFilters = !!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience || filterTier || filterTag)
+  // Fetch IDs disponibles quand la date de filtre change
+  useEffect(() => {
+    if (!filterAvailDate) { setAvailableDateIds(null); return }
+    fetch(`/api/candidatures/available?date=${filterAvailDate}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) setAvailableDateIds(new Set((d.data as { id: string }[]).map(m => m.id)))
+        else setAvailableDateIds(new Set()) // date invalide ou erreur → aucun résultat
+      })
+      .catch(() => setAvailableDateIds(null))
+  }, [filterAvailDate])
+
+  const hasActiveFilters = !!(filterGenre || filterSelectionne || tailleMin || tailleMax || filterInstagram || filterVille || filterDisponibilite || filterExperience || filterTier || filterTag || !!filterAvailDate)
 
   const filterChipStyle: React.CSSProperties = { height: 22, borderRadius: '100px', padding: '0 .6rem', fontSize: '.44rem', fontWeight: 500, letterSpacing: '.12em', textTransform: 'uppercase' as const, background: 'rgba(139,0,32,.07)', color: 'var(--red)', border: '1px solid rgba(139,0,32,.16)', cursor: 'pointer' }
 
@@ -208,6 +224,7 @@ export default function DashboardPage() {
         onResetFilters={() => {
           setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax('')
           setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null); setFilterTier(null); setFilterTag(null)
+          setFilterAvailDate('')
         }}
         showArchived={showArchived}           onToggleArchived={toggleShowArchived}
         archivedCount={archivedCount}
@@ -217,6 +234,7 @@ export default function DashboardPage() {
         filterExperience={filterExperience}       onFilterExperience={setFilterExperience}
         filterTier={filterTier}                   onFilterTier={setFilterTier}
         filterTag={filterTag}                     onFilterTag={setFilterTag}
+        filterAvailDate={filterAvailDate}         onFilterAvailDate={setFilterAvailDate}
         allTags={allTags}
         viewMode={viewMode}                       onSetViewMode={setViewMode}
       />
@@ -252,7 +270,7 @@ export default function DashboardPage() {
           </div>
           <button
             type="button"
-            onClick={() => { setSearch(''); setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax(''); setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null); setFilterTier(null); setFilterTag(null) }}
+            onClick={() => { setSearch(''); setFilterGenre(null); setFilterSelectionne(false); setTailleMin(''); setTailleMax(''); setFilterInstagram(false); setFilterVille(''); setFilterDisponibilite(null); setFilterExperience(null); setFilterTier(null); setFilterTag(null); setFilterAvailDate('') }}
             style={{ height: 32, borderRadius: '100px', padding: '0 1rem', background: 'var(--red)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.44rem', letterSpacing: '.14em', fontWeight: 500, textTransform: 'uppercase', boxShadow: '0 1px 5px rgba(139,0,32,.28)' }}
           >
             Réinitialiser les filtres
@@ -374,9 +392,12 @@ export default function DashboardPage() {
             const ids = candidatures.filter(c => emailSet.has(c.email)).map(c => c.id)
             selectByIds(ids)
           }}
-          onSubmit={async (session: SessionForm) => {
+          onSubmit={async (session: SessionForm, extraIds: string[]) => {
             setSending(true)
-            await handleSendSession(selectedIds, session, (sent, failed, sessionId) => {
+            const allIds = extraIds.length
+              ? new Set([...selectedIds, ...extraIds])
+              : selectedIds
+            await handleSendSession(allIds, session, (sent, failed, sessionId) => {
               showToast(`Session envoyée à ${sent} modèle(s).${failed ? ` (${failed} échec)` : ''}`)
               clearSelection()
               setComposerOpen(false)

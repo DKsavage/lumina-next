@@ -65,8 +65,8 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
   const [addSaving,      setAddSaving]      = useState(false)
   const [paymentEnabled, setPaymentEnabled] = useState<Set<string>>(new Set())
 
-  useEffect(() => {
-    setLoading(true)   // F4 — réinitialiser le spinner quand sessionId change
+  function loadData() {
+    setLoading(true)
     fetch(`/api/sessions/${sessionId}`)
       .then(r => r.json())
       .then(d => {
@@ -74,12 +74,14 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
           setModels(d.data)
           setStats(d.stats)
           setMaxModels(d.session?.max_models ?? null)
-          // payment_amount !== null → rémunéré au chargement
           setPaymentEnabled(new Set(d.data.filter((m: ModelStatus) => m.payment_amount !== null).map((m: ModelStatus) => m.id)))
         }
       })
       .finally(() => setLoading(false))
-  }, [sessionId])
+  }
+
+  // F4 — réinitialiser au changement de sessionId
+  useEffect(() => { loadData() }, [sessionId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const visible = models.filter(m => filter === 'all' || m.status === filter)
 
@@ -100,6 +102,18 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
             Suivi des confirmations
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => loadData()}
+              disabled={loading}
+              title="Rafraîchir"
+              style={{ background: 'none', border: 'none', padding: '.3rem', cursor: loading ? 'not-allowed' : 'pointer', color: 'var(--muted)', opacity: loading ? .4 : 1, display: 'flex', alignItems: 'center' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ transform: loading ? 'rotate(360deg)' : 'none', transition: loading ? 'transform .6s linear' : 'none' }}>
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+            </button>
             <button
               onClick={() => setEditing(true)}
               style={{ background: 'none', fontSize: '.5rem', letterSpacing: '.2em', fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)', border: '1px solid var(--border)', padding: '.3rem .8rem', cursor: 'pointer' }}

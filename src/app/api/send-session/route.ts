@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { SITE_URL } from '@/types/session'
 import type { SessionForm, Group } from '@/types/candidature'
+import { esc, buildCtaButtons, buildInfoBlock, buildEmailWrapper } from '@/lib/email'
 
 // Le body reçu a assignedIds sérialisé en tableau (Set n'est pas JSON-sérialisable).
 type SerializedGroup = Omit<Group, 'assignedIds'> & { assignedIds: string[] }
@@ -14,11 +15,6 @@ type SerializedSessionForm = Omit<SessionForm, 'groups'> & { groups: SerializedG
 interface SendBody {
   models: { email: string; prenom: string; nom?: string; langue?: string }[]
   session: SerializedSessionForm
-}
-
-function esc(s: string | null | undefined) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
 function formatDate(iso: string, locale: 'fr-CA' | 'en-CA') {
@@ -61,7 +57,7 @@ function buildEmail(params: {
       const end   = g.call_time && g.duration_min
         ? ` → ~${addMinutes(g.call_time, g.duration_min)}`
         : ''
-      return `<tr><td style="padding:3px 0;font-size:15px;color:#0a0a0a;line-height:1.7;${isOwn ? 'font-weight:700;color:#8B0020;' : ''}">
+      return `<tr><td style="padding:4px 0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;${isOwn ? 'font-weight:700;color:#8B0020;' : ''}">
         <strong>${esc(g.name)}</strong> — ${esc(g.call_time)}${end}${isOwn ? ' ← <strong>Votre call time</strong>' : ''}
       </td></tr>`
     }).join('')
@@ -73,47 +69,47 @@ function buildEmail(params: {
   ].filter(Boolean)
 
   const teamFr = teamItems.length
-    ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Équipe sur place :</strong><br>${teamItems.join('<br>')}</p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Équipe sur place :</strong><br>${teamItems.join('<br>')}</p>`
     : ''
 
   const prepFr = session.prep_notes
-    ? `<p style="margin:16px 0 0;font-size:14px;background:#f9f6f2;border-left:3px solid #8B0020;padding:12px 16px;color:#0a0a0a;line-height:1.7;"><strong>Préparation :</strong><br>${esc(session.prep_notes)}</p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;background:#F7F3EE;padding:12px 16px;color:#0A0A0A;line-height:1.8;"><strong>Préparation :</strong><br>${esc(session.prep_notes)}</p>`
     : ''
 
   const lookFr = group?.look_brief
-    ? `<p style="margin:16px 0 0;font-size:14px;background:#f9f6f2;border-left:3px solid #8B0020;padding:12px 16px;color:#0a0a0a;line-height:1.7;"><strong>Look demandé :</strong> ${esc(group.look_brief)}</p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;background:#F7F3EE;padding:12px 16px;color:#0A0A0A;line-height:1.8;"><strong>Look demandé :</strong> ${esc(group.look_brief)}</p>`
     : ''
 
   const bringFr = group?.bring_items
-    ? `<p style="margin:16px 0 0;font-size:14px;color:#0a0a0a;line-height:1.7;"><strong>Apporter :</strong> ${esc(group.bring_items)}</p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Apporter :</strong> ${esc(group.bring_items)}</p>`
     : ''
 
   const compensationFr = (() => {
     if (session.compensation_type === 'tfp')
-      return '<p style="margin:16px 0 0;font-size:13px;color:#6b6b6b;line-height:1.7;">Participation non rémunérée (TFP). Un contrat d\'autorisation de droits à l\'image vous sera remis.</p>'
+      return '<p style="margin:16px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">Participation non rémunérée (TFP). Un contrat d\'autorisation de droits à l\'image vous sera remis.</p>'
     if (session.compensation_type === 'paid')
-      return `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Cachet :</strong> ${esc(session.compensation_amount)}${session.compensation_method ? ` · ${esc(session.compensation_method)}` : ''}${session.compensation_delay ? ` · ${esc(session.compensation_delay)}` : ''}</p>`
-    return `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Défraiement :</strong> ${esc(session.compensation_amount)} ${session.compensation_method} ${session.compensation_delay}</p>`
+      return `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Cachet :</strong> ${esc(session.compensation_amount)}${session.compensation_method ? ` · ${esc(session.compensation_method)}` : ''}${session.compensation_delay ? ` · ${esc(session.compensation_delay)}` : ''}</p>`
+    return `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Défraiement :</strong> ${esc(session.compensation_amount)} ${session.compensation_method} ${session.compensation_delay}</p>`
   })()
 
   const accessFr  = session.access_instructions
-    ? `<p style="margin:6px 0 0;font-size:14px;color:#6b6b6b;line-height:1.7;">${esc(session.access_instructions)}</p>`
+    ? `<p style="margin:6px 0 0;font-size:14px;color:#6B6B6B;line-height:1.8;">${esc(session.access_instructions)}</p>`
     : ''
 
   const contactFr = session.contact_name
-    ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Contact sur place :</strong> ${esc(session.contact_name)}${session.contact_phone ? ` · <a href="tel:${esc(session.contact_phone)}" style="color:#8B0020;">${esc(session.contact_phone)}</a>` : ''}</p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Contact sur place :</strong> ${esc(session.contact_name)}${session.contact_phone ? ` · <a href="tel:${esc(session.contact_phone)}" style="color:#8B0020;">${esc(session.contact_phone)}</a>` : ''}</p>`
     : ''
 
   const notesFr = session.notes_models
-    ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.notes_models)}</p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;">${esc(session.notes_models)}</p>`
     : ''
 
   const wappFr = session.whatsapp
-    ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Groupe WhatsApp : <a href="${esc(session.whatsapp)}" style="color:#8B0020;">${esc(session.whatsapp)}</a></p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;">Groupe WhatsApp : <a href="${esc(session.whatsapp)}" style="color:#8B0020;">${esc(session.whatsapp)}</a></p>`
     : ''
 
   const moodFr = session.moodboard_url
-    ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Moodboard : <a href="${esc(session.moodboard_url)}" style="color:#8B0020;">Voir le moodboard →</a></p>`
+    ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;">Moodboard : <a href="${esc(session.moodboard_url)}" style="color:#8B0020;">Voir le moodboard →</a></p>`
     : ''
 
   const typeLabel = { photo: 'photoshoot', video: 'tournage vidéo', hybrid: 'session photo & vidéo' }[session.type]
@@ -132,7 +128,7 @@ function buildEmail(params: {
         const end   = g.call_time && g.duration_min
           ? ` → ~${addMinutes(g.call_time, g.duration_min)}`
           : ''
-        return `<tr><td style="padding:3px 0;font-size:15px;color:#0a0a0a;line-height:1.7;${isOwn ? 'font-weight:700;color:#8B0020;' : ''}">
+        return `<tr><td style="padding:4px 0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;${isOwn ? 'font-weight:700;color:#8B0020;' : ''}">
           <strong>${esc(g.name)}</strong> — ${esc(g.call_time)}${end}${isOwn ? ' ← <strong>Your call time</strong>' : ''}
         </td></tr>`
       }).join('')
@@ -144,116 +140,84 @@ function buildEmail(params: {
     ].filter(Boolean)
 
     const teamEn = teamItemsEn.length
-      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>On-set team:</strong><br>${teamItemsEn.join('<br>')}</p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>On-set team:</strong><br>${teamItemsEn.join('<br>')}</p>`
       : ''
 
     const prepEn = session.prep_notes
-      ? `<p style="margin:16px 0 0;font-size:14px;background:#f9f6f2;border-left:3px solid #8B0020;padding:12px 16px;color:#0a0a0a;line-height:1.7;"><strong>Preparation:</strong><br>${esc(session.prep_notes)}</p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;background:#F7F3EE;padding:12px 16px;color:#0A0A0A;line-height:1.8;"><strong>Preparation:</strong><br>${esc(session.prep_notes)}</p>`
       : ''
 
     const lookEn = group?.look_brief
-      ? `<p style="margin:16px 0 0;font-size:14px;background:#f9f6f2;border-left:3px solid #8B0020;padding:12px 16px;color:#0a0a0a;line-height:1.7;"><strong>Requested look:</strong> ${esc(group.look_brief)}</p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;background:#F7F3EE;padding:12px 16px;color:#0A0A0A;line-height:1.8;"><strong>Requested look:</strong> ${esc(group.look_brief)}</p>`
       : ''
 
     const bringEn = group?.bring_items
-      ? `<p style="margin:16px 0 0;font-size:14px;color:#0a0a0a;line-height:1.7;"><strong>Please bring:</strong> ${esc(group.bring_items)}</p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Please bring:</strong> ${esc(group.bring_items)}</p>`
       : ''
 
     const compensationEn = (() => {
       if (session.compensation_type === 'tfp')
-        return '<p style="margin:16px 0 0;font-size:13px;color:#6b6b6b;line-height:1.7;">Unpaid participation (TFP). An image rights authorization contract will be provided.</p>'
+        return '<p style="margin:16px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">Unpaid participation (TFP). An image rights authorization contract will be provided.</p>'
       if (session.compensation_type === 'paid')
-        return `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Rate:</strong> ${esc(session.compensation_amount)}${session.compensation_method ? ` · ${esc(session.compensation_method)}` : ''}${session.compensation_delay ? ` · ${esc(session.compensation_delay)}` : ''}</p>`
-      return `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>Allowance:</strong> ${esc(session.compensation_amount)} ${session.compensation_method} ${session.compensation_delay}</p>`
+        return `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Rate:</strong> ${esc(session.compensation_amount)}${session.compensation_method ? ` · ${esc(session.compensation_method)}` : ''}${session.compensation_delay ? ` · ${esc(session.compensation_delay)}` : ''}</p>`
+      return `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>Allowance:</strong> ${esc(session.compensation_amount)} ${session.compensation_method} ${session.compensation_delay}</p>`
     })()
 
     const accessEn = session.access_instructions
-      ? `<p style="margin:6px 0 0;font-size:14px;color:#6b6b6b;line-height:1.7;">${esc(session.access_instructions)}</p>`
+      ? `<p style="margin:6px 0 0;font-size:14px;color:#6B6B6B;line-height:1.8;">${esc(session.access_instructions)}</p>`
       : ''
 
     const contactEn = session.contact_name
-      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;"><strong>On-site contact:</strong> ${esc(session.contact_name)}${session.contact_phone ? ` · <a href="tel:${esc(session.contact_phone)}" style="color:#8B0020;">${esc(session.contact_phone)}</a>` : ''}</p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;"><strong>On-site contact:</strong> ${esc(session.contact_name)}${session.contact_phone ? ` · <a href="tel:${esc(session.contact_phone)}" style="color:#8B0020;">${esc(session.contact_phone)}</a>` : ''}</p>`
       : ''
 
     const notesEn = session.notes_models
-      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.notes_models)}</p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;">${esc(session.notes_models)}</p>`
       : ''
 
     const wappEn = session.whatsapp
-      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">WhatsApp group: <a href="${esc(session.whatsapp)}" style="color:#8B0020;">${esc(session.whatsapp)}</a></p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;">WhatsApp group: <a href="${esc(session.whatsapp)}" style="color:#8B0020;">${esc(session.whatsapp)}</a></p>`
       : ''
 
     const moodEn = session.moodboard_url
-      ? `<p style="margin:16px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Moodboard: <a href="${esc(session.moodboard_url)}" style="color:#8B0020;">View moodboard →</a></p>`
+      ? `<p style="margin:16px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;">Moodboard: <a href="${esc(session.moodboard_url)}" style="color:#8B0020;">View moodboard →</a></p>`
       : ''
 
     sectionEn = `
-    <tr><td style="padding:0 40px 32px;">
-      <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Dear ${esc(prenom)},</p>
-      <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
+      <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Dear ${esc(prenom)},</p>
+      <p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">
         We are pleased to confirm your participation in the ${esc(typeLabelEn)} <strong>${esc(session.project)}</strong>, scheduled for <strong>${esc(dateEn)}</strong>.
       </p>
-      <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Location</p>
-      <p style="margin:0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.address)}</p>
+      ${buildInfoBlock('Location', esc(session.address))}
       ${accessEn}
-      <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Schedule</p>
+      ${buildInfoBlock('Schedule')}
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">${groupRowsEn}</table>
       ${prepEn}${lookEn}${bringEn}${teamEn}${compensationEn}${contactEn}${notesEn}${moodEn}${wappEn}
-      <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Kindly confirm your attendance no later than <strong>${deadlineEn}</strong>:</p>
-      <table cellpadding="0" cellspacing="0" style="margin:20px 0;">
-        <tr>
-          <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">Confirm my attendance</a></td>
-          <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">Unable to attend</a></td>
-        </tr>
-      </table>
-      <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">We look forward to seeing you.</p>
-    </td></tr>`
+      <p style="margin:24px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Kindly confirm your attendance no later than <strong>${esc(deadlineEn)}</strong>:</p>
+      ${buildCtaButtons({ primaryLabel: 'Confirm my attendance', primaryUrl: confirmUrl, secondaryLabel: 'Unable to attend', secondaryUrl: cancelUrl })}
+      <p style="margin:0;font-size:13px;color:#6B6B6B;line-height:1.8;font-family:Arial,sans-serif;">We look forward to seeing you.</p>`
   }
 
-  return `<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3;padding:32px 16px;">
-<tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <tr><td style="height:4px;background:#8B0020;"></td></tr>
-  <tr><td style="padding:28px 40px 20px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
-  </td></tr>
-  ${sectionEn}
-  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
-  <tr><td style="padding:0 40px 32px;">
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour ${esc(prenom)},</p>
-    <p style="margin:0 0 24px;font-size:15px;color:#0a0a0a;line-height:1.7;">
-      Nous avons le plaisir de confirmer votre participation au ${esc(typeLabel)} <strong>${esc(session.project)}</strong>, prévu le <strong>${esc(dateFr)}</strong>.
-    </p>
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Lieu</p>
-    <p style="margin:0;font-size:15px;color:#0a0a0a;line-height:1.7;">${esc(session.address)}</p>
-    ${accessFr}
-    <p style="margin:24px 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Planning</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">${groupRowsFr}</table>
-    ${prepFr}${lookFr}${bringFr}${teamFr}${compensationFr}${contactFr}${notesFr}${moodFr}${wappFr}
-    <p style="margin:24px 0 0;font-size:15px;color:#0a0a0a;line-height:1.7;">Nous vous remercions de confirmer votre disponibilité au plus tard le <strong>${deadline}</strong> :</p>
-    <table cellpadding="0" cellspacing="0" style="margin:20px 0;">
-      <tr>
-        <td><a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:600;text-decoration:none;border-radius:4px;margin-right:12px;">Confirmer ma présence</a></td>
-        <td><a href="${cancelUrl}" style="display:inline-block;background:#ffffff;color:#6b6b6b;padding:12px 24px;font-size:14px;border:1px solid #e0e0e0;text-decoration:none;border-radius:4px;">Je ne serai pas disponible</a></td>
-      </tr>
-    </table>
-    <p style="margin:0;font-size:13px;color:#6b6b6b;line-height:1.7;">Nous nous réjouissons de vous retrouver.</p>
-  </td></tr>
-  <tr><td style="padding:20px 40px;border-top:1px solid #e2e2e2;">
-    <div style="font-size:12px;color:#6b6b6b;line-height:1.7;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
-    </div>
-  </td></tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>`
+  const bodyFr = `
+      <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)},</p>
+      <p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">
+        Nous avons le plaisir de confirmer votre participation au ${esc(typeLabel)} <strong>${esc(session.project)}</strong>, prévu le <strong>${esc(dateFr)}</strong>.
+      </p>
+      ${buildInfoBlock('Lieu', esc(session.address))}
+      ${accessFr}
+      ${buildInfoBlock('Planning')}
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">${groupRowsFr}</table>
+      ${prepFr}${lookFr}${bringFr}${teamFr}${compensationFr}${contactFr}${notesFr}${moodFr}${wappFr}
+      <p style="margin:24px 0 0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Nous vous remercions de confirmer votre disponibilité au plus tard le <strong>${esc(deadline)}</strong> :</p>
+      ${buildCtaButtons({ primaryLabel: 'Confirmer ma présence', primaryUrl: confirmUrl, secondaryLabel: 'Je ne serai pas disponible', secondaryUrl: cancelUrl })}
+      <p style="margin:0;font-size:13px;color:#6B6B6B;line-height:1.8;font-family:Arial,sans-serif;">Nous nous réjouissons de vous retrouver.</p>`
+
+  return buildEmailWrapper({
+    projectName: session.project,
+    subLabel:    `${typeLabel} · ${dateFr}`,
+    bodyEn:      sectionEn,
+    bodyFr,
+  })
 }
 
 export async function POST(request: NextRequest) {

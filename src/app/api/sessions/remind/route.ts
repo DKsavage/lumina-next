@@ -5,15 +5,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { SITE_URL } from '@/types/session'
+import { esc, buildCtaButtons, buildEmailWrapper } from '@/lib/email'
 
 type ReminderType = 'j5' | 'j2' | 'j1' | 'morning' | 'merci' | 'paiement'
-
-// Échappement HTML — même fonction que dans confirm/route.ts et send-session/route.ts.
-// Protège contre l'injection de balises dans les emails si un champ Supabase est corrompu.
-function esc(s: string | null | undefined): string {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-}
 
 export function sentAtField(type: ReminderType): string {
   return {
@@ -48,19 +42,20 @@ export function buildReminderHtml(type: ReminderType, params: {
   const dateLabelEn = new Date(date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'long', day: 'numeric', month: 'long' })
   const contact     = contactName ? `${esc(contactName)}${contactPhone ? ` · ${esc(contactPhone)}` : ''}` : null
 
-  const sep = `<hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;">`
-
   // Remerciement post-session
   if (type === 'merci') {
     return {
       subject: `Thank you / Merci — ${esc(project)}`,
-      html: `<p>Hi ${esc(prenom)},</p>
-<p>Thank you so much for being part of <strong>${esc(project)}</strong>! It was a genuine pleasure working with you. We'll share the results as soon as they're ready.</p>
-<p>We hope to work with you again soon!</p>
-${sep}
-<p>Bonjour ${esc(prenom)},</p>
-<p>Merci beaucoup d'avoir participé à <strong>${esc(project)}</strong> ! Ce fut un vrai plaisir de travailler avec vous. Nous partagerons les résultats dès qu'ils seront prêts.</p>
-<p>Au plaisir de vous revoir très bientôt !</p>`,
+      html: buildEmailWrapper({
+        projectName: project,
+        subLabel:    'Remerciement · Thank you',
+        bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)},</p>
+<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Thank you so much for being part of <strong>${esc(project)}</strong>! It was a genuine pleasure working with you. We'll share the results as soon as they're ready.</p>
+<p style="margin:0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">We hope to work with you again soon!</p>`,
+        bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)},</p>
+<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Merci beaucoup d'avoir participé à <strong>${esc(project)}</strong> ! Ce fut un vrai plaisir de travailler avec vous. Nous partagerons les résultats dès qu'ils seront prêts.</p>
+<p style="margin:0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Au plaisir de vous revoir très bientôt !</p>`,
+      }),
     }
   }
 
@@ -70,66 +65,65 @@ ${sep}
     const factureLink = `${SITE_URL}/facture/${token}`
     return {
       subject: `Payment sent / Paiement envoyé — ${esc(project)}`,
-      html: `<p>Hi ${esc(prenom)},</p>
-<p>Your payment for <strong>${esc(project)}</strong> has been sent.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
-<p>Please use the following link to generate your invoice and return it to us at luminaphotography.mtl@gmail.com:</p>
-<p><a href="${factureLink}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;font-weight:700;text-decoration:none;">Generate my invoice</a></p>
-<p>Thank you again for your participation!</p>
-${sep}
-<p>Bonjour ${esc(prenom)},</p>
-<p>Votre paiement pour <strong>${esc(project)}</strong> a été envoyé.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
-<p>Veuillez utiliser le lien suivant pour générer votre facture et nous la retourner à luminaphotography.mtl@gmail.com :</p>
-<p><a href="${factureLink}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;font-weight:700;text-decoration:none;">Générer ma facture</a></p>
-<p>Merci encore pour votre participation !</p>`,
+      html: buildEmailWrapper({
+        projectName: project,
+        subLabel:    'Paiement · Payment',
+        bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)},</p>
+<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Your payment for <strong>${esc(project)}</strong> has been sent.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
+<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Please use the link below to generate your invoice and return it to us at luminaphotography.mtl@gmail.com:</p>
+${buildCtaButtons({ primaryLabel: 'Generate my invoice', primaryUrl: factureLink })}
+<p style="margin:0;font-size:13px;color:#6B6B6B;line-height:1.8;">Thank you again for your participation!</p>`,
+        bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)},</p>
+<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Votre paiement pour <strong>${esc(project)}</strong> a été envoyé.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
+<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Veuillez utiliser le lien ci-dessous pour générer votre facture et nous la retourner à luminaphotography.mtl@gmail.com :</p>
+${buildCtaButtons({ primaryLabel: 'Générer ma facture', primaryUrl: factureLink })}
+<p style="margin:0;font-size:13px;color:#6B6B6B;line-height:1.8;">Merci encore pour votre participation !</p>`,
+      }),
     }
   }
 
   // J-1 et morning = récapitulatif pour les confirmés (pas de CTA confirmation)
   if (type === 'j1' || type === 'morning') {
-    const subjectEn = type === 'morning' ? `See you today — ${esc(project)}` : `See you tomorrow — ${esc(project)}`
-    const subjectFr = type === 'morning' ? `À tout à l'heure — ${esc(project)}` : `À demain — ${esc(project)} · Récapitulatif`
+    const subjectEn  = type === 'morning' ? `See you today — ${esc(project)}` : `See you tomorrow — ${esc(project)}`
+    const subjectFr  = type === 'morning' ? `À tout à l'heure — ${esc(project)}` : `À demain — ${esc(project)}`
+    const introEn    = type === 'morning' ? "We're expecting you today!" : "Your shoot is tomorrow —"
+    const introFr    = type === 'morning' ? "On vous attend aujourd'hui !" : 'Votre shoot est demain —'
+    const detailsEn  = [
+      `<strong>Date:</strong> ${esc(dateLabelEn)}`,
+      `<strong>Location:</strong> ${esc(address)}`,
+      callTime ? `<strong>Your call time:</strong> <span style="color:#8B0020;font-weight:700;">${esc(callTime)}</span>` : '',
+      contact  ? `<strong>On-site contact:</strong> ${esc(contact)}` : '',
+    ].filter(Boolean).map(d => `<p style="margin:0 0 12px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">${d}</p>`).join('')
+    const detailsFr  = [
+      `<strong>Date :</strong> ${esc(dateLabel)}`,
+      `<strong>Lieu :</strong> ${esc(address)}`,
+      callTime ? `<strong>Votre call time :</strong> <span style="color:#8B0020;font-weight:700;">${esc(callTime)}</span>` : '',
+      contact  ? `<strong>Contact sur place :</strong> ${esc(contact)}` : '',
+    ].filter(Boolean).map(d => `<p style="margin:0 0 12px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">${d}</p>`).join('')
     return {
       subject: `${subjectEn} / ${subjectFr}`,
-      html: `<p>Hi ${esc(prenom)},</p>
-<p>${type === 'morning' ? "We're expecting you today!" : "Your shoot is tomorrow —"} here's everything you need to know:</p>
-<ul>
-  <li><strong>Date:</strong> ${esc(dateLabelEn)}</li>
-  <li><strong>Location:</strong> ${esc(address)}</li>
-  ${callTime ? `<li><strong>Your call time:</strong> ${esc(callTime)}</li>` : ''}
-  ${contact  ? `<li><strong>On-site contact:</strong> ${esc(contact)}</li>` : ''}
-</ul>
-<p>See you soon!</p>
-${sep}
-<p>Bonjour ${esc(prenom)},</p>
-<p>${type === 'morning' ? "On vous attend aujourd'hui !" : 'Votre shoot est demain —'} voici tout ce qu'il faut savoir :</p>
-<ul>
-  <li><strong>Date :</strong> ${esc(dateLabel)}</li>
-  <li><strong>Lieu :</strong> ${esc(address)}</li>
-  ${callTime ? `<li><strong>Votre call time :</strong> ${esc(callTime)}</li>` : ''}
-  ${contact  ? `<li><strong>Contact sur place :</strong> ${esc(contact)}</li>` : ''}
-</ul>
-<p>À très bientôt !</p>`,
+      html: buildEmailWrapper({
+        projectName: project,
+        subLabel:    `${esc(dateLabelEn)}`,
+        bodyEn: `<p style="margin:0 0 20px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)}, ${introEn} here's everything you need:</p>${detailsEn}<p style="margin:12px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">See you soon!</p>`,
+        bodyFr: `<p style="margin:0 0 20px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)}, ${introFr} voici tout ce qu'il faut savoir :</p>${detailsFr}<p style="margin:12px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">À très bientôt !</p>`,
+      }),
     }
   }
 
   // J-5 et J-2 = relance aux non-répondants (pending)
   return {
     subject: `Reminder: confirm your attendance / Rappel : confirmez votre participation — ${esc(project)}`,
-    html: `<p>Hi ${esc(prenom)},</p>
-<p>We haven't received your confirmation for the shoot <strong>${esc(project)}</strong> on <strong>${esc(dateLabelEn)}</strong>.</p>
-<p>Could you confirm your attendance?</p>
-<p>
-  <a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;margin-right:8px;font-weight:700;text-decoration:none;">✓ I confirm</a>
-  <a href="${cancelUrl}" style="display:inline-block;background:#fff;color:#6b6b6b;padding:10px 20px;border:1px solid #e0e0e0;text-decoration:none;">I cannot attend</a>
-</p>
-${sep}
-<p>Bonjour ${esc(prenom)},</p>
-<p>Nous n'avons pas encore reçu votre confirmation pour le shoot <strong>${esc(project)}</strong> le <strong>${esc(dateLabel)}</strong>.</p>
-<p>Pouvez-vous nous confirmer votre présence ?</p>
-<p>
-  <a href="${confirmUrl}" style="display:inline-block;background:#8B0020;color:#fff;padding:10px 20px;margin-right:8px;font-weight:700;text-decoration:none;">✓ Je confirme</a>
-  <a href="${cancelUrl}" style="display:inline-block;background:#fff;color:#6b6b6b;padding:10px 20px;border:1px solid #e0e0e0;text-decoration:none;">Je ne peux pas venir</a>
-</p>`,
+    html: buildEmailWrapper({
+      projectName: project,
+      subLabel:    `Rappel · ${esc(dateLabelEn)}`,
+      bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)},</p>
+<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">We haven't received your confirmation for <strong>${esc(project)}</strong> on <strong>${esc(dateLabelEn)}</strong>. Could you confirm your attendance?</p>
+${buildCtaButtons({ primaryLabel: '✓ I confirm', primaryUrl: confirmUrl, secondaryLabel: 'I cannot attend', secondaryUrl: cancelUrl })}`,
+      bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)},</p>
+<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Nous n'avons pas encore reçu votre confirmation pour <strong>${esc(project)}</strong> le <strong>${esc(dateLabel)}</strong>. Pouvez-vous nous confirmer votre présence ?</p>
+${buildCtaButtons({ primaryLabel: '✓ Je confirme', primaryUrl: confirmUrl, secondaryLabel: 'Je ne peux pas venir', secondaryUrl: cancelUrl })}`,
+    }),
   }
 }
 

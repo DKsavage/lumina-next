@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import CandidatureForm from '../form/CandidatureForm'
+import ShareButton from './ShareButton'
 
 const SLIDES = [
   { seed: 'lumA', pos: 'center 20%', alt: 'Mannequin Flawa Models — portrait éditorial' },
@@ -39,6 +40,7 @@ export default function HeroSplit() {
         <nav className="lum-nav-links" aria-label="Navigation principale">
           <a href="#" className="lum-nav-link">L&apos;agence</a>
           <a href="#" className="lum-nav-link">Processus</a>
+          <ShareButton />
         </nav>
       </nav>
 

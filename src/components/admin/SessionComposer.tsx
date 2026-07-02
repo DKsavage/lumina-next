@@ -2,12 +2,14 @@
 
 import { useState, useRef, type FormEvent, type ChangeEvent } from 'react'
 import { type SessionForm, type Group, defaultSession } from '@/types/candidature'
+import { AvailabilityBadge, type AvailableModel } from '@/components/admin/AvailabilityBadge'
+import { WarningTriangle } from '@/components/icons/WarningTriangle'
 
 interface Props {
   selectedCount: number
   selectedCandidatures: { id: string; prenom: string; nom: string; genre: string | null }[]
   onClose:              () => void
-  onSubmit:             (session: SessionForm) => Promise<void>
+  onSubmit:             (session: SessionForm, extraIds: string[]) => Promise<void>
   sending:              boolean
   onImportFromSession?: (emails: string[]) => void
 }
@@ -34,6 +36,14 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
   const [pastSessions,  setPastSessions]= useState<PastSession[]>([])
   const [importLoading, setImportLoading] = useState(false)
   const [importing,     setImporting]   = useState(false)
+  const [extraCandidatures, setExtraCandidatures] = useState<AvailableModel[]>([])
+  const [availableModels,   setAvailableModels]   = useState<AvailableModel[]>([])
+
+  function handleAddModel(model: AvailableModel) {
+    setExtraCandidatures(prev =>
+      prev.some(m => m.id === model.id) ? prev : [...prev, model],
+    )
+  }
 
   function update<K extends keyof SessionForm>(key: K, val: SessionForm[K]) {
     setSession(prev => ({ ...prev, [key]: val }))
@@ -88,7 +98,7 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
     if (submittingRef.current) return
     submittingRef.current = true
     try {
-      await onSubmit(session)
+      await onSubmit(session, extraCandidatures.map(m => m.id))
     } finally {
       submittingRef.current = false
     }
@@ -200,7 +210,7 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
                 padding: '.5rem 1rem', marginBottom: '-1px',
               }}
             >
-              {t === 'form' ? 'Détails session' : `Assigner modèles (${session.groups.reduce((n, g) => n + g.assignedIds.size, 0)}/${selectedCount})`}
+              {t === 'form' ? 'Détails session' : `Assigner modèles (${session.groups.reduce((n, g) => n + g.assignedIds.size, 0)}/${selectedCount + extraCandidatures.length})`}
             </button>
           ))}
         </div>
@@ -232,6 +242,15 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
                   FR : {dateFormatted.fr} · EN : {dateFormatted.en}
                 </div>
               )}
+              <AvailabilityBadge
+                date={session.date}
+                excludeIds={new Set([
+                  ...selectedCandidatures.map(c => c.id),
+                  ...extraCandidatures.map(m => m.id),
+                ])}
+                onAdd={handleAddModel}
+                onModelsLoaded={setAvailableModels}
+              />
 
               {/* Adresse + Accès */}
               {label('Adresse *')}
@@ -353,13 +372,84 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
             </>
           )}
 
-          {/* Onglet assignation — GroupAssignmentPanel (Task 4) */}
+          {/* Onglet assignation — GroupAssignmentPanel */}
           {tab === 'assign' && (
-            <GroupAssignmentPanelInline
-              groups={session.groups}
-              candidatures={selectedCandidatures}
-              onAssign={assignToGroup}
-            />
+            <>
+              <GroupAssignmentPanelInline
+                groups={session.groups}
+                candidatures={[
+                  ...selectedCandidatures,
+                  ...extraCandidatures.map(m => ({ id: m.id, prenom: m.prenom, nom: m.nom, genre: m.genre })),
+                ]}
+                onAssign={assignToGroup}
+                date={session.date}
+                availableModels={availableModels}
+              />
+
+              {/* Section Autres disponibles */}
+              {availableModels.length > 0 && (() => {
+                const assignedIds = new Set([
+                  ...selectedCandidatures.map(c => c.id),
+                  ...extraCandidatures.map(m => m.id),
+                ])
+                const others = availableModels.filter(m => !assignedIds.has(m.id))
+                if (others.length === 0) return (
+                  <p style={{
+                    fontFamily: "'Montserrat', sans-serif", fontWeight: 200,
+                    fontSize: '.44rem', color: 'var(--muted)',
+                    textAlign: 'center', padding: '1rem 0',
+                  }}>
+                    Tous les modèles disponibles sont déjà dans la session
+                  </p>
+                )
+                return (
+                  <div style={{ marginTop: '1.2rem' }}>
+                    <div style={{
+                      fontFamily: "'Montserrat', sans-serif", fontWeight: 500,
+                      fontSize: '.42rem', letterSpacing: '.2em', textTransform: 'uppercase',
+                      color: 'var(--muted)', marginBottom: '.6rem',
+                    }}>
+                      Autres disponibles
+                    </div>
+                    {others.map((model) => (
+                      <div
+                        key={model.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '.5rem',
+                          padding: '.4rem .2rem',
+                          borderBottom: '1px solid rgba(26,20,16,.06)',
+                        }}
+                      >
+                        <span style={{
+                          fontFamily: "'Montserrat', sans-serif", fontWeight: 300,
+                          fontSize: '.55rem', color: 'var(--ink)', flex: 1,
+                        }}>
+                          {model.prenom} {model.nom}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddModel(model)}
+                          aria-label={`Ajouter ${model.prenom} à la session`}
+                          style={{
+                            width: 40, height: 40, flexShrink: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'none', border: '1px solid rgba(26,20,16,.15)',
+                            borderRadius: '8px', cursor: 'pointer',
+                            fontSize: '.75rem', color: 'var(--ink)',
+                            transitionProperty: 'transform', transitionDuration: '.15s',
+                          }}
+                          onPointerDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.96)' }}
+                          onPointerUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = '' }}
+                          onPointerLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = '' }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </>
           )}
 
           {/* Footer */}
@@ -385,15 +475,18 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
   )
 }
 
-// Inline — sera extrait en Task 4
 function GroupAssignmentPanelInline({
   groups,
   candidatures,
   onAssign,
+  date,
+  availableModels,
 }: {
-  groups: Group[]
-  candidatures: { id: string; prenom: string; nom: string; genre: string | null }[]
-  onAssign: (groupIdx: number, ids: string[]) => void
+  groups:          Group[]
+  candidatures:    { id: string; prenom: string; nom: string; genre: string | null }[]
+  onAssign:        (groupIdx: number, ids: string[]) => void
+  date:            string
+  availableModels: AvailableModel[]
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [filter, setFilter]     = useState<'all' | 'unassigned'>('unassigned')
@@ -442,7 +535,14 @@ function GroupAssignmentPanelInline({
               style={{ padding: '.6rem 1rem', borderBottom: '1px solid var(--border)', background: selected.has(c.id) ? 'rgba(139,0,32,.06)' : 'transparent' }}
             >
               <div style={{ width: '14px', height: '14px', border: `2px solid ${selected.has(c.id) ? 'var(--red)' : 'var(--border)'}`, background: selected.has(c.id) ? 'var(--red)' : 'transparent', flexShrink: 0 }} />
-              <span className="font-light text-ink" style={{ fontSize: '.78rem' }}>{c.prenom} {c.nom}</span>
+              <span className="font-light text-ink" style={{ fontSize: '.78rem' }}>
+                {c.prenom} {c.nom}
+                {date && availableModels.length > 0 && !availableModels.some(m => m.id === c.id) && (
+                  <span title="Indisponible ou déjà bookée ce jour" style={{ display: 'inline-flex', marginLeft: '.3rem', verticalAlign: 'middle' }}>
+                    <WarningTriangle size={12} style={{ color: '#B45309' }} />
+                  </span>
+                )}
+              </span>
               <span className="text-muted font-light" style={{ fontSize: '.65rem', marginLeft: 'auto' }}>
                 {assignedGroup >= 0 ? `→ ${groups[assignedGroup].name || `Groupe ${String.fromCharCode(65 + assignedGroup)}`}` : '—'}
               </span>

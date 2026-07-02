@@ -4,6 +4,7 @@
 // Affiche la barre de progression confirmés/total, les filtres par statut, et la liste détaillée.
 // Appelé depuis le dashboard après envoi d'une session (sessionId injecté automatiquement).
 import { useState, useEffect } from 'react'
+import { CheckCircle2, MousePointerClick, AlertCircle } from 'lucide-react'
 import { SessionEditPanel } from '@/components/admin/SessionEditPanel'
 // sending — type de relance en cours (null si aucun), protège contre le double-clic
 
@@ -230,25 +231,31 @@ export function SessionStatusPanel({ sessionId, onClose, onDeleted }: Props) {
                   {m.group && <div style={{ fontSize: '.62rem', color: 'var(--muted)' }}>{m.group.name} · {m.group.call_time}</div>}
                   {m.cancel_reason && <div style={{ fontSize: '.62rem', color: '#8B0020', marginTop: '.1rem' }}>Raison : {m.cancel_reason}</div>}
                   {/* Trio d'icônes tracking email — 3 états indépendants visibles simultanément */}
-                  <div style={{ display: 'flex', gap: '.4rem', marginTop: '.25rem', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '.35rem', marginTop: '.3rem', alignItems: 'center' }}>
                     <span
                       title={m.email_delivered_at
                         ? `Livré · ${new Date(m.email_delivered_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
                         : 'Non livré'}
-                      style={{ fontSize: '.8rem', color: m.email_delivered_at ? 'rgba(20,120,60,.85)' : 'rgba(0,0,0,.15)', lineHeight: 1, cursor: 'default' }}
-                    >✓</span>
+                      style={{ display: 'flex', cursor: 'default' }}
+                    >
+                      <CheckCircle2 size={13} strokeWidth={2} style={{ color: m.email_delivered_at ? 'rgba(20,120,60,.85)' : 'rgba(0,0,0,.15)' }} />
+                    </span>
                     <span
                       title={m.email_clicked_at
                         ? `Lien cliqué · ${new Date(m.email_clicked_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
                         : 'Lien non cliqué'}
-                      style={{ fontSize: '.8rem', color: m.email_clicked_at ? '#2563eb' : 'rgba(0,0,0,.15)', lineHeight: 1, cursor: 'default' }}
-                    >👆</span>
+                      style={{ display: 'flex', cursor: 'default' }}
+                    >
+                      <MousePointerClick size={13} strokeWidth={2} style={{ color: m.email_clicked_at ? '#2563eb' : 'rgba(0,0,0,.15)' }} />
+                    </span>
                     <span
                       title={m.email_bounced_at
                         ? `Adresse invalide · ${new Date(m.email_bounced_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
                         : 'Aucun problème de livraison'}
-                      style={{ fontSize: '.8rem', color: m.email_bounced_at ? '#8B0020' : 'rgba(0,0,0,.15)', lineHeight: 1, cursor: 'default' }}
-                    >⚠</span>
+                      style={{ display: 'flex', cursor: 'default' }}
+                    >
+                      <AlertCircle size={13} strokeWidth={2} style={{ color: m.email_bounced_at ? '#8B0020' : 'rgba(0,0,0,.15)' }} />
+                    </span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '.3rem', flexShrink: 0 }}>

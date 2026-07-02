@@ -4,6 +4,7 @@
 // Pas de SDK supabase-js — cohérent avec le reste du projet (REST API directe).
 import { NextRequest, NextResponse } from 'next/server'
 import { SITE_URL } from '@/types/session'
+import { esc, buildInfoBlock, buildEmailWrapper } from '@/lib/email'
 
 const ADMIN_EMAIL = 'luminaphotography.mtl@gmail.com'
 
@@ -14,11 +15,6 @@ function supabaseHeaders() {
     'Authorization': `Bearer ${key}`,
     'Content-Type':  'application/json',
   }
-}
-
-function esc(s: string | null | undefined): string {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -120,70 +116,32 @@ export async function GET(request: NextRequest) {
     : `Cancellation recorded / Annulation enregistrée — ${session.project}`
 
   const modelHtml = status === 'confirmed'
-    ? `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3;padding:32px 16px;">
-<tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <tr><td style="height:4px;background:#8B0020;"></td></tr>
-  <tr><td style="padding:28px 40px 20px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
-  </td></tr>
-  <tr><td style="padding:0 40px 32px;">
-    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Dear ${esc(sm.model_prenom)},</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Your participation in <strong>${esc(session.project)}</strong> has been confirmed.</p>
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Date</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(dateEn)}</p>
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Location</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(session.address)}</p>
-    ${group?.call_time ? `<p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Your Call Time</p><p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#8B0020;">${esc(group.call_time)}</p>` : ''}
-    <p style="margin:24px 0 0;font-size:13px;color:#6b6b6b;line-height:1.7;">We look forward to seeing you.</p>
-  </td></tr>
-  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
-  <tr><td style="padding:0 40px 32px;">
-    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour ${esc(sm.model_prenom)},</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Votre participation au projet <strong>${esc(session.project)}</strong> a bien été confirmée.</p>
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Date</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(dateFr)}</p>
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Lieu</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;">${esc(session.address)}</p>
-    ${group?.call_time ? `<p style="margin:0 0 6px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#6b6b6b;font-weight:600;">Votre Call Time</p><p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#8B0020;">${esc(group.call_time)}</p>` : ''}
-    <p style="margin:24px 0 0;font-size:13px;color:#6b6b6b;line-height:1.7;">Nous nous réjouissons de vous retrouver.</p>
-  </td></tr>
-  <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
-    <div style="font-size:12px;color:#6b6b6b;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
-    </div>
-  </td></tr>
-</table>
-</td></tr></table></body></html>`
-    : `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3;padding:32px 16px;">
-<tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <tr><td style="height:4px;background:#8B0020;"></td></tr>
-  <tr><td style="padding:28px 40px 20px;">
-    <span style="font-family:Georgia,serif;font-size:20px;letter-spacing:0.12em;text-transform:uppercase;color:#8B0020;font-weight:700;">Flawa Models</span>
-  </td></tr>
-  <tr><td style="padding:0 40px 32px;">
-    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Dear ${esc(sm.model_prenom)},</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">We have received your cancellation for <strong>${esc(session.project)}</strong>.</p>
-    <p style="margin:0;font-size:14px;color:#6b6b6b;line-height:1.7;">We understand that scheduling conflicts may arise. Thank you for notifying us promptly. We hope to have the opportunity to work with you on a future project.</p>
-  </td></tr>
-  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:2px solid #e2e2e2;margin:40px 0;"></td></tr>
-  <tr><td style="padding:0 40px 32px;">
-    <p style="margin:0 0 12px;font-size:15px;color:#0a0a0a;line-height:1.7;">Bonjour ${esc(sm.model_prenom)},</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#0a0a0a;line-height:1.7;">Nous avons bien pris note de votre annulation pour le projet <strong>${esc(session.project)}</strong>.</p>
-    <p style="margin:0;font-size:14px;color:#6b6b6b;line-height:1.7;">Nous comprenons que des imprévus puissent survenir. Merci de nous en avoir informés dans les meilleurs délais. Nous espérons avoir l'occasion de travailler avec vous lors d'un prochain projet.</p>
-  </td></tr>
-  <tr><td style="padding:16px 40px 24px;border-top:1px solid #e2e2e2;">
-    <div style="font-size:12px;color:#6b6b6b;">
-      <span style="font-family:Georgia,serif;font-size:14px;color:#8B0020;font-weight:700;">Flawa Models</span><br>
-      casting@luminamodels.ca · luminamodels.ca · Montréal
-    </div>
-  </td></tr>
-</table>
-</td></tr></table></body></html>`
+    ? buildEmailWrapper({
+        projectName: session.project,
+        subLabel:    'Participation confirmée · Confirmed',
+        bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Dear ${esc(sm.model_prenom)},</p>
+<p style="margin:0 0 20px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Your participation in <strong>${esc(session.project)}</strong> has been confirmed.</p>
+${buildInfoBlock('Date', esc(dateEn))}
+${buildInfoBlock('Location', esc(session.address))}
+${group?.call_time ? buildInfoBlock('Your Call Time', `<span style="font-size:20px;font-weight:700;color:#8B0020;">${esc(group.call_time)}</span>`) : ''}
+<p style="margin:24px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">We look forward to seeing you.</p>`,
+        bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(sm.model_prenom)},</p>
+<p style="margin:0 0 20px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Votre participation au projet <strong>${esc(session.project)}</strong> a bien été confirmée.</p>
+${buildInfoBlock('Date', esc(dateFr))}
+${buildInfoBlock('Lieu', esc(session.address))}
+${group?.call_time ? buildInfoBlock('Votre Call Time', `<span style="font-size:20px;font-weight:700;color:#8B0020;">${esc(group.call_time)}</span>`) : ''}
+<p style="margin:24px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">Nous nous réjouissons de vous retrouver.</p>`,
+      })
+    : buildEmailWrapper({
+        projectName: session.project,
+        subLabel:    'Annulation enregistrée · Cancellation recorded',
+        bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Dear ${esc(sm.model_prenom)},</p>
+<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">We have received your cancellation for <strong>${esc(session.project)}</strong>.</p>
+<p style="margin:0;font-size:14px;color:#6B6B6B;line-height:1.8;font-family:Arial,sans-serif;">We understand that scheduling conflicts may arise. Thank you for notifying us promptly. We hope to work with you on a future project.</p>`,
+        bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(sm.model_prenom)},</p>
+<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Nous avons bien pris note de votre annulation pour le projet <strong>${esc(session.project)}</strong>.</p>
+<p style="margin:0;font-size:14px;color:#6B6B6B;line-height:1.8;font-family:Arial,sans-serif;">Nous comprenons que des imprévus puissent survenir. Merci de nous en avoir informés dans les meilleurs délais. Nous espérons avoir l'occasion de travailler avec vous lors d'un prochain projet.</p>`,
+      })
 
   await sendEmail(sm.model_email, modelSubject, modelHtml)
 

@@ -466,7 +466,7 @@ export function SessionComposer({ selectedCount, selectedCandidatures, onClose, 
               disabled={sending || tab === 'assign'}
               style={{ flex: 2, background: 'var(--red)', color: 'var(--paper)', padding: '.9rem', fontFamily: "'Montserrat', sans-serif", fontSize: '.52rem', letterSpacing: '.28em', fontWeight: 600, opacity: sending ? .6 : 1, cursor: sending ? 'not-allowed' : 'pointer' }}
             >
-              {sending ? 'Envoi…' : `Envoyer à ${selectedCount} modèle${selectedCount > 1 ? 's' : ''}`}
+              {sending ? 'Envoi…' : `Envoyer à ${selectedCount + extraCandidatures.length} modèle${selectedCount + extraCandidatures.length > 1 ? 's' : ''}`}
             </button>
           </div>
         </form>

@@ -40,8 +40,9 @@ export default function HeroSplit() {
         <nav className="lum-nav-links" aria-label="Navigation principale">
           <a href="#" className="lum-nav-link">L&apos;agence</a>
           <a href="#" className="lum-nav-link">Processus</a>
-          <ShareButton />
         </nav>
+        {/* ShareButton hors de lum-nav-links — toujours visible quel que soit la taille d'écran */}
+        <ShareButton />
       </nav>
 
       {/* ══ HERO CONTAINER — position: relative pour contenir slideshow + overlay ══

@@ -8,9 +8,10 @@ interface Props {
 }
 
 const BTN_BASE: React.CSSProperties = {
-  flex: 1, minWidth: '140px', display: 'block', textAlign: 'center',
+  display: 'block', width: '100%', textAlign: 'center',
   padding: '1rem', fontWeight: 700, fontSize: '.85rem', textDecoration: 'none',
   letterSpacing: '.1em', fontFamily: 'Arial, sans-serif', cursor: 'pointer', border: 'none',
+  boxSizing: 'border-box',
 }
 
 export function ConfirmActions({ token, prenom }: Props) {
@@ -37,7 +38,7 @@ export function ConfirmActions({ token, prenom }: Props) {
             color: '#0c0b09', background: '#fff', marginBottom: '1rem', boxSizing: 'border-box',
           }}
         />
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
           <a
             href={cancelHref}
             style={{ ...BTN_BASE, background: '#8B0020', color: '#fff' }}

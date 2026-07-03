@@ -179,14 +179,15 @@ export function useCandidatures() {
     return true
   }
 
-  async function handleTierChange(id: string, tier: 'ambassadeur' | 'permanent' | 'banque' | null) {
+  async function handleTierChange(id: string, tier: 'ambassadeur' | 'permanent' | 'banque' | null, showToast?: (msg: string) => void) {
     const res = await fetch(`/api/candidatures/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tier }),
     })
-    if (!res.ok) return
+    if (!res.ok) { showToast?.('Erreur lors du changement de tier.'); return }
     setCandidatures(prev => prev.map(c => c.id === id ? { ...c, tier } : c))
+    showToast?.(tier ? 'Tier mis à jour.' : 'Tier retiré.')
   }
 
   async function handleDelete(id: string, onDone: () => void, showToast: (msg: string) => void) {

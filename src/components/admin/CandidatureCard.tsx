@@ -61,6 +61,13 @@ export function CandidatureCard({ c, selected, isDuplicate = false, onToggle, on
     return () => document.removeEventListener('mousedown', close)
   }, [tierOpen])
 
+  // Précharge la photo corps dès le montage pour éviter le délai au hover
+  useEffect(() => {
+    if (!c.photo_body_signed) return
+    const img = new window.Image()
+    img.src = c.photo_body_signed
+  }, [c.photo_body_signed])
+
   const activeSrc = hovered && c.photo_body_signed ? c.photo_body_signed : c.photo_profil_signed
   const tags      = (c.tags ?? []).slice(0, 2)
 

@@ -15,11 +15,11 @@ export function buildCtaButtons(opts: {
   secondaryUrl?:   string
 }): string {
   const primary = `<tr><td>
-    <a href="${opts.primaryUrl}" style="display:block;background:#8B0020;color:#ffffff;padding:16px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;font-family:Arial,sans-serif;">${opts.primaryLabel}</a>
+    <a href="${opts.primaryUrl}" style="display:block;background:#8B0020;color:#ffffff;padding:16px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;font-family:Arial,sans-serif;">${esc(opts.primaryLabel)}</a>
   </td></tr>`
   const secondary = opts.secondaryLabel && opts.secondaryUrl
     ? `<tr><td style="padding-top:10px;">
-        <a href="${opts.secondaryUrl}" style="display:block;background:#ffffff;color:#6B6B6B;padding:14px;font-size:14px;text-align:center;text-decoration:none;border:1px solid #E0E0E0;font-family:Arial,sans-serif;">${opts.secondaryLabel}</a>
+        <a href="${opts.secondaryUrl}" style="display:block;background:#ffffff;color:#6B6B6B;padding:14px;font-size:14px;text-align:center;text-decoration:none;border:1px solid #E0E0E0;font-family:Arial,sans-serif;">${esc(opts.secondaryLabel)}</a>
       </td></tr>`
     : ''
   return `<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">${primary}${secondary}</table>`
@@ -31,7 +31,7 @@ export function buildInfoBlock(label: string, valueHtml?: string): string {
   const value = valueHtml != null
     ? `<div style="margin:0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">${valueHtml}</div>`
     : ''
-  return `<p style="margin:24px 0 0;font-size:10px;font-family:Georgia,serif;letter-spacing:0.2em;text-transform:uppercase;color:#6B6B6B;">${label}</p>
+  return `<p style="margin:24px 0 0;font-size:10px;font-family:Georgia,serif;letter-spacing:0.2em;text-transform:uppercase;color:#6B6B6B;">${esc(label)}</p>
 <div style="border-top:1px solid rgba(139,0,32,0.12);margin:6px 0 8px;"></div>${value}`
 }
 

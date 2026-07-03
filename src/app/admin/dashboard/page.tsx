@@ -22,6 +22,7 @@ import { SessionComposer }     from '@/components/admin/SessionComposer'
 import { SessionStatusPanel }  from '@/components/admin/SessionStatusPanel'
 import { Lightbox }            from '@/components/admin/Lightbox'
 import { Toast }            from '@/components/admin/Toast'
+import { ErrorBoundary }    from '@/components/admin/ErrorBoundary'
 import { DashboardFilters } from '@/components/admin/DashboardFilters'
 import type { Candidature, SessionForm, SortKey } from '@/types/candidature'
 
@@ -290,7 +291,7 @@ export default function DashboardPage() {
                 duplicateEmails={duplicateEmails}
                 onToggle={toggleSelect}
                 onViewDetail={setDetail}
-                onTierChange={handleTierChange}
+                onTierChange={(id, tier) => handleTierChange(id, tier, showToast)}
               />
             ) : (
               <div style={{
@@ -306,7 +307,7 @@ export default function DashboardPage() {
                     isDuplicate={duplicateEmails.has(c.email)}
                     onToggle={toggleSelect}
                     onViewDetail={setDetail}
-                    onTierChange={handleTierChange}
+                    onTierChange={(id, tier) => handleTierChange(id, tier, showToast)}
                     style={undefined}
                   />
                 ))}
@@ -380,6 +381,7 @@ export default function DashboardPage() {
 
       {/* COMPOSER SESSION */}
       {composerOpen && (
+        <ErrorBoundary>
         <SessionComposer
           selectedCount={selectedCount}
           selectedCandidatures={filtered
@@ -407,14 +409,17 @@ export default function DashboardPage() {
             setSending(false)
           }}
         />
+        </ErrorBoundary>
       )}
 
       {/* SUIVI CONFIRMATION SESSION */}
       {sessionStatusId && (
+        <ErrorBoundary>
         <SessionStatusPanel
           sessionId={sessionStatusId}
           onClose={() => setSessionStatusId(null)}
         />
+        </ErrorBoundary>
       )}
 
       {/* LIGHTBOX */}

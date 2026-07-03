@@ -2,7 +2,7 @@
 // Auth via cookie httpOnly. Aucun token dans le body de la requête.
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
-import { buildEmailWrapper } from '@/lib/email'
+import { buildEmailWrapper, esc } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   const token = await verifyToken(request)
@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
       html: buildEmailWrapper({
         projectName: 'Félicitations',
         subLabel:    'Tu as été sélectionné·e · You have been selected',
-        bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour <strong>${prenom}</strong>,</p>
+        bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour <strong>${esc(prenom)}</strong>,</p>
 <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Nous avons le plaisir de t'informer que ton profil a été <strong>sélectionné</strong> pour un projet Flawa Models.</p>
 <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Tu recevras très prochainement tous les détails concernant la session (date, lieu, heure de call time).</p>
 <p style="margin:0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;font-weight:700;">Merci de répondre à cet email pour confirmer ta disponibilité.</p>`,
-        bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi <strong>${prenom}</strong>,</p>
+        bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi <strong>${esc(prenom)}</strong>,</p>
 <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">We're pleased to let you know that your profile has been <strong>selected</strong> for a Flawa Models project.</p>
 <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">You will receive all the details about the session (date, location, call time) very soon.</p>
 <p style="margin:0;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;font-weight:700;">Please reply to this email to confirm your availability.</p>`,

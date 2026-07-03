@@ -147,6 +147,7 @@ ${group?.call_time ? buildInfoBlock('Votre Call Time', `<span style="font-size:2
 
   // Notification admin uniquement si annulation — l'admin doit trouver un remplaçant
   if (status === 'cancelled') {
+    // Email interne uniquement — pas migré vers buildEmailWrapper intentionnellement (notification admin, pas d'identité visuelle nécessaire)
     const adminHtml = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f3f3;font-family:Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f3;padding:32px 16px;">
 <tr><td align="center">

@@ -104,7 +104,7 @@ ${buildCtaButtons({ primaryLabel: 'Générer ma facture', primaryUrl: factureLin
       subject: `${subjectEn} / ${subjectFr}`,
       html: buildEmailWrapper({
         projectName: project,
-        subLabel:    `${esc(dateLabelEn)}`,
+        subLabel:    dateLabelEn,
         bodyEn: `<p style="margin:0 0 20px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)}, ${introEn} here's everything you need:</p>${detailsEn}<p style="margin:12px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">See you soon!</p>`,
         bodyFr: `<p style="margin:0 0 20px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)}, ${introFr} voici tout ce qu'il faut savoir :</p>${detailsFr}<p style="margin:12px 0 0;font-size:13px;color:#6B6B6B;line-height:1.8;">À très bientôt !</p>`,
       }),
@@ -116,7 +116,7 @@ ${buildCtaButtons({ primaryLabel: 'Générer ma facture', primaryUrl: factureLin
     subject: `Reminder: confirm your attendance / Rappel : confirmez votre participation — ${esc(project)}`,
     html: buildEmailWrapper({
       projectName: project,
-      subLabel:    `Rappel · ${esc(dateLabelEn)}`,
+      subLabel:    `Rappel · ${dateLabelEn}`,
       bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)},</p>
 <p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">We haven't received your confirmation for <strong>${esc(project)}</strong> on <strong>${esc(dateLabelEn)}</strong>. Could you confirm your attendance?</p>
 ${buildCtaButtons({ primaryLabel: '✓ I confirm', primaryUrl: confirmUrl, secondaryLabel: 'I cannot attend', secondaryUrl: cancelUrl })}`,

@@ -12,7 +12,7 @@
 
 import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildEmailWrapper, buildCtaButtons, esc as escFromLib } from '../src/lib/email.ts'
+import { buildEmailWrapper, buildCtaButtons, buildInfoBlock, esc as escFromLib } from '../src/lib/email.ts'
 
 // ---------------------------------------------------------------------------
 // Fonctions pures copiées depuis les sources Next.js
@@ -348,5 +348,22 @@ describe('esc (import src/lib/email.ts)', () => {
     assert.equal(escFromLib('<b>test & "val"</b>'), '&lt;b&gt;test &amp; &quot;val&quot;&lt;/b&gt;')
     assert.equal(escFromLib(null), '')
     assert.equal(escFromLib(undefined), '')
+  })
+})
+
+describe('buildInfoBlock', () => {
+  test('label seul — contient Georgia uppercase et séparateur, pas de div valeur', () => {
+    const html = buildInfoBlock('Date')
+    assert.ok(html.includes('Georgia,serif'))
+    assert.ok(html.includes('text-transform:uppercase'))
+    assert.ok(html.includes('rgba(139,0,32,0.12)'))
+    assert.ok(!html.includes('<div style="margin:0'))  // no value div
+  })
+
+  test('label + valueHtml — contient la valeur dans un div', () => {
+    const html = buildInfoBlock('Lieu', '2165 Avenue Charlemagne')
+    assert.ok(html.includes('Lieu'))
+    assert.ok(html.includes('2165 Avenue Charlemagne'))
+    assert.ok(html.includes('<div style="margin:0'))  // value div present
   })
 })

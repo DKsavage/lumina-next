@@ -1,51 +1,89 @@
-# Graph Report - .  (2026-06-15)
+# Graph Report - .  (2026-06-30)
 
 ## Corpus Check
-- 8 files · ~21,940 words
+- 57 files · ~114,719 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 305 nodes · 394 edges · 23 communities (15 shown, 8 thin omitted)
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 45 edges (avg confidence: 0.83)
+- 695 nodes · 955 edges · 66 communities (45 shown, 21 thin omitted)
+- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 90 edges (avg confidence: 0.84)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Formulaire Multi-étapes|Formulaire Multi-étapes]]
-- [[_COMMUNITY_Layout & Config App|Layout & Config App]]
-- [[_COMMUNITY_API Admin & Auth|API Admin & Auth]]
-- [[_COMMUNITY_Dépendances NPM|Dépendances NPM]]
-- [[_COMMUNITY_Soumission & Compression|Soumission & Compression]]
-- [[_COMMUNITY_Config shadcnUI|Config shadcn/UI]]
-- [[_COMMUNITY_Animations & Sections|Animations & Sections]]
-- [[_COMMUNITY_TypeScript Config|TypeScript Config]]
-- [[_COMMUNITY_Architecture CLAUDE|Architecture CLAUDE.md]]
-- [[_COMMUNITY_Composants Partagés Form|Composants Partagés Form]]
-- [[_COMMUNITY_Documentation Projet|Documentation Projet]]
-- [[_COMMUNITY_Tests E2E Playwright|Tests E2E Playwright]]
-- [[_COMMUNITY_Page Hero & Split|Page Hero & Split]]
-- [[_COMMUNITY_Auth Admin OTP|Auth Admin OTP]]
-- [[_COMMUNITY_Permissions Claude|Permissions Claude]]
-- [[_COMMUNITY_PostCSS Config|PostCSS Config]]
-- [[_COMMUNITY_Assets Statiques|Assets Statiques]]
-- [[_COMMUNITY_Assets Statiques|Assets Statiques]]
-- [[_COMMUNITY_Assets Statiques|Assets Statiques]]
-- [[_COMMUNITY_Assets Statiques|Assets Statiques]]
-- [[_COMMUNITY_Assets Statiques|Assets Statiques]]
-- [[_COMMUNITY_Select UI|Select UI]]
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 13|Community 13]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
+- [[_COMMUNITY_Community 19|Community 19]]
+- [[_COMMUNITY_Community 20|Community 20]]
+- [[_COMMUNITY_Community 21|Community 21]]
+- [[_COMMUNITY_Community 22|Community 22]]
+- [[_COMMUNITY_Community 23|Community 23]]
+- [[_COMMUNITY_Community 24|Community 24]]
+- [[_COMMUNITY_Community 25|Community 25]]
+- [[_COMMUNITY_Community 26|Community 26]]
+- [[_COMMUNITY_Community 27|Community 27]]
+- [[_COMMUNITY_Community 28|Community 28]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 48|Community 48]]
+- [[_COMMUNITY_Community 52|Community 52]]
+- [[_COMMUNITY_Community 55|Community 55]]
+- [[_COMMUNITY_Community 56|Community 56]]
+- [[_COMMUNITY_Community 57|Community 57]]
+- [[_COMMUNITY_Community 58|Community 58]]
+- [[_COMMUNITY_Community 59|Community 59]]
+- [[_COMMUNITY_Community 60|Community 60]]
+- [[_COMMUNITY_Community 61|Community 61]]
+- [[_COMMUNITY_Community 62|Community 62]]
+- [[_COMMUNITY_Community 63|Community 63]]
+- [[_COMMUNITY_Community 64|Community 64]]
+- [[_COMMUNITY_Community 65|Community 65]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 23 edges
-2. `compilerOptions` - 16 edges
-3. `src/app/api/submit/route.ts — POST candidature handler` - 11 edges
-4. `Mockup Option 2 (Slideshow + Bottom Sheet)` - 10 edges
-5. `Compression Image Automatique (Option C)` - 8 edges
-6. `CandidatureForm.tsx — multi-step form orchestrator` - 8 edges
-7. `POST()` - 7 edges
-8. `Mockup Option 4 (Split + Mosaique)` - 7 edges
-9. `tailwind` - 6 edges
-10. `aliases` - 6 edges
+1. `verifyToken()` - 30 edges
+2. `cn()` - 23 edges
+3. `compilerOptions` - 16 edges
+4. `Package.json — lumina-next` - 13 edges
+5. `Mockup Option 2 (Slideshow + Bottom Sheet)` - 11 edges
+6. `src/app/api/submit/route.ts — POST candidature handler` - 11 edges
+7. `Tier` - 10 edges
+8. `Fix Report — QA Bugs F1–F6` - 10 edges
+9. `Plan: Dashboard Redesign (Phase 12 — 11 tasks)` - 10 edges
+10. `Session Management SDD Progress Ledger` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Framer Motion 12.x` --conceptually_related_to--> `Lumina Design System Tokens`  [INFERRED]
+  package.json → .superpowers/brainstorm/2159-1782506611/content/ambassadeur-tier.html
 - `3-Step Candidature Form (Photos/Profil/Mesures)` --semantically_similar_to--> `CandidatureForm Multi-step`  [INFERRED] [semantically similar]
   docs/mockup-option2.html → CLAUDE.md
 - `Split 55/45 Layout` --semantically_similar_to--> `HeroSplit Layout 48/52`  [INFERRED] [semantically similar]
@@ -54,96 +92,179 @@
   src/app/api/submit/route.ts → CLAUDE.md
 - `handleFile — async compression + preview handler` --implements--> `Compression Image Automatique (Option C)`  [INFERRED]
   src/components/form/StepPhotos.tsx → CLAUDE.md
-- `SUPABASE_SERVICE_KEY — server-only, never NEXT_PUBLIC_` --rationale_for--> `src/app/api/submit/route.ts — POST candidature handler`  [EXTRACTED]
-  CLAUDE.md → src/app/api/submit/route.ts
 
 ## Import Cycles
 - None detected.
 
-## Hyperedges (group relationships)
-- **Client-side image compression flow (Option C)** — form_stepphotos_handlefile, package_browser_image_compression, claude_image_compression, claude_server_size_limit, concept_compress_threshold, concept_heic_support, claude_web_worker_rationale, form_stepphotos_compressing_state [EXTRACTED 1.00]
-- **4-step form pipeline: StepPhotos > StepProfil > StepMesures > StepDisponibilite > API submit** — candidature_form_tsx, form_stepphotos, step_mesures_tsx, api_submit_route, concept_formdata_type [EXTRACTED 1.00]
-- **Anti-abuse pipeline: honeypot + rate-limit + reCAPTCHA v3** — api_submit_route, concept_honeypot, concept_rate_limit, concept_recaptcha_v3 [EXTRACTED 1.00]
-- **Supabase write path: photo upload to storage + DB insert candidatures** — api_submit_route, concept_supabase_storage, concept_supabase_db, concept_supabase_migration_june2026 [EXTRACTED 1.00]
-- **Shared form UI components exported from StepPhotos** — form_stepphotos, concept_field_component, concept_cta_button, concept_back_button, step_mesures_tsx [EXTRACTED 1.00]
+## Communities (66 total, 21 thin omitted)
 
-## Communities (23 total, 8 thin omitted)
+### Community 0 - "Community 0"
+Cohesion: 0.07
+Nodes (39): GET(), GET(), verifyToken(), Supabase candidatures table, DashboardPage(), DELETE(), GET(), PATCH() (+31 more)
 
-### Community 0 - "Formulaire Multi-étapes"
+### Community 1 - "Community 1"
+Cohesion: 0.06
+Nodes (49): AdminNav, Ambassadeur tier dark-gold theme, CandidatureCard, Double-bezel card pattern, DashboardFilters, DetailPanel, ModelSession, FiltersDrawer (+41 more)
+
+### Community 2 - "Community 2"
 Cohesion: 0.08
-Nodes (27): URL.createObjectURL() + revokeObjectURL() — local photo preview, EASE_IN, EASE_OUT, EMPTY, FormData, STEPS, VARIANTS, EASE (+19 more)
+Nodes (42): Bug F1 — whatsapp field never persisted to DB, Bug F2 — Double-click on relance buttons sends duplicate emails, Bug F3 — Double-submit SessionComposer, Bug F4 — Spinner missing on sessionId change in SessionStatusPanel, Bug F5 — Infinite spinner on network error in useCandidatures, Bug F6 — Cancelled model can be re-confirmed via /api/confirm, Set<string> → Array serialization for assignedIds before JSON.stringify, Bilingual Email (FR/EN) in send-session buildEmail (+34 more)
 
-### Community 1 - "Layout & Config App"
+### Community 3 - "Community 3"
+Cohesion: 0.06
+Nodes (38): shadcn/ui Components Config, @base-ui/react 1.5, class-variance-authority, clsx utility, Framer Motion 12.x, lucide-react icons, Next.js 16.2.7, Playwright Testing (+30 more)
+
+### Community 4 - "Community 4"
+Cohesion: 0.07
+Nodes (35): Plan: Dashboard Modèles Tech (Phase 9 — 6 features), Feature: Duplicate Email Detection (badge + submission block), Feature: Inline Edit Candidature in DetailPanel, Feature: Extended Filters (ville, dispo, experience, instagram, age sort), Component: CandidatureList — dense list view (toggle ⊞/≡), Feature: Public Status Page /statut (model checks candidature status), Plan: Dashboard Redesign (Phase 12 — 11 tasks), Component: AdminNav — floating ink pill nav (+27 more)
+
+### Community 5 - "Community 5"
+Cohesion: 0.09
+Nodes (32): Next.js Breaking Changes Notice, CandidatureForm Multi-step, Supabase Table candidatures, Couture Blanche (Direction Artistique Mockup D), FileReader.readAsDataURL Serialization, HeroSplit Layout 48/52, Ken Burns Animation, Lumina Photography Migration Project (+24 more)
+
+### Community 6 - "Community 6"
 Cohesion: 0.11
 Nodes (25): cormorant, geist, metadata, montserrat, viewport, RootLayout, cn(), Home Page (+17 more)
 
-### Community 2 - "API Admin & Auth"
+### Community 7 - "Community 7"
+Cohesion: 0.16
+Nodes (24): DashboardPage — admin orchestrator, AdminLayout(), AdminLoginPage — OTP email login, SessionsPage — list + calendar views, GET /api/confirm — token confirm/cancel + Resend emails, POST /api/sessions/remind — manual reminders + exports buildReminderHtml, GET /api/search — global search candidatures+sessions (admin), POST /api/select — mark selected + send selection email (+16 more)
+
+### Community 8 - "Community 8"
 Cohesion: 0.10
-Nodes (26): GET(), verifyToken(), Supabase candidatures table, Candidature, DashboardPage(), defaultSession, Group, SessionForm (+18 more)
+Nodes (18): BTN_BASE, Props, esc(), GET(), sendEmail(), supabaseHeaders(), addMins(), ConfirmPage() (+10 more)
 
-### Community 3 - "Dépendances NPM"
-Cohesion: 0.07
-Nodes (26): dependencies, @base-ui/react, class-variance-authority, clsx, framer-motion, lucide-react, next, react (+18 more)
-
-### Community 4 - "Soumission & Compression"
-Cohesion: 0.13
-Nodes (22): src/app/api/submit/route.ts — POST candidature handler, browser-image-compression (Web Worker), Compression Image Automatique (Option C), CLAUDE.md — project instructions and architecture decisions, MAX_PHOTO_BYTES = 1.5 MB server-side photo size limit, StepPhotos.tsx, browser-image-compression with useWebWorker:true — non-blocking compression, COMPRESS_THRESHOLD = 1 MB — client-side trigger for compression (+14 more)
-
-### Community 5 - "Config shadcn/UI"
+### Community 9 - "Community 9"
 Cohesion: 0.09
 Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+13 more)
 
-### Community 6 - "Animations & Sections"
+### Community 10 - "Community 10"
+Cohesion: 0.12
+Nodes (14): AdminNav(), Props, FloatingBar(), Props, KpiItem, KpiStrip(), Props, Lightbox() (+6 more)
+
+### Community 11 - "Community 11"
 Cohesion: 0.10
 Nodes (16): Stagger scroll-reveal animation pattern, CRITERIA, EASE, item, list, container, EASE, photo (+8 more)
 
-### Community 7 - "TypeScript Config"
+### Community 12 - "Community 12"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
-### Community 8 - "Architecture CLAUDE.md"
-Cohesion: 0.16
-Nodes (19): CandidatureForm Multi-step, Couture Blanche (Direction Artistique Mockup D), FileReader.readAsDataURL Serialization, HeroSplit Layout 48/52, Ken Burns Animation, PhotoSlideshow (Ken Burns 5 slides), SVG Grain Texture (fractalNoise), Mockup Option 2 (Slideshow + Bottom Sheet) (+11 more)
+### Community 13 - "Community 13"
+Cohesion: 0.14
+Nodes (12): Group, INPUT, LABEL, Props, SessionData, ModelStatus, Props, buildCalendarGrid() (+4 more)
 
-### Community 9 - "Composants Partagés Form"
+### Community 14 - "Community 14"
+Cohesion: 0.20
+Nodes (13): CandidatureForm.tsx — multi-step form orchestrator, BackButton — shared navigation back button, FileReader.readAsDataURL() — base64 serialization for JSON API, URL.createObjectURL() + revokeObjectURL() — local photo preview, CtaButton — shared button with shake animation and loading spinner, E2E test — verifies .up-ring.optimizing CSS class during compression, Field — shared form field component (inline/asGroup modes), FormData — TypeScript type for all 4 form steps (+5 more)
+
+### Community 15 - "Community 15"
 Cohesion: 0.15
-Nodes (15): CandidatureForm.tsx — multi-step form orchestrator, BackButton — shared navigation back button, FileReader.readAsDataURL() — base64 serialization for JSON API, CtaButton — shared button with shake animation and loading spinner, E2E test — verifies .up-ring.optimizing CSS class during compression, Field — shared form field component (inline/asGroup modes), FormData — TypeScript type for all 4 form steps, VARIANTS — vertical AnimatePresence transitions (editorial magazine reveal) (+7 more)
+Nodes (14): Ambassadeur Model Tier — Visual Differentiation, Luxury Dashboard — Floating Pill Nav + Bento Grid, Desktop Navigation Alternatives, Floating Multi-Select Action Bar, Hybrid Mobile/Desktop Layout, Unified KPI Editorial Strip, Dashboard Layout Direction Options (A/B/C), Lumina Design System Tokens (+6 more)
 
-### Community 10 - "Documentation Projet"
+### Community 16 - "Community 16"
+Cohesion: 0.16
+Nodes (11): FormData, CHEVEUX, LONGUEURS, POINTURES, TAILLES_BAS, TAILLES_HAUT, TEINTS, YEUX (+3 more)
+
+### Community 17 - "Community 17"
+Cohesion: 0.23
+Nodes (4): Props, TAGS_MAP, Props, Tier
+
+### Community 18 - "Community 18"
 Cohesion: 0.18
-Nodes (13): Next.js Breaking Changes Notice, Supabase Table candidatures, Lumina Photography Migration Project, Next.js 15 (App Router), Rate Limit 60s par IP, reCAPTCHA v3 Anti-bot, Resend Email Service, Stack Technique Lumina-Next (+5 more)
+Nodes (13): src/app/api/submit/route.ts — POST candidature handler, CLAUDE.md — project instructions and architecture decisions, Design direction — Couture Blanche (Loro Piana / Hermes / The Row), Honeypot anti-bot pattern (website field must be empty), input-underline CSS class — underline-only, 0 border-radius design token, In-memory rate limit (60s per IP, Map<string,number>), reCAPTCHA v3 — threshold 0.5, skipped in dev if key absent, Resend — dual email (candidate + admin) on submit (+5 more)
 
-### Community 11 - "Tests E2E Playwright"
+### Community 19 - "Community 19"
 Cohesion: 0.15
 Nodes (11): BIG, btn2, btn3, continueBtn, expChip, inputs, SMALL, step2Inputs (+3 more)
 
-### Community 12 - "Page Hero & Split"
+### Community 20 - "Community 20"
+Cohesion: 0.18
+Nodes (8): EASE_IN, EASE_OUT, EMPTY, STEPS, VARIANTS, EASE, Editorial ease curve [0.16,1,0.3,1], SiteFooter()
+
+### Community 21 - "Community 21"
+Cohesion: 0.24
+Nodes (6): ASPECTS, DISPONIBILITES, BackButton(), CtaButton(), Field(), EXPERIENCES
+
+### Community 22 - "Community 22"
+Cohesion: 0.33
+Nodes (9): buildReminderHtml(), esc(), POST(), ReminderType, sentAtField(), addDays(), AutoType, GET() (+1 more)
+
+### Community 23 - "Community 23"
+Cohesion: 0.22
+Nodes (6): AdminLoginPage(), POST(), POST(), rateLimitMap, POST(), rateLimitMap
+
+### Community 24 - "Community 24"
+Cohesion: 0.25
+Nodes (6): inp, PastSession, Props, defaultSession, Group, SessionForm
+
+### Community 25 - "Community 25"
+Cohesion: 0.36
+Nodes (9): browser-image-compression (Web Worker), Compression Image Automatique (Option C), MAX_PHOTO_BYTES = 1.5 MB server-side photo size limit, StepPhotos.tsx, browser-image-compression with useWebWorker:true — non-blocking compression, COMPRESS_THRESHOLD = 1 MB — client-side trigger for compression, HEIC/HEIF detection — force JPEG conversion for universal preview, browser-image-compression 2.x (+1 more)
+
+### Community 26 - "Community 26"
 Cohesion: 0.29
 Nodes (4): SLIDES, Props, SLIDES, Ken Burns on container, never on next/image
 
-### Community 13 - "Auth Admin OTP"
+### Community 27 - "Community 27"
+Cohesion: 0.33
+Nodes (4): Props, SORT_CYCLE, SORT_LABELS, SortKey
+
+### Community 28 - "Community 28"
 Cohesion: 0.29
-Nodes (4): AdminLoginPage(), POST(), POST(), POST()
+Nodes (4): DetailPanel(), Props, STATUS_META, calcAge()
+
+### Community 30 - "Community 30"
+Cohesion: 0.33
+Nodes (3): DISPONIBILITES, EXPERIENCES, Props
+
+### Community 31 - "Community 31"
+Cohesion: 0.53
+Nodes (6): DB Table: session_groups, DB Table: session_models, DB Table: sessions, Supabase Migration SQL — Session Management Phase 8, Vercel Cron: /api/cron/reminders (13h UTC daily), Vercel Config (cron)
+
+### Community 33 - "Community 33"
+Cohesion: 0.40
+Nodes (4): CandidatureResult, Props, SessionResult, TYPE_LABEL
+
+### Community 34 - "Community 34"
+Cohesion: 0.60
+Nodes (4): addDays(), FacturePage(), fmt(), InvoiceData
+
+### Community 35 - "Community 35"
+Cohesion: 0.50
+Nodes (4): package.json — project dependencies, framer-motion ^12.40.0, next 16.2.7, playwright ^1.60.0 (devDependency)
+
+### Community 36 - "Community 36"
+Cohesion: 0.67
+Nodes (3): FIELD_MAP, POST(), verifySignature()
+
+### Community 41 - "Community 41"
+Cohesion: 0.67
+Nodes (3): HeroSplit, CSS-only slideshow with JS counter sync, PhotoSlideshow
+
+### Community 42 - "Community 42"
+Cohesion: 0.67
+Nodes (3): Logo: Next.js Wordmark (black text — N, E, X, T, J, S), Logo: Vercel Triangle (white upward-pointing triangle), README.md — Next.js Project Bootstrap
 
 ## Knowledge Gaps
-- **141 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+136 more)
+- **232 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+227 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `dependencies` connect `Dépendances NPM` to `Soumission & Compression`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `browser-image-compression ^2.0.2` connect `Soumission & Compression` to `Composants Partagés Form`, `Dépendances NPM`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `Compression Image Automatique (Option C)` connect `Soumission & Compression` to `Formulaire Multi-étapes`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
-- **Are the 2 inferred relationships involving `Mockup Option 2 (Slideshow + Bottom Sheet)` (e.g. with `Couture Blanche (Direction Artistique Mockup D)` and `Mockup Option 4 (Split + Mosaique)`) actually correct?**
-  _`Mockup Option 2 (Slideshow + Bottom Sheet)` has 2 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `verifyToken()` connect `Community 0` to `Community 22`, `Community 7`?**
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+- **Why does `Tier` connect `Community 17` to `Community 1`, `Community 27`, `Community 30`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `DashboardPage — admin orchestrator` connect `Community 7` to `Community 10`, `Community 6`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+- **Are the 6 inferred relationships involving `verifyToken()` (e.g. with `DELETE()` and `GET()`) actually correct?**
+  _`verifyToken()` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _146 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Formulaire Multi-étapes` be split into smaller, more focused modules?**
-  _Cohesion score 0.07926829268292683 - nodes in this community are weakly interconnected._
-- **Should `Layout & Config App` be split into smaller, more focused modules?**
-  _Cohesion score 0.10887096774193548 - nodes in this community are weakly interconnected._
+  _242 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Community 0` be split into smaller, more focused modules?**
+  _Cohesion score 0.06734006734006734 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
+  _Cohesion score 0.06462585034013606 - nodes in this community are weakly interconnected._

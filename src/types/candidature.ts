@@ -36,6 +36,7 @@ export interface Candidature {
   notes_admin?:         string | null
   photo_profil_signed?: string | null
   photo_body_signed?:   string | null
+  adresse?:             string | null
 }
 
 // Remplace l'ancien Group et SessionForm.

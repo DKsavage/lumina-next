@@ -50,6 +50,11 @@ export interface SessionModel {
   reminder_j1_sent_at:      string | null
   reminder_morning_sent_at: string | null
   created_at:               string
+  model_nom:                string | null
+  role:                     string
+  payment_amount:           number | null
+  invoice_status:           'pending' | 'sent' | 'paid'
+  invoice_number:           string | null
 }
 
 export interface Session {

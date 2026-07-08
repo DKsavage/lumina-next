@@ -13,6 +13,10 @@
 import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { buildEmailWrapper, buildCtaButtons, buildInfoBlock, esc as escFromLib } from '../src/lib/email.ts'
+import {
+  filterInvoices, groupByModel, groupBySession, buildInvoiceCsv,
+  type InvoiceRow,
+} from '../src/lib/factures.ts'
 
 // ---------------------------------------------------------------------------
 // Fonctions pures copiées depuis les sources Next.js
@@ -365,5 +369,137 @@ describe('buildInfoBlock', () => {
     assert.ok(html.includes('Lieu'))
     assert.ok(html.includes('2165 Avenue Charlemagne'))
     assert.ok(html.includes('<div style="margin:0'))  // value div present
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Tests — filterInvoices, groupByModel, groupBySession, buildInvoiceCsv
+// ---------------------------------------------------------------------------
+
+const SAMPLE_ROWS: InvoiceRow[] = [
+  {
+    id: 'sm1', invoice_number: 'FLW-2026-0001', invoice_status: 'paid',
+    token: 't1', role: 'Mannequin', model_prenom: 'Julie', model_nom: 'Tremblay',
+    model_email: 'julie@example.com', payment_amount: 450,
+    session_id: 's1', project: 'Campagne Été', date: '2026-06-12',
+  },
+  {
+    id: 'sm2', invoice_number: 'FLW-2026-0002', invoice_status: 'sent',
+    token: 't2', role: 'Mannequin', model_prenom: 'Marc', model_nom: 'Dubois',
+    model_email: 'marc@example.com', payment_amount: 300,
+    session_id: 's2', project: 'Shooting Produit', date: '2026-06-15',
+  },
+  {
+    id: 'sm3', invoice_number: null, invoice_status: 'pending',
+    token: 't3', role: 'Mannequin', model_prenom: 'Julie', model_nom: 'Tremblay',
+    model_email: 'julie@example.com', payment_amount: 200,
+    session_id: 's3', project: 'Lookbook Hiver', date: '2026-01-20',
+  },
+]
+
+describe('filterInvoices', () => {
+  test('sans filtre → retourne toutes les lignes', () => {
+    assert.equal(filterInvoices(SAMPLE_ROWS, {}).length, 3)
+  })
+
+  test('filtre par statut', () => {
+    const result = filterInvoices(SAMPLE_ROWS, { status: 'paid' })
+    assert.equal(result.length, 1)
+    assert.equal(result[0].id, 'sm1')
+  })
+
+  test('filtre par plage de dates (from)', () => {
+    const result = filterInvoices(SAMPLE_ROWS, { from: '2026-06-01' })
+    assert.equal(result.length, 2)
+  })
+
+  test('filtre par plage de dates (to)', () => {
+    const result = filterInvoices(SAMPLE_ROWS, { to: '2026-02-01' })
+    assert.equal(result.length, 1)
+    assert.equal(result[0].id, 'sm3')
+  })
+
+  test('recherche texte sur le nom du modele', () => {
+    const result = filterInvoices(SAMPLE_ROWS, { q: 'julie' })
+    assert.equal(result.length, 2)
+  })
+
+  test('recherche texte sur le projet, insensible a la casse', () => {
+    const result = filterInvoices(SAMPLE_ROWS, { q: 'PRODUIT' })
+    assert.equal(result.length, 1)
+    assert.equal(result[0].id, 'sm2')
+  })
+
+  test('recherche sans correspondance → tableau vide', () => {
+    assert.equal(filterInvoices(SAMPLE_ROWS, { q: 'zzz' }).length, 0)
+  })
+})
+
+describe('groupByModel', () => {
+  test('regroupe par model_email', () => {
+    const groups = groupByModel(SAMPLE_ROWS)
+    assert.equal(groups.length, 2)
+  })
+
+  test('total_paid ne compte que les factures payees', () => {
+    const groups = groupByModel(SAMPLE_ROWS)
+    const julie = groups.find(g => g.model_email === 'julie@example.com')!
+    assert.equal(julie.total_paid, 450)
+    assert.equal(julie.invoices.length, 2)
+  })
+
+  test('modele sans facture payee → total_paid = 0', () => {
+    const groups = groupByModel(SAMPLE_ROWS)
+    const marc = groups.find(g => g.model_email === 'marc@example.com')!
+    assert.equal(marc.total_paid, 0)
+  })
+})
+
+describe('groupBySession', () => {
+  test('regroupe par session_id', () => {
+    const groups = groupBySession(SAMPLE_ROWS)
+    assert.equal(groups.length, 3)
+  })
+
+  test('chaque groupe garde le projet et la date de la session', () => {
+    const groups = groupBySession(SAMPLE_ROWS)
+    const s1 = groups.find(g => g.session_id === 's1')!
+    assert.equal(s1.project, 'Campagne Été')
+    assert.equal(s1.date, '2026-06-12')
+    assert.equal(s1.invoices.length, 1)
+  })
+})
+
+describe('buildInvoiceCsv', () => {
+  test('commence par la directive sep=, puis CRLF', () => {
+    const csv = buildInvoiceCsv(SAMPLE_ROWS)
+    assert.ok(csv.startsWith('sep=,\r\n'))
+  })
+
+  test('produit une ligne par facture, pas tout sur une seule ligne', () => {
+    const csv = buildInvoiceCsv(SAMPLE_ROWS)
+    const lines = csv.split('\r\n')
+    // 1 ligne directive + 1 ligne headers + 3 lignes de données
+    assert.equal(lines.length, 5)
+  })
+
+  test('les colonnes sont separees par des virgules, valeurs entre guillemets', () => {
+    const csv = buildInvoiceCsv(SAMPLE_ROWS)
+    const lines = csv.split('\r\n')
+    assert.ok(lines[2].includes('"FLW-2026-0001"'))
+    assert.ok(lines[2].includes('"paid"'))
+    assert.ok(lines[2].includes('"julie@example.com"'))
+  })
+
+  test('echappe les guillemets internes', () => {
+    const rows: InvoiceRow[] = [{ ...SAMPLE_ROWS[0], project: 'Shoot "Spécial"' }]
+    const csv = buildInvoiceCsv(rows)
+    assert.ok(csv.includes('""Spécial""'))
+  })
+
+  test('montant absent → cellule vide, pas "null"', () => {
+    const rows: InvoiceRow[] = [{ ...SAMPLE_ROWS[0], payment_amount: null }]
+    const csv = buildInvoiceCsv(rows)
+    assert.ok(!csv.includes('null'))
   })
 })

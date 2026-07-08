@@ -10,6 +10,8 @@ interface InvoiceData {
   model_nom:      string | null
   model_email:    string
   payment_amount: number | null
+  invoice_number: string | null
+  adresse:        string | null
   session: {
     project:           string
     date:              string
@@ -41,6 +43,7 @@ export default function FacturePage() {
       .then(d => {
         if (!d.success) { setError(d.message ?? 'Lien invalide.'); return }
         setData(d.data)
+        setAdresse(d.data.adresse ?? '')
         const initial = d.data.payment_amount
           ?? (d.data.session?.compensation_json?.amount ? parseFloat(d.data.session.compensation_json.amount) : null)
           ?? 0
@@ -61,7 +64,7 @@ export default function FacturePage() {
   )
 
   const fullName   = [data.model_prenom, data.model_nom].filter(Boolean).join(' ')
-  const invoiceNum = `FLW-${new Date().getFullYear()}-${token.slice(0, 6).toUpperCase()}`
+  const invoiceNum = data.invoice_number ?? `FLW-${new Date().getFullYear()}-${token.slice(0, 6).toUpperCase()}`
   const today      = new Date().toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' })
   const deadline   = addDays(new Date().toISOString().slice(0, 10), 30)
   const amount     = parseFloat(amountInput) || 0
@@ -110,6 +113,13 @@ export default function FacturePage() {
                 className="no-print"
                 value={adresse}
                 onChange={e => setAdresse(e.target.value)}
+                onBlur={async () => {
+                  await fetch(`/api/facture/${token}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adresse }),
+                  })
+                }}
                 placeholder="Votre adresse complète"
                 style={{ ...inputStyle, width: '240px' }}
               />

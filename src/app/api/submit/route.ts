@@ -63,7 +63,7 @@ async function sendConfirmationEmails(data: Record<string, string>) {
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from:     'Flawa Models <casting@luminamodels.ca>',
-      reply_to: 'luminaphotography.mtl@gmail.com',
+      reply_to: 'vidaflorita@gmail.com',
       to:       [data.email],
       subject:  'Inscription reçue — Flawa Models',
       html: `
@@ -84,7 +84,7 @@ async function sendConfirmationEmails(data: Record<string, string>) {
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from:    'Lumina Photography <casting@luminamodels.ca>',
-      to:      ['luminaphotography.mtl@gmail.com'],
+      to:      ['vidaflorita@gmail.com'],
       subject: `Nouveau modèle — ${data.prenom} ${data.nom}`,
       html: `
         <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #0a0a0a;">

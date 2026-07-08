@@ -140,7 +140,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY!}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: 'Flawa Models <casting@luminamodels.ca>',
-          reply_to: 'luminaphotography.mtl@gmail.com',
+          reply_to: 'vidaflorita@gmail.com',
           to: [m.model_email],
           subject: `Mise à jour — ${session.project}`,
           html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>

@@ -361,7 +361,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           from:     'Flawa Models <casting@luminamodels.ca>',
-          reply_to: 'luminaphotography.mtl@gmail.com',
+          reply_to: 'vidaflorita@gmail.com',
           to:       [m.email],
           subject:  `${session.project} — Convocation / Call sheet`,
           html,

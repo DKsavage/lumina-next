@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SITE_URL } from '@/types/session'
 import { esc, buildInfoBlock, buildEmailWrapper } from '@/lib/email'
 
-const ADMIN_EMAIL = 'luminaphotography.mtl@gmail.com'
+const ADMIN_EMAIL = 'vidaflorita@gmail.com'
 
 function supabaseHeaders() {
   const key = process.env.SUPABASE_SERVICE_KEY!

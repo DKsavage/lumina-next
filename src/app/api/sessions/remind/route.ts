@@ -70,12 +70,12 @@ export function buildReminderHtml(type: ReminderType, params: {
         subLabel:    'Paiement · Payment',
         bodyEn: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Hi ${esc(prenom)},</p>
 <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Your payment for <strong>${esc(project)}</strong> has been sent.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
-<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Please use the link below to generate your invoice and return it to us at luminaphotography.mtl@gmail.com:</p>
+<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Please use the link below to generate your invoice and return it to us at vidaflorita@gmail.com:</p>
 ${buildCtaButtons({ primaryLabel: 'Generate my invoice', primaryUrl: factureLink })}
 <p style="margin:0;font-size:13px;color:#6B6B6B;line-height:1.8;">Thank you again for your participation!</p>`,
         bodyFr: `<p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Bonjour ${esc(prenom)},</p>
 <p style="margin:0 0 16px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Votre paiement pour <strong>${esc(project)}</strong> a été envoyé.${payDetails ? ` <strong>${esc(payDetails)}</strong>` : ''}</p>
-<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Veuillez utiliser le lien ci-dessous pour générer votre facture et nous la retourner à luminaphotography.mtl@gmail.com :</p>
+<p style="margin:0 0 24px;font-size:16px;color:#0A0A0A;line-height:1.8;font-family:Arial,sans-serif;">Veuillez utiliser le lien ci-dessous pour générer votre facture et nous la retourner à vidaflorita@gmail.com :</p>
 ${buildCtaButtons({ primaryLabel: 'Générer ma facture', primaryUrl: factureLink })}
 <p style="margin:0;font-size:13px;color:#6B6B6B;line-height:1.8;">Merci encore pour votre participation !</p>`,
       }),

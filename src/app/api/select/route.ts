@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     },
     body: JSON.stringify({
       from:     'Flawa Models <casting@luminamodels.ca>',
-      reply_to: 'luminaphotography.mtl@gmail.com',
+      reply_to: 'vidaflorita@gmail.com',
       to:       [email],
       subject:  'Félicitations — Tu as été sélectionné(e) par Flawa Models',
       html: buildEmailWrapper({

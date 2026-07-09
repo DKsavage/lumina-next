@@ -279,17 +279,38 @@ La page `/confirm/[token]` lit le statut en DB et affiche un récapitulatif (dat
 
 ## 8. Factures
 
-**URL :** `luminamodels.ca/facture/[token]`  
-**Accès :** token UUID transmis dans l'email "Paiement envoyé"
+**URL modèle :** `luminamodels.ca/facture/[token]`
+**URL admin :** `luminamodels.ca/admin/factures`
+**Accès modèle :** token UUID transmis dans l'email "Paiement envoyé"
+**Accès admin :** authentifié, comme le reste de `/admin`
 
 ### Fonctionnement
-1. Admin envoie l'email "Paiement" depuis SessionStatusPanel
-2. Le modèle reçoit un lien vers sa facture personnalisée
-3. Le modèle peut **éditer le montant** directement sur la page (champ inline → sauvegarde auto `onBlur`)
-4. Clic "Imprimer la facture" → le navigateur imprime (le champ d'édition se masque, le montant s'affiche en mode impression)
 
-### PATCH du montant
-`PATCH /api/facture/[token]` — authentifié par le token UUID (pas de session admin nécessaire).
+1. Admin bascule un modèle confirmé sur "Rémunéré" dans SessionStatusPanel — un
+   trigger Postgres assigne alors automatiquement un numéro de facture
+   (`FLW-{année}-{séquence}`) et passe le statut à "Envoyée".
+2. Le modèle reçoit un lien vers sa facture personnalisée.
+3. Le modèle peut éditer le **montant** et son **adresse** directement sur la
+   page (champs inline → sauvegarde auto `onBlur`). L'adresse est liée au
+   modèle (pas à la facture) — elle pré-remplit toutes ses factures futures.
+4. Clic "Imprimer la facture" → le navigateur imprime.
+
+### Page admin `/admin/factures`
+
+- Bascule **Par session / Par modèle**.
+- Filtres : statut (En attente/Envoyée/Payée), plage de dates, recherche texte.
+- Clic sur le badge de statut → fait défiler En attente → Envoyée → Payée.
+  Pas de détection automatique du retour de facture signée (arrive par email
+  personnel, hors app) — ce badge est mis à jour manuellement.
+- Bouton "Renvoyer" (✉) sur chaque facture → renvoie l'email "Paiement" à ce
+  modèle précis, sans repasser par SessionStatusPanel.
+- Bouton "Exporter CSV" → export des factures filtrées actuellement affichées.
+- Bouton "Vue imprimable" → liste tabulaire pensée pour `window.print()`.
+
+### PATCH du montant / de l'adresse
+
+`PATCH /api/facture/[token]` — authentifié par le token UUID (pas de session
+admin nécessaire). Accepte `{ payment_amount }` et/ou `{ adresse }`.
 
 ---
 

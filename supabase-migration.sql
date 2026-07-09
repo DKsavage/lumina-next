@@ -88,6 +88,8 @@ create table if not exists invoice_counters (
   next_number  int not null default 1
 );
 
+alter table invoice_counters enable row level security;
+
 create or replace function assign_invoice_number() returns trigger as $$
 declare
   yr int := extract(year from now());

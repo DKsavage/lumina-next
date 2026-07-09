@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import type { InvoiceRow, ModelGroup, SessionGroupRow } from '@/lib/factures'
 
-export default function FacturesPrintPage() {
+function FacturesPrintContent() {
   const searchParams = useSearchParams()
   const [rows, setRows] = useState<InvoiceRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,5 +57,13 @@ export default function FacturesPrintPage() {
         </tbody>
       </table>
     </div>
+  )
+}
+
+export default function FacturesPrintPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>Chargement…</div>}>
+      <FacturesPrintContent />
+    </Suspense>
   )
 }

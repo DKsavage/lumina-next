@@ -58,12 +58,20 @@ export async function PATCH(
   const key = process.env.SUPABASE_SERVICE_KEY!
   const headers = { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
 
+  const partial = { payment_amount: false, adresse: false }
+
   if (body.payment_amount !== undefined) {
     const res = await fetch(`${url}/rest/v1/session_models?token=eq.${encodeURIComponent(token)}`, {
       method: 'PATCH', headers,
       body: JSON.stringify({ payment_amount: body.payment_amount }),
     })
-    if (!res.ok) return NextResponse.json({ success: false }, { status: 500 })
+    if (!res.ok) {
+      return NextResponse.json(
+        { success: false, message: 'Échec de la mise à jour du montant.', partial },
+        { status: 207 }
+      )
+    }
+    partial.payment_amount = true
   }
 
   if (typeof body.adresse === 'string') {
@@ -72,15 +80,52 @@ export async function PATCH(
       `${url}/rest/v1/session_models?token=eq.${encodeURIComponent(token)}&select=model_email&limit=1`,
       { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } }
     )
-    if (!mRes.ok) return NextResponse.json({ success: false }, { status: 500 })
+    if (!mRes.ok) {
+      return NextResponse.json(
+        { success: false, message: 'Échec de la récupération du modèle.', partial },
+        { status: 207 }
+      )
+    }
     const [row] = await mRes.json() as Array<{ model_email: string }>
-    if (!row) return NextResponse.json({ success: false }, { status: 404 })
+    if (!row) {
+      return NextResponse.json(
+        { success: false, message: 'Modèle introuvable pour ce lien.', partial },
+        { status: 404 }
+      )
+    }
+
+    // Vérifier qu'une candidature existe pour cet email avant d'écrire —
+    // PostgREST renvoie 200/ok même si aucune ligne ne correspond au filtre,
+    // ce qui masquerait silencieusement une absence d'écriture.
+    const checkRes = await fetch(
+      `${url}/rest/v1/candidatures?email=eq.${encodeURIComponent(row.model_email)}&select=email&limit=1`,
+      { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } }
+    )
+    if (!checkRes.ok) {
+      return NextResponse.json(
+        { success: false, message: 'Échec de la vérification de la candidature.', partial },
+        { status: 207 }
+      )
+    }
+    const [existing] = await checkRes.json() as Array<{ email: string }>
+    if (!existing) {
+      return NextResponse.json(
+        { success: false, message: 'Candidature introuvable pour ce modèle.', partial },
+        { status: 404 }
+      )
+    }
 
     const aRes = await fetch(`${url}/rest/v1/candidatures?email=eq.${encodeURIComponent(row.model_email)}`, {
       method: 'PATCH', headers,
       body: JSON.stringify({ adresse: body.adresse }),
     })
-    if (!aRes.ok) return NextResponse.json({ success: false }, { status: 500 })
+    if (!aRes.ok) {
+      return NextResponse.json(
+        { success: false, message: 'Échec de la mise à jour de l\'adresse.', partial },
+        { status: 207 }
+      )
+    }
+    partial.adresse = true
   }
 
   return NextResponse.json({ success: true })

@@ -47,7 +47,7 @@ export function AdminNav({ newCount, onRefresh, onExportCSV, onLogout, onNewSess
           {[
             { label: 'Modèles', href: '/admin/dashboard' },
             { label: 'Sessions', href: '/admin/sessions' },
-            { label: 'Factures', href: '#' },
+            { label: 'Factures', href: '/admin/factures' },
           ].map(link => (
             <a
               key={link.label}
